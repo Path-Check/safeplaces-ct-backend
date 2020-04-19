@@ -1,7 +1,10 @@
 var createError = require('http-errors');
 var express = require('express');
-var path = require('path');
+var expressSession = require('express-session');
+var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
+var path = require('path');
+const passport = require('passport');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
@@ -17,9 +20,16 @@ if (process.env.NODE_ENV !== 'test') {
 }
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressSession({
+  secret: 'keyboard cat',
+  resave: true,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/', indexRouter);
 
 app.use(function(req, res, next) {

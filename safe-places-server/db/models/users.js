@@ -10,12 +10,12 @@ function getAll() {
   return Users().select();
 }
 
-function findUser(username){
-  return Users().select({username: username});
+function findOne(filter){
+  return Users().where(filter).first().then((row) => row);
 }
 
 
 module.exports = {
   getAll: getAll,
-  findUser: findUser
+  findOne: findOne
 };

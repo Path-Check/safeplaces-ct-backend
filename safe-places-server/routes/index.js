@@ -1,7 +1,12 @@
 const bcrypt = require('bcrypt');
 var express = require('express');
+const jwtSecret = require('../config/jwtConfig');
+const jwt = require('jsonwebtoken');
 const passport = require('passport');
 var router = express.Router();
+
+const JWTstrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
 
 var users = require('../db/models/users');
 
@@ -25,47 +30,84 @@ router.get('/users', function(req, res, next) {
 
 
 router.post('/login',	passport.authenticate('local'), function(req, res) {
-  req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // Cookie expires after 30 days
-  res.status(200).json(res);
+  users.findOne({username: req.body.username}).then((user) => {
+    const token = jwt.sign({ id: user.username }, jwtSecret.secret);
+    res.status(200).json({
+      token: token,
+      maps_api_key: user.maps_api_key
+    });
+  }).catch((err) => {
+    return done(err);
+  });
 });
 
 module.exports = router;
 
-passport.use('local', new  LocalStrategy({passReqToCallback : true}, (req, username, password, done) => {
-	loginAttempt();
-	async function loginAttempt() {
-		const client = await pool.connect()
-		try{
-      users.findUser(username).then((login_user) => {
-				if(login_user.rows[0] == null){
-          //TODO: show something logical
-          console.log('Error no user found');
-					return done(null, false);
+passport.use(
+  'local',
+  new  LocalStrategy({
+    passReqToCallback : true,
+    session : false
+  }, (req, username, password, done) => {
+    loginAttempt();
+    async function loginAttempt() {
+      try{
+        users.findOne({username: username}).then((loginUser) => {
+          if(loginUser == null){
+            //TODO: show something logical
+            console.log('Error no user found');
+            return done(null, false);
+          }
+          else{
+            bcrypt.compare(password, loginUser.password, function(err, check) {
+              if (err){
+                //TODO: show something logical
+                console.log('Error while checking password');
+                return done();
+              }
+              else if (check){
+                return done(null, [{username: loginUser.username}]);
+              }
+              else{
+                //TODO: show something logical
+                console.log('Error wrong login details');
+                return done(null, false);
+              }
+            });
+          }
+        }).catch((err) => {
+          return done(err);
+        })
+      }
+      catch(e){throw (e);}
+    };
+  })
+);
+
+const opts = {
+  jwtFromRequest: ExtractJWT.fromAuthHeaderWithScheme('JWT'),
+  secretOrKey: jwtSecret.secret,
+};
+
+passport.use(
+  'jwt',
+  new JWTstrategy(opts, (jwt_payload, done) => {
+    try {
+      users.findOne({username: jwt_payload.id}).then(user => {
+        if (user[0]) {
+          console.log('user found in db in passport');
+          // note the return removed with passport JWT - add this return for passport local
+          done(null, user);
+        } else {
+          console.log('user not found in db');
+          done(null, false);
         }
-        else{
-					bcrypt.compare(password, login_user.rows[0].password, function(err, check) {
-						if (err){
-              //TODO: show something logical
-							console.log('Error while checking password');
-							return done();
-						}
-						else if (check){
-							return done(null, [{username: result.rows[0].username}]);
-						}
-						else{
-              //TODO: show something logical
-							console.log('Error wrong login details');
-							return done(null, false);
-						}
-					});
-				}
-      }).catch((err) => {
-        return done(err);
-      })
-		}
-		catch(e){throw (e);}
-	};
-}))
+      });
+    } catch (err) {
+      done(err);
+    }
+  }),
+);
 
 passport.serializeUser(function(user, done) {
 	done(null, user);
