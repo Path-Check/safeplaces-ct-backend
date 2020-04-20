@@ -52,6 +52,41 @@ describe('GET /redacted_trails', function() {
   });
 });
 
+describe('GET /safe_path', function() {
+  it('should return an organization`s safe paths', function(done) {
+    chai.request(server)
+    .get('/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3')
+    .set('Authorization', `Bearer ${ADMIN_JWT_TOKEN}`)
+    .end(function(err, res) {
+      res.should.have.status(200);
+      res.should.be.json; // jshint ignore:line
+      res.body.data.should.be.a('object');
+      res.body.data.should.have.property('authority_name');
+      res.body.data.authority_name.should.equal('Fake Organization');
+      res.body.data.should.have.property('concern_points');
+      res.body.data.concern_points.should.be.a('array');
+      res.body.data.concern_points[0].should.be.a('object');
+      res.body.data.concern_points[0].should.have.property('latitude');
+      res.body.data.concern_points[0].latitude.should.equal(12.34);
+      res.body.data.concern_points[0].should.have.property('longitude');
+      res.body.data.concern_points[0].longitude.should.equal(12.34);
+      res.body.data.concern_points[0].should.have.property('time');
+      res.body.data.concern_points[0].time.should.equal(1584924233);
+      res.body.data.concern_points[1].should.have.property('latitude');
+      res.body.data.concern_points[1].latitude.should.equal(12.34);
+      res.body.data.concern_points[1].should.have.property('longitude');
+      res.body.data.concern_points[1].longitude.should.equal(12.34);
+      res.body.data.concern_points[1].should.have.property('time');
+      res.body.data.concern_points[1].time.should.equal(1584924583);
+      res.body.data.should.have.property('info_website');
+      res.body.data.info_website.should.equal('https://www.something.gov/path/to/info/website');
+      res.body.data.should.have.property('publish_date_utc');
+      res.body.data.publish_date_utc.should.equal('1584924583');
+      done();
+    });
+  });
+});
+
 function parseJwt (token) {
   var base64Url = token.split('.')[1];
   var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

@@ -54,6 +54,32 @@ router.get('/redacted_trails', passport.authenticate('jwt', { session: false }),
   res.status(200).json(redacted_trails);
 });
 
+// *** GET an organisation's safe paths *** //
+router.get('/safe_path/:organization_id',
+  passport.authenticate('jwt', { session: false }), function(req, res) {
+    console.log(req.params.organization_id);
+    let safe_paths = {
+      "data": {
+        "authority_name": "Fake Organization",
+        "concern_points": [
+          {
+            "latitude": 12.34,
+            "longitude": 12.34,
+            "time": 1584924233
+          },
+          {
+            "latitude": 12.34,
+            "longitude": 12.34,
+            "time": 1584924583
+          }
+        ],
+        "info_website": "https://www.something.gov/path/to/info/website",
+        "publish_date_utc": "1584924583"
+      }
+    };
+    res.status(200).json(safe_paths);
+});
+
 module.exports = router;
 
 passport.use(
