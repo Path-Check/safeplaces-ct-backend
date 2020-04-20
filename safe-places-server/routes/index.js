@@ -12,23 +12,7 @@ var users = require('../db/models/users');
 
 const LocalStrategy = require('passport-local').Strategy;
 
-// *** GET index *** //
-router.get('/', function(req, res, next) {
-  res.send('send index');
-});
-
-// *** GET all users *** //
-router.get('/users', passport.authenticate('jwt', { session: false }), function(req, res) {
-  users.getAll()
-  .then(function(users) {
-    res.status(200).json(users);
-  })
-  .catch(function(error) {
-    next(error);
-  });
-});
-
-
+// *** POST /login user *** //
 router.post('/login',	passport.authenticate('local'), function(req, res) {
   users.findOne({username: req.body.username}).then((user) => {
     const token = jwt.sign({ id: user.username }, jwtSecret.secret);
@@ -39,6 +23,35 @@ router.post('/login',	passport.authenticate('local'), function(req, res) {
   }).catch((err) => {
     return done(err);
   });
+});
+
+// *** GET all redacted trails *** //
+router.get('/redacted_trails', passport.authenticate('jwt', { session: false }), function(req, res) {
+  let redacted_trails = {
+    "data": [
+      {
+        "identifier": "a88309c1-26cd-4d2b-8923-af0779e423a3",
+        "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
+        "trail": {
+          "latitude": 12.34,
+          "longitude": 12.34,
+          "time": 123456789
+        },
+        "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
+      },
+      {
+        "identifier": "a88309c1-26cd-4d2b-8923-af0779e423a4",
+        "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
+        "trail": {
+          "latitude": 12.34,
+          "longitude": 12.34,
+          "time": 123456789
+        },
+        "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
+      }
+    ]
+  }
+  res.status(200).json(redacted_trails);
 });
 
 module.exports = router;
