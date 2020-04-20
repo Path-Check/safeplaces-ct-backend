@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
 });
 
 // *** GET all users *** //
-router.get('/users', function(req, res, next) {
+router.get('/users', passport.authenticate('jwt', { session: false }), function(req, res) {
   users.getAll()
   .then(function(users) {
     res.status(200).json(users);
@@ -85,7 +85,7 @@ passport.use(
 );
 
 const opts = {
-  jwtFromRequest: ExtractJWT.fromAuthHeaderWithScheme('JWT'),
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
   secretOrKey: jwtSecret.secret,
 };
 
@@ -94,7 +94,7 @@ passport.use(
   new JWTstrategy(opts, (jwt_payload, done) => {
     try {
       users.findOne({username: jwt_payload.id}).then(user => {
-        if (user[0]) {
+        if (user) {
           console.log('user found in db in passport');
           // note the return removed with passport JWT - add this return for passport local
           done(null, user);

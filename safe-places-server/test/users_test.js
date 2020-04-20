@@ -7,6 +7,7 @@ var should = chai.should();
 var chaiHttp = require('chai-http');
 var server = require('../app');
 
+const ADMIN_JWT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluIiwiaWF0IjoxNTg3MzQyMjE1fQ.am7oekp9nm97lnRJbfxUMIKt_OqUmGpcIxyrrsCckp4';
 
 
 chai.use(chaiHttp);
@@ -15,6 +16,7 @@ describe('GET /users', function() {
   it('should return all users', function(done) {
     chai.request(server)
     .get('/users')
+    .set('Authorization', `Bearer ${ADMIN_JWT_TOKEN}`)
     .end(function(err, res) {
       res.should.have.status(200);
       res.should.be.json; // jshint ignore:line
