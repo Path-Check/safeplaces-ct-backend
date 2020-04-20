@@ -60,7 +60,7 @@ function parseJwt (token) {
   }).join(''));
 
   return JSON.parse(jsonPayload);
-};
+}
 
 describe('POST /login', function() {
   it('should login on user creds and return map api key', function(done) {

@@ -50,7 +50,7 @@ router.get('/redacted_trails', passport.authenticate('jwt', { session: false }),
         "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
       }
     ]
-  }
+  };
   res.status(200).json(redacted_trails);
 });
 
@@ -90,10 +90,10 @@ passport.use(
           }
         }).catch((err) => {
           return done(err);
-        })
+        });
       }
       catch(e){throw (e);}
-    };
+    }
   })
 );
 
