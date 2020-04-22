@@ -32,26 +32,51 @@ router.get('/redacted_trails', passport.authenticate('jwt', { session: false }),
       {
         "identifier": "a88309c1-26cd-4d2b-8923-af0779e423a3",
         "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
-        "trail": {
-          "latitude": 12.34,
-          "longitude": 12.34,
-          "time": 123456789
-        },
+        "trail": [
+          {
+            "latitude": 12.34,
+            "longitude": 12.34,
+            "time": 123456789
+          }
+        ],
         "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
       },
       {
         "identifier": "a88309c1-26cd-4d2b-8923-af0779e423a4",
         "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
-        "trail": {
-          "latitude": 12.34,
-          "longitude": 12.34,
-          "time": 123456789
-        },
+        "trail": [
+          {
+            "latitude": 12.34,
+            "longitude": 12.34,
+            "time": 123456789
+          }
+        ],
         "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
       }
     ]
   };
   res.status(200).json(redacted_trails);
+});
+
+// *** POST redacted trail *** //
+router.post('/redacted_trail',
+  passport.authenticate('jwt', { session: false }), function(req, res) {
+    let redacted_trails = {
+      "data": {
+        "identifier": "a88309c1-26cd-4d2b-8923-af0779e423a3",
+        "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
+        "trail": [
+          {
+            "latitude": 12.34,
+            "longitude": 12.34,
+            "time": 123456789
+          }
+        ],
+        "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
+      },
+      "success": true
+    };
+    res.status(200).json(redacted_trails);
 });
 
 // *** GET an organisation's safe paths *** //

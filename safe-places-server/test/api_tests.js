@@ -25,28 +25,70 @@ describe('GET /redacted_trails', function() {
       res.body.data[0].identifier.should.equal('a88309c1-26cd-4d2b-8923-af0779e423a3');
       res.body.data[0].should.have.property('organization_id');
       res.body.data[0].organization_id.should.equal('a88309c2-26cd-4d2b-8923-af0779e423a3');
-      res.body.data[0].trail.should.be.a('object');
-      res.body.data[0].trail.should.have.property('latitude');
-      res.body.data[0].trail.latitude.should.equal(12.34);
-      res.body.data[0].trail.should.have.property('longitude');
-      res.body.data[0].trail.longitude.should.equal(12.34);
-      res.body.data[0].trail.should.have.property('time');
-      res.body.data[0].trail.time.should.equal(123456789);
+      res.body.data[0].trail.should.be.a('array');
+      res.body.data[0].trail[0].should.have.property('latitude');
+      res.body.data[0].trail[0].latitude.should.equal(12.34);
+      res.body.data[0].trail[0].should.have.property('longitude');
+      res.body.data[0].trail[0].longitude.should.equal(12.34);
+      res.body.data[0].trail[0].should.have.property('time');
+      res.body.data[0].trail[0].time.should.equal(123456789);
       res.body.data[0].should.have.property('user_id');
       res.body.data[0].user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
       res.body.data[1].should.have.property('identifier');
       res.body.data[1].identifier.should.equal('a88309c1-26cd-4d2b-8923-af0779e423a4');
       res.body.data[1].should.have.property('organization_id');
       res.body.data[1].organization_id.should.equal('a88309c2-26cd-4d2b-8923-af0779e423a3');
-      res.body.data[1].trail.should.be.a('object');
-      res.body.data[1].trail.should.have.property('latitude');
-      res.body.data[1].trail.latitude.should.equal(12.34);
-      res.body.data[1].trail.should.have.property('longitude');
-      res.body.data[1].trail.longitude.should.equal(12.34);
-      res.body.data[1].trail.should.have.property('time');
-      res.body.data[1].trail.time.should.equal(123456789);
+      res.body.data[1].trail.should.be.a('array');
+      res.body.data[1].trail[0].should.have.property('latitude');
+      res.body.data[1].trail[0].latitude.should.equal(12.34);
+      res.body.data[1].trail[0].should.have.property('longitude');
+      res.body.data[1].trail[0].longitude.should.equal(12.34);
+      res.body.data[1].trail[0].should.have.property('time');
+      res.body.data[1].trail[0].time.should.equal(123456789);
       res.body.data[1].should.have.property('user_id');
       res.body.data[1].user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
+      done();
+    });
+  });
+});
+
+describe('POST /redacted_trail', function() {
+  it('should accept redacted trail', function(done) {
+    chai.request(server)
+    .post('/redacted_trail')
+    .send({
+      "identifier": 'a88309c4-26cd-4d2b-8923-af0779e423a3',
+      "trail":[
+        {
+          "time": 123456789,
+          "latitude": 12.34,
+          "longitude": 12.34
+        }
+      ]
+    })
+    .set('Authorization', `Bearer ${ADMIN_JWT_TOKEN}`)
+    .end(function(err, res) {
+      res.should.have.status(200);
+      res.should.be.json; // jshint ignore:line
+      res.body.should.have.property('data');
+      res.body.data.should.be.a('object');
+      res.body.data.should.have.property('identifier');
+      res.body.data.identifier.should.equal('a88309c1-26cd-4d2b-8923-af0779e423a3');
+      res.body.data.should.have.property('organization_id');
+      res.body.data.organization_id.should.equal('a88309c2-26cd-4d2b-8923-af0779e423a3');
+      res.body.data.should.have.property('trail');
+      res.body.data.trail.should.be.a('array');
+      res.body.data.trail[0].should.be.a('object');
+      res.body.data.trail[0].should.have.property('latitude');
+      res.body.data.trail[0].latitude.should.equal(12.34);
+      res.body.data.trail[0].should.have.property('longitude');
+      res.body.data.trail[0].longitude.should.equal(12.34);
+      res.body.data.trail[0].should.have.property('time');
+      res.body.data.trail[0].time.should.equal(123456789);
+      res.body.data.should.have.property('user_id');
+      res.body.data.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
+      res.body.should.have.property('success');
+      res.body.success.should.equal(true);
       done();
     });
   });
