@@ -57,7 +57,6 @@ router.get('/redacted_trails', passport.authenticate('jwt', { session: false }),
 // *** GET an organisation's safe paths *** //
 router.get('/safe_path/:organization_id',
   passport.authenticate('jwt', { session: false }), function(req, res) {
-    console.log(req.params.organization_id);
     let safe_paths = {
       "data": {
         "authority_name": "Fake Organization",
@@ -76,6 +75,34 @@ router.get('/safe_path/:organization_id',
         "info_website": "https://www.something.gov/path/to/info/website",
         "publish_date_utc": "1584924583"
       }
+    };
+    res.status(200).json(safe_paths);
+});
+
+// *** POST safe paths *** //
+router.post('/safe_paths',
+  passport.authenticate('jwt', { session: false }), function(req, res) {
+    let safe_paths = {
+      "datetime_created": "Fri, 27 Mar 2020 04:32:12 GMT",
+      "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
+      "safe_path": {
+        "authority_name": "Fake Organization",
+        "concern_points": [
+          {
+            "latitude": 12.34,
+            "longitude": 12.34,
+            "time": 123
+          },
+          {
+            "latitude": 12.34,
+            "longitude": 12.34,
+            "time": 456
+          }
+        ],
+        "info_website": "https://www.something.gov/path/to/info/website",
+        "publish_date_utc": 1584924583
+      },
+      "user_id": "a88309c1-26cd-4d2b-8923-af0779e423a3"
     };
     res.status(200).json(safe_paths);
 });

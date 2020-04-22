@@ -87,6 +87,67 @@ describe('GET /safe_path', function() {
   });
 });
 
+describe('POST /safe_paths', function() {
+  it('should accept safe path being submitted', function(done) {
+    chai.request(server)
+    .post('/safe_paths')
+    .send({
+      "authority_name":  "Steve's Fake Testing Organization",
+      "publish_date_utc": 1584924583,
+      "info_website": "https://www.who.int/emergencies/diseases/novel-coronavirus-2019",
+      "concern_points":
+      [
+        {
+          "time": 123,
+          "latitude": 12.34,
+          "longitude": 12.34
+        },
+        {
+          "time": 456,
+          "latitude": 12.34,
+          "longitude": 12.34
+        }
+      ]
+    })
+    .set('Authorization', `Bearer ${ADMIN_JWT_TOKEN}`)
+    .end(function(err, res) {
+      res.should.have.status(200);
+      res.should.be.json; // jshint ignore:line
+      res.body.should.be.a('object');
+      res.body.should.have.property('datetime_created');
+      res.body.datetime_created.should.equal('Fri, 27 Mar 2020 04:32:12 GMT');
+      res.body.should.have.property('organization_id');
+      res.body.organization_id.should.equal('a88309c2-26cd-4d2b-8923-af0779e423a3');
+      res.body.should.have.property('safe_path');
+      res.body.safe_path.should.be.a('object');
+      res.body.safe_path.should.have.property('authority_name');
+      res.body.safe_path.authority_name.should.equal('Fake Organization');
+      res.body.safe_path.should.have.property('concern_points');
+      res.body.safe_path.concern_points.should.be.a('array');
+      res.body.safe_path.concern_points[0].should.be.a('object');
+      res.body.safe_path.concern_points[0].should.have.property('latitude');
+      res.body.safe_path.concern_points[0].latitude.should.equal(12.34);
+      res.body.safe_path.concern_points[0].should.have.property('longitude');
+      res.body.safe_path.concern_points[0].longitude.should.equal(12.34);
+      res.body.safe_path.concern_points[0].should.have.property('time');
+      res.body.safe_path.concern_points[0].time.should.equal(123);
+      res.body.safe_path.concern_points[1].should.have.property('latitude');
+      res.body.safe_path.concern_points[1].latitude.should.equal(12.34);
+      res.body.safe_path.concern_points[1].should.have.property('longitude');
+      res.body.safe_path.concern_points[1].longitude.should.equal(12.34);
+      res.body.safe_path.concern_points[1].should.have.property('time');
+      res.body.safe_path.concern_points[1].time.should.equal(456);
+      res.body.safe_path.should.have.property('info_website');
+      res.body.safe_path.info_website.should.equal('https://www.something.gov/path/to/info/website');
+      res.body.safe_path.should.have.property('publish_date_utc');
+      res.body.safe_path.publish_date_utc.should.equal(1584924583);
+      res.body.should.have.property('user_id');
+      res.body.user_id.should.equal('a88309c1-26cd-4d2b-8923-af0779e423a3');
+      done();
+    });
+  });
+});
+
 function parseJwt (token) {
   var base64Url = token.split('.')[1];
   var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
