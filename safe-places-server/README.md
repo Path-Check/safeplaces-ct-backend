@@ -59,3 +59,27 @@ Run testing through mocha to see if unit tests pass
 ```
 mocha
 ```
+
+### Deploy using Docker
+
+*Note*: The installation assumes you have already installed Postgres DB in your local environment listening for connections at port 5432. Your Postgres instance should listen to '*' instead of 'localhost', this setting can be found in your pgconfig file.
+
+Clone this repository
+
+```
+cd safeplaces-backend
+```
+
+#### Build Dockerfile
+
+```
+docker build -t <docker_repo>/safeplaces-backend-expressjs .
+```
+
+#### Run Dockerfile
+
+```
+docker run -e NODE_ENV=development -e JWT_SECRET='testtokenforsecurity' -e PORT=3000 -e DATABASE_URL=postgres://<host_machine_ip>/safeplaces_test -p 3000:3000 <docker_repo>/safeplaces-backend-expressjs
+```
+
+*Note*: If you are using Mac or Windows your `host_machine_ip` is `host.docker.internal`.
