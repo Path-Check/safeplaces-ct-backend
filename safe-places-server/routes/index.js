@@ -80,26 +80,25 @@ router.post('/redacted_trail',
 });
 
 // *** GET an organisation's safe paths *** //
-router.get('/safe_path/:organization_id',
-  passport.authenticate('jwt', { session: false }), function(req, res) {
-    let safe_paths = {
-      "authority_name": "Fake Organization",
-      "concern_points": [
-        {
-          "latitude": 12.34,
-          "longitude": 12.34,
-          "time": 1584924233
-        },
-        {
-          "latitude": 12.34,
-          "longitude": 12.34,
-          "time": 1584924583
-        }
-      ],
-      "info_website": "https://www.something.gov/path/to/info/website",
-      "publish_date_utc": "1584924583"
+router.get('/safe_path/:organization_id', function(req, res) {
+  let safe_paths = {
+    "authority_name": "Fake Organization",
+    "concern_points": [
+      {
+        "latitude": 12.34,
+        "longitude": 12.34,
+        "time": 1584924233
+      },
+      {
+        "latitude": 12.34,
+        "longitude": 12.34,
+        "time": 1584924583
+      }
+    ],
+    "info_website": "https://www.something.gov/path/to/info/website",
+    "publish_date_utc": "1584924583"
   };
-    res.status(200).json(safe_paths);
+  res.status(200).json(safe_paths);
 });
 
 // *** POST safe paths *** //

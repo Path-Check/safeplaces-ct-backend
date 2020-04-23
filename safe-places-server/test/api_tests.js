@@ -98,7 +98,6 @@ describe('GET /safe_path', function() {
   it('should return an organization`s safe paths', function(done) {
     chai.request(server)
     .get('/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3')
-    .set('Authorization', `Bearer ${ADMIN_JWT_TOKEN}`)
     .end(function(err, res) {
       res.should.have.status(200);
       res.should.be.json; // jshint ignore:line
