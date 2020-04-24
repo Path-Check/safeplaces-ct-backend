@@ -6,7 +6,8 @@ RUN npm install
 
 FROM node:13.13.0
 COPY --from=build-env /app /app 
-RUN npm install knex -g
+ADD wait-for.sh /wait-for.sh
+RUN npm install -g knex
 ENTRYPOINT ["/app/dbsetup.sh"]
 CMD ["npm", "start"]
 
