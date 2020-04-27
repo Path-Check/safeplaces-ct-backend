@@ -15,7 +15,23 @@ services:
       - node_modules:/app/node_modules
     networks:
       - app-network
+    depends_on:
+      - db
+      - migration
     command: ./wait-for.sh db:5432 -- npm start 
+
+  migration:
+    image: safe-places-server_safeplaces:latest
+    container_name: migration
+    env_file: .env
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    networks:
+      - app-network
+    depends_on:
+      - db
+    command: ./wait-for.sh db:5432 -- /app/dbsetup.sh
 
   db:
     image: postgres:12.2
