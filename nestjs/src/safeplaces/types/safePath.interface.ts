@@ -4,5 +4,5 @@ export interface SafePath {
   authority_name: string
   concern_points: Point[]
   info_website: string
-  publish_date_utc: number
+  publish_date: number
 }
