@@ -3,7 +3,7 @@ import { Point } from '../point.interface'
 
 export class SaveRedactedDto {
   @IsString()
-  orgId: string
+  identifier: string
 
   @IsArray()
   trail: Point[]

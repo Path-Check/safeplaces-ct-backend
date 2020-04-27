@@ -21,8 +21,8 @@ export class SafePath extends BaseEntity {
   @Column({ name: 'info_website', nullable: true })
   infoWebsite: string
 
-  @Column({ name: 'publish_date_utc', nullable: true })
-  publishDateUtc: number
+  @Column({ name: 'publish_date', nullable: true })
+  publishDate: number
 
   @Column({ name: 'user_id' })
   userId: string

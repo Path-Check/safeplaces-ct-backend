@@ -4,6 +4,7 @@ import { InternalServerErrorException } from '@nestjs/common'
 import { RedactedTrail } from '../entities/redactedTrail.entity'
 import { SaveRedactedDto } from '../../types/payload/saveRedacted.dto'
 import { SaveRedactedRes } from '../../types/response/saveRedacted.interface'
+import { orgId } from '../../../config'
 
 @EntityRepository(RedactedTrail)
 export class RedactedTrailRepo extends Repository<RedactedTrail> {
@@ -11,10 +12,10 @@ export class RedactedTrailRepo extends Repository<RedactedTrail> {
     payload: SaveRedactedDto,
     user
   ): Promise<SaveRedactedRes> {
-    const { orgId, trail } = payload
+    const { identifier, trail } = payload
 
     const rt = new RedactedTrail()
-    rt.id = uuid()
+    rt.id = identifier
     rt.orgId = orgId
     rt.trail = trail
     rt.userId = user.id
@@ -22,7 +23,6 @@ export class RedactedTrailRepo extends Repository<RedactedTrail> {
     try {
       await rt.save()
 
-      // Returning object in their desired response format
       return {
         data: {
           identifier: rt.id,
