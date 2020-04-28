@@ -15,7 +15,7 @@ export class SafePlacesController {
 
   // https://github.com/tripleblindmarket/safe-places/blob/develop/Safe-Places-Server.md#save-redacted
   @Post('/redacted_trail')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard())
   saveRedactedTrail(
     @Body() payload: SaveRedactedDto,
     @GetUser() user // TODO: needs type, we also need to decide if this comes from the logged in user, or something else
@@ -25,14 +25,14 @@ export class SafePlacesController {
 
   //https://github.com/tripleblindmarket/safe-places/blob/develop/Safe-Places-Server.md#load-all-redacted
   @Get('/redacted_trail')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard())
   loadAllRedacted(@GetUser() user): Promise<LoadRes> {
     return this.safePlacesService.loadAllRedacted(user)
   }
 
   //https://github.com/tripleblindmarket/safe-places/blob/develop/Safe-Places-Server.md#publish
   @Post('/safe_paths')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard())
   publish(@Body() payload: PublishDto, @GetUser() user): Promise<PublishRes> {
     return this.safePlacesService.publish(payload, user)
   }
