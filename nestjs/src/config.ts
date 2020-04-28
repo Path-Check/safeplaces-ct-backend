@@ -3,7 +3,7 @@ import { User } from './auth/typeorm/entities/user.entity'
 import { SafePath } from './safeplaces/typeorm/entities/safepath.entity'
 import { RedactedTrail } from './safeplaces/typeorm/entities/redactedTrail.entity'
 
-export const port = parseInt(process.env.PORT) || 80
+export const port = parseInt(process.env.PORT) || 3000
 
 export const orgId = process.env.ORG_ID || ''
 
@@ -20,7 +20,7 @@ export const dbConfig: TypeOrmModuleOptions = {
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT) || 5432,
   username: process.env.DB_USERNAME || 'postgres',
-  // password: process.env.DB_PASSWORD || 'postgres',
+  password: process.env.DB_PASSWORD || null,
   database: process.env.DB_NAME || 'safeplaces',
   // schema: process.env.DB_SCHEMA, // uncomment if needed
   entities: [User, SafePath, RedactedTrail],
