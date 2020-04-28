@@ -9,5 +9,6 @@ COPY --from=build-env /app /app
 WORKDIR /app
 ADD wait-for.sh /wait-for.sh
 RUN npm install -g knex
-CMD npm start
+ENTRYPOINT ["/app/dbsetup.sh"]
+CMD ["npm", "start"]
 
