@@ -3,6 +3,8 @@ import { User } from './auth/typeorm/entities/user.entity'
 import { RedactedTrail } from './safeplaces/typeorm/entities/redactedTrail.entity'
 import { SafePath } from './safeplaces/typeorm/entities/safepath.entity'
 
+export const port = 3000
+
 export const orgId = 'fakeOrganizationId'
 
 export const maps_api_key = ''
