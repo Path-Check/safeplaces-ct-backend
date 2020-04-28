@@ -3,49 +3,33 @@ services:
   safeplaces:
     build:
       context: .
-      # dockerfile: Dockerfile
-      # image: nodejs
     container_name: safeplaces
-    restart: unless-stopped
+    #restart: unless-stopped
     env_file: .env
     ports:
-      - "80:3000"
+      - "3000:3000"
     volumes:
       - .:/app
       - node_modules:/app/node_modules
     networks:
-      - app-network
+      - safeplace
     depends_on:
       - db
-      - migration
-    command: ./wait-for.sh db:5432 -- npm start 
-
-  migration:
-    image: safe-places-server_safeplaces:latest
-    container_name: migration
-    env_file: .env
-    volumes:
-      - .:/app
-      - node_modules:/app/node_modules
-    networks:
-      - app-network
-    depends_on:
-      - db
-    command: ./wait-for.sh db:5432 -- /app/dbsetup.sh
-
   db:
-    image: postgres:12.2
+    image: postgres:12.1
     container_name: database
     env_file:
       - .database.env
     volumes:
-      - database-data:/var/lib/postgresql/data/
+      - dbdata:/var/lib/postgresql/data/
+    ports:
+      - "5432"
     networks:
-      - app-network  
+      - safeplace
 networks:
-  app-network:
-    driver: bridge
+  safeplace:
+     driver: bridge
 
 volumes:
-  database-data:
+  dbdata:
   node_modules:  
