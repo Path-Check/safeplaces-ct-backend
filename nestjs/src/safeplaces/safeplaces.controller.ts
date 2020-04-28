@@ -24,7 +24,7 @@ export class SafePlacesController {
   }
 
   //https://github.com/tripleblindmarket/safe-places/blob/develop/Safe-Places-Server.md#load-all-redacted
-  @Get('/redacted_trail')
+  @Get('/redacted_trails')
   @UseGuards(AuthGuard())
   loadAllRedacted(@GetUser() user): Promise<LoadRes> {
     return this.safePlacesService.loadAllRedacted(user)
@@ -38,7 +38,7 @@ export class SafePlacesController {
   }
 
   //https://github.com/tripleblindmarket/safe-places/blob/develop/Safe-Places-Server.md#safe-paths.json
-  @Get('/safe_paths/:orgId')
+  @Get('/safe_path/:orgId')
   loadSafePathJson(@Param('orgId') orgId): Promise<SafePathsJsonRes> {
     return this.safePlacesService.loadSafePaths(orgId)
   }
