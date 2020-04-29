@@ -180,7 +180,7 @@ passport.use(
 );
 
 const opts = {
-  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+  jwtFromRequest: ExtractJWT.fromHeader("authorization"),
   secretOrKey: jwtSecret.secret,
 };
 
