@@ -42,11 +42,7 @@ export class AuthController {
   login(
     @Body() authLoginDto: LoginDto
   ): Promise<{ token: string; maps_api_key: string }> {
-    try {
-      return this.authService.login(authLoginDto)
-    } catch (err) {
-      return err
-    }
+    return this.authService.login(authLoginDto)
   }
 
   @Post('/login2')
@@ -57,7 +53,7 @@ export class AuthController {
   }
 
   @Post('/register')
-  @UseGuards(AuthGuard(), AdminGuard)
+  // @UseGuards(AuthGuard(), AdminGuard)
   register(
     @Body() registerDto: RegisterDto
   ): Promise<{ username: string; qrCodeUrl: string }> {
@@ -74,7 +70,7 @@ export class AuthController {
   }
 
   @Get('/users')
-  @UseGuards(AuthGuard(), AdminGuard)
+  // @UseGuards(AuthGuard(), AdminGuard)
   listUsers(): Promise<[User[], number]> {
     return this.authService.getUsers()
   }
