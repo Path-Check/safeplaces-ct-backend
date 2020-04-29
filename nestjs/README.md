@@ -13,15 +13,16 @@ Node Back-end for [MIT's Safe Places App](https://github.com/tripleblindmarket/s
 # TODO
 
 - **Swagger**
+
   - Configure properly (as opposed to just using the plugin)
+
 - **Configuration File**
 
-  - One more level of abstraction - Make it easier for the user, showing a single configuration object, or at least hiding the different exports present in the current file
   - Two-Factor Authentication optional/enforced
 
 - **Types**
 
-  - Auth module needs types for all responses (ugly DRY in `auth.service.ts` and `auth.controller.ts`)
+  - Auth module needs types for all responses (DRY in `auth.service.ts` and `auth.controller.ts`)
 
 - **README File**
 
@@ -45,9 +46,44 @@ $ npm install
 $ yarn
 ```
 
-The app needs 1 file to be created in order to work properly. Please copy the [./src/config.template.ts](./src/config.template.ts) and rename it to [./src/config.ts](./src/config.ts). There are some server specific settings that you should change before getting started.
+In order for the application to work properly, you need to create a .env file in the app's root folder `.env`
 
-This file is included in the [./.gitignore](./.gitignore) in order to avoid storing sensitive data in a git repo
+These are the available vars:
+
+```properties
+# Application
+PORT=
+ORG_ID=
+GOOGLE_MAP_API_KEY=
+
+# JWT (Authentication)
+JWT_SECRET=
+JWT_DURATION=1 hour
+
+# Database
+DB_HOST=
+DB_PORT=
+DB_USERNAME=
+DB_PASSWORD=
+DB_NAME=
+```
+
+**Notes:**
+
+`JWT_DURATION` uses the [zeit/ms](https://github.com/zeit/ms) npm package, that accepts a wide range of time formats. For example, all of these are valid:
+
+- 1 hour
+- 3 days
+- 5 seconds
+- 2 days
+- 1d
+- 10h
+- 2.5 hrs
+- 2h
+- 1m
+- 5s
+- 1y
+- 100 `//numbers are treated as seconds`
 
 # Running the app
 
