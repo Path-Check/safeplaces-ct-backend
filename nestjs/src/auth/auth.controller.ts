@@ -25,11 +25,6 @@ export class AuthController {
     return this.authService.bootstrap()
   }
 
-  @Get('/clearUsers')
-  clearUsers(): Promise<boolean> {
-    return this.authService.clearUsers()
-  }
-
   @Post('/validate')
   validate(
     @Body() validateDto: ValidateDto
