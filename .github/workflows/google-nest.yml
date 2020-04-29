@@ -25,7 +25,7 @@ env:
   GITHUB_SHA: ${{ github.sha }}
   GKE_ZONE: ${{ secrets.GKE_ZONE }}
   GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
-  IMAGE: safeplaces-be-express
+  IMAGE: safeplaces-be-nest
   REGISTRY_HOSTNAME: gcr.io
   DEPLOYMENT_NAME: ${{ secrets.NS_DEPLOYMENT_NAME }}
   CONTAINER_NAME: ${{ secrets.NS_CONTAINER_NAME }}
