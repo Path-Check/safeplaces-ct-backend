@@ -23,8 +23,8 @@ export class SafePlacesController {
 
   @Get('/health')
   @HttpCode(200)
-  health(): any {
-    return process.env
+  health(): string {
+    return 'Healthy!'
   }
 
   // https://github.com/tripleblindmarket/safe-places/blob/develop/Safe-Places-Server.md#save-redacted
