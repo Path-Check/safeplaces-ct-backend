@@ -6,10 +6,15 @@ const bcrypt = require('bcrypt');
 var chai = require('chai');
 var should = chai.should();
 var chaiHttp = require('chai-http');
+const jwtSecret = require('../config/jwtConfig');
+const jwt = require('jsonwebtoken');
 var server = require('../app');
+var trails = require('../db/models/trails');
 
-const ADMIN_JWT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluIiwiaWF0IjoxNTg3MzQyMjE1fQ.am7oekp9nm97lnRJbfxUMIKt_OqUmGpcIxyrrsCckp4';
-
+const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
+const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
+const USERNAME = 'admin';
+const ADMIN_JWT_TOKEN = jwt.sign({ id: USERNAME }, jwtSecret.secret);
 
 chai.use(chaiHttp);
 
@@ -28,6 +33,37 @@ describe('GET /health', function() {
 });
 
 describe('GET /redacted_trails', function() {
+
+  before(async function(){
+    console.log('Seeding trail data');
+    await trails.deleteTable().then(() => {
+      let trail = [
+        {
+          longitude: 12.34,
+          latitude: 12.34,
+          time: 123456789
+        },
+        {
+          longitude: 12.34,
+          latitude: 12.34,
+          time: 123456789
+        }
+      ]
+      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
+      trails.insertRedactedTrailSet(
+          trail,
+          identifier,
+          ORGANISATION_ID,
+          USER_ID
+        ).then((redactedTrailRecords) => {});
+    });
+  });
+
+  after(async function(){
+    console.log('Deleting posted trail data');
+    await trails.deleteTable().then(() => {});
+  });
+
   it('should return all redacted trails', function(done) {
     chai.request(server)
     .get('/redacted_trails')
@@ -35,6 +71,18 @@ describe('GET /redacted_trails', function() {
     .end(function(err, res) {
       res.should.have.status(200);
       res.should.be.json; // jshint ignore:line
+      res.body.should.have.property('organization');
+      res.body.organization.should.have.property('organization_id');
+      res.body.organization.organization_id.should.equal('a88309c2-26cd-4d2b-8923-af0779e423a3');
+      res.body.organization.should.have.property('authority_name');
+      res.body.organization.authority_name.should.equal('Test Organization');
+      res.body.organization.should.have.property('info_website');
+      res.body.organization.info_website.should.equal(
+        'https://www.who.int/emergencies/diseases/novel-coronavirus-2019');
+      res.body.organization.should.have.property('safe_path_json');
+      res.body.organization.safe_path_json.should.equal(
+        'https://www.something.give/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3');
+      res.body.should.have.property('data');
       res.body.data.should.be.a('array');
       res.body.data[0].should.have.property('identifier');
       res.body.data[0].identifier.should.equal('a88309c1-26cd-4d2b-8923-af0779e423a3');
@@ -47,27 +95,25 @@ describe('GET /redacted_trails', function() {
       res.body.data[0].trail[0].longitude.should.equal(12.34);
       res.body.data[0].trail[0].should.have.property('time');
       res.body.data[0].trail[0].time.should.equal(123456789);
+      res.body.data[0].trail[1].should.have.property('latitude');
+      res.body.data[0].trail[1].latitude.should.equal(12.34);
+      res.body.data[0].trail[1].should.have.property('longitude');
+      res.body.data[0].trail[1].longitude.should.equal(12.34);
+      res.body.data[0].trail[1].should.have.property('time');
+      res.body.data[0].trail[1].time.should.equal(123456789);
       res.body.data[0].should.have.property('user_id');
-      res.body.data[0].user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
-      res.body.data[1].should.have.property('identifier');
-      res.body.data[1].identifier.should.equal('a88309c1-26cd-4d2b-8923-af0779e423a4');
-      res.body.data[1].should.have.property('organization_id');
-      res.body.data[1].organization_id.should.equal('a88309c2-26cd-4d2b-8923-af0779e423a3');
-      res.body.data[1].trail.should.be.a('array');
-      res.body.data[1].trail[0].should.have.property('latitude');
-      res.body.data[1].trail[0].latitude.should.equal(12.34);
-      res.body.data[1].trail[0].should.have.property('longitude');
-      res.body.data[1].trail[0].longitude.should.equal(12.34);
-      res.body.data[1].trail[0].should.have.property('time');
-      res.body.data[1].trail[0].time.should.equal(123456789);
-      res.body.data[1].should.have.property('user_id');
-      res.body.data[1].user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
       done();
     });
   });
 });
 
 describe('POST /redacted_trail', function() {
+
+  after(async function(){
+    console.log('Deleting posted trail data');
+    await trails.deleteTable().then(() => {});
+  });
+
   it('should accept redacted trail', function(done) {
     chai.request(server)
     .post('/redacted_trail')
@@ -88,7 +134,7 @@ describe('POST /redacted_trail', function() {
       res.body.should.have.property('data');
       res.body.data.should.be.a('object');
       res.body.data.should.have.property('identifier');
-      res.body.data.identifier.should.equal('a88309c1-26cd-4d2b-8923-af0779e423a3');
+      res.body.data.identifier.should.equal('a88309c4-26cd-4d2b-8923-af0779e423a3');
       res.body.data.should.have.property('organization_id');
       res.body.data.organization_id.should.equal('a88309c2-26cd-4d2b-8923-af0779e423a3');
       res.body.data.should.have.property('trail');

@@ -3,6 +3,7 @@ const { onUpdateTrigger } = require('../../knexfile');
 exports.up = function(knex, Promise) {
   let createQuery = `CREATE TABLE users(
     id UUID NOT NULL,
+    organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
     username VARCHAR(64),
     email VARCHAR(128),
     password VARCHAR(60),
