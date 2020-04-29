@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  UseGuards,
+  HttpCode
+} from '@nestjs/common'
 import { SafePlacesService } from './safeplaces.service'
 import { GetUser } from '../auth/decorators/get-user'
 import { SaveRedactedDto } from './types/payload/saveRedacted.dto'
@@ -12,6 +20,12 @@ import { AuthGuard } from '@nestjs/passport'
 @Controller()
 export class SafePlacesController {
   constructor(private safePlacesService: SafePlacesService) {}
+
+  @Get('/health')
+  @HttpCode(200)
+  health(): string {
+    return 'All Ok'
+  }
 
   // https://github.com/tripleblindmarket/safe-places/blob/develop/Safe-Places-Server.md#save-redacted
   @Post('/redacted_trail')

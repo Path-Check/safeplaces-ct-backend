@@ -102,7 +102,7 @@ export class UserRepo extends Repository<User> {
         changePassword: user.changePassword
       }
     } else {
-      return user
+      return null
     }
   }
 
