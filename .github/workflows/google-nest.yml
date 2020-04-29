@@ -16,7 +16,7 @@ on:
       - dev-mvp
       - feature/docker-compose-corrections
     paths:
-      - 'expressjs/**/**'
+      - 'nestjs/**/**'
 
 # Environment variables available to all jobs and steps in this workflow
 env:
