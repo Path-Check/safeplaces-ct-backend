@@ -229,7 +229,7 @@ describe('POST /login', function() {
       let parsedJwt = parseJwt(res.body.token);
       parsedJwt.id.should.equal('admin');
       res.body.should.have.property('maps_api_key');
-      res.body.maps_api_key.should.equal('api_key_value');
+      res.body.maps_api_key.should.equal(process.env.SEED_MAPS_API_KEY);
       done();
     });
   });
