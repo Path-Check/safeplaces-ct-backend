@@ -1,11 +1,7 @@
-FROM node:13.13.0 AS build-env
-WORKDIR /app
+FROM node:13.13.0
 ENV NODE_ENV=development
+WORKDIR /app
 ADD . $WORKDIR
 RUN yarn install
-
-FROM node:13.13.0
-COPY --from=build-env /app /app 
-WORKDIR /app
-CMD ["yarn", "start"]
+CMD ["yarn", "start:full"]
 

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spp-be-nest
+  labels:
+    app: spp-be-nest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spp-be-nest
+  template:
+    metadata:
+      labels:
+        app: spp-be-nest
+    spec:
+      containers:
+        - name: spp-be-nest
+          image: gcr.io/PROJECT_ID/IMAGE:TAG
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: PORT
+            value: "3000"
+          envFrom:
+            - secretRef:
+                name: nestapp
+          ports:
+            - name: nest
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /bootstrap
+              port: nest
+            initialDelaySeconds: 20
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /bootstrap
+              port: nest
+            initialDelaySeconds: 30
+            periodSeconds: 2
