@@ -31,7 +31,7 @@ describe('GET /redacted_trails', function() {
   it('should return all redacted trails', function(done) {
     chai.request(server)
     .get('/redacted_trails')
-    .set('Authorization', `Bearer ${ADMIN_JWT_TOKEN}`)
+    .set('Authorization', `${ADMIN_JWT_TOKEN}`)
     .end(function(err, res) {
       res.should.have.status(200);
       res.should.be.json; // jshint ignore:line
@@ -81,7 +81,7 @@ describe('POST /redacted_trail', function() {
         }
       ]
     })
-    .set('Authorization', `Bearer ${ADMIN_JWT_TOKEN}`)
+    .set('Authorization', `${ADMIN_JWT_TOKEN}`)
     .end(function(err, res) {
       res.should.have.status(200);
       res.should.be.json; // jshint ignore:line
@@ -165,7 +165,7 @@ describe('POST /safe_paths', function() {
         }
       ]
     })
-    .set('Authorization', `Bearer ${ADMIN_JWT_TOKEN}`)
+    .set('Authorization', `${ADMIN_JWT_TOKEN}`)
     .end(function(err, res) {
       res.should.have.status(200);
       res.should.be.json; // jshint ignore:line
