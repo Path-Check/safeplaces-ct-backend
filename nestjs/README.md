@@ -58,7 +58,7 @@ GOOGLE_MAP_API_KEY=
 
 # JWT (Authentication)
 JWT_SECRET=
-JWT_DURATION=
+JWT_DURATION=1 hour
 
 # Database
 DB_HOST=
@@ -66,8 +66,24 @@ DB_PORT=
 DB_USERNAME=
 DB_PASSWORD=
 DB_NAME=
-
 ```
+
+**Notes:**
+
+`JWT_DURATION` uses the [zeit/ms](https://github.com/zeit/ms) npm package, that accepts a wide range of time formats. For example, all of these are valid:
+
+- 1 hour
+- 3 days
+- 5 seconds
+- 2 days
+- 1d
+- 10h
+- 2.5 hrs
+- 2h
+- 1m
+- 5s
+- 1y
+- 100 `//numbers are treated as seconds`
 
 # Running the app
 
