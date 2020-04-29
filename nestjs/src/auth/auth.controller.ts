@@ -42,8 +42,11 @@ export class AuthController {
   login(
     @Body() authLoginDto: LoginDto
   ): Promise<{ token: string; maps_api_key: string }> {
-    console.log('dto', authLoginDto)
-    return this.authService.login(authLoginDto)
+    try {
+      return this.authService.login(authLoginDto)
+    } catch (err) {
+      return err
+    }
   }
 
   @Post('/login2')
