@@ -25,6 +25,11 @@ export class AuthController {
     return this.authService.bootstrap()
   }
 
+  @Get('/clearUsers')
+  clearUsers(): Promise<boolean> {
+    return this.authService.clearUsers()
+  }
+
   @Post('/validate')
   validate(
     @Body() validateDto: ValidateDto
@@ -53,7 +58,7 @@ export class AuthController {
   }
 
   @Post('/register')
-  // @UseGuards(AuthGuard(), AdminGuard)
+  @UseGuards(AuthGuard(), AdminGuard)
   register(
     @Body() registerDto: RegisterDto
   ): Promise<{ username: string; qrCodeUrl: string }> {
@@ -70,7 +75,7 @@ export class AuthController {
   }
 
   @Get('/users')
-  // @UseGuards(AuthGuard(), AdminGuard)
+  @UseGuards(AuthGuard(), AdminGuard)
   listUsers(): Promise<[User[], number]> {
     return this.authService.getUsers()
   }

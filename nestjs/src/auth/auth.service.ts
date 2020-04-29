@@ -33,6 +33,15 @@ export class AuthService {
     }
   }
 
+  async clearUsers(): Promise<boolean> {
+    try {
+      await this.userRepo.clear()
+      return true
+    } catch (err) {
+      return false
+    }
+  }
+
   async register(
     authRegisterDto: RegisterDto
   ): Promise<{ username: string; qrCodeUrl: string }> {
@@ -59,15 +68,19 @@ export class AuthService {
   async login(
     loginDto: LoginDto
   ): Promise<{ token: string; maps_api_key: string }> {
-    const payload: JwtPayload = await this.userRepo.validateLogin(loginDto)
+    try {
+      const payload: JwtPayload = await this.userRepo.validateLogin(loginDto)
 
-    if (!payload.username) {
-      throw new UnauthorizedException('Invalid credentials!')
+      if (!payload.username) {
+        throw new UnauthorizedException('Invalid credentials!')
+      }
+
+      const token = await this.jwtService.sign(payload)
+
+      return { token, maps_api_key }
+    } catch (err) {
+      return err
     }
-
-    const token = await this.jwtService.sign(payload)
-
-    return { token, maps_api_key }
   }
 
   async login2(
