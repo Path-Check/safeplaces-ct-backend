@@ -1,4 +1,5 @@
 process.env.NODE_ENV = 'test';
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const atob = require("atob");
 const bcrypt = require('bcrypt');
@@ -11,6 +12,20 @@ const ADMIN_JWT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluIi
 
 
 chai.use(chaiHttp);
+
+describe('GET /health', function() {
+  it('should return 200 and all ok message', function(done) {
+    chai.request(server)
+    .get('/health')
+    .end(function(err, res) {
+      res.should.have.status(200);
+      res.should.be.json; // jshint ignore:line
+      res.body.should.have.property('message');
+      res.body.message.should.be.equal('All Ok!');
+      done();
+    });
+  });
+});
 
 describe('GET /redacted_trails', function() {
   it('should return all redacted trails', function(done) {
