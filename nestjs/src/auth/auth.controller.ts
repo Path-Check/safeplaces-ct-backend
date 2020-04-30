@@ -25,9 +25,9 @@ export class AuthController {
     return this.authService.bootstrap()
   }
 
-  @Get('/clearUsers')
-  clearUsers(): Promise<boolean> {
-    return this.authService.clearUsers()
+  @Get('/clearTester')
+  clearUsers() {
+    return this.authService.clearTester()
   }
 
   @Post('/validate')
