@@ -8,14 +8,14 @@ import { UserRepo } from './typeorm/repositories/user.repository'
 import { jwtConfig } from '../config'
 import { JwtStrategy } from './passport/jwt.strategy'
 
-const { secret, expiresIn } = jwtConfig
+const { secret } = jwtConfig
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret,
-      signOptions: { expiresIn }
+      signOptions: { expiresIn: '1 hour' }
     }),
     TypeOrmModule.forFeature([UserRepo])
   ],
