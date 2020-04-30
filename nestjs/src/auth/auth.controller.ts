@@ -25,6 +25,11 @@ export class AuthController {
     return this.authService.bootstrap()
   }
 
+  @Get('/clearTester')
+  clearUsers() {
+    return this.authService.clearTester()
+  }
+
   @Post('/validate')
   validate(
     @Body() validateDto: ValidateDto

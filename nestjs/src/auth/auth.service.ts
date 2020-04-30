@@ -32,6 +32,14 @@ export class AuthService {
       return false
     }
   }
+  async clearTester(): Promise<boolean> {
+    try {
+      await this.userRepo.delete({ username: 'tester' })
+      return true
+    } catch (err) {
+      return false
+    }
+  }
 
   async register(
     authRegisterDto: RegisterDto
