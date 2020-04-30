@@ -2,7 +2,7 @@
 module.exports = {
   test: {
     client: 'pg',
-    connection: process.env.DATABASE_URL,
+    connection: 'postgres://localhost/safeplaces_test',
     migrations: {
       directory: __dirname + '/db/migrations'
     },
@@ -12,7 +12,7 @@ module.exports = {
   },
   development: {
     client: 'pg',
-    connection: process.env.DATABASE_URL,
+    connection: 'postgres://localhost/safeplaces',
     migrations: {
       directory: __dirname + '/db/migrations'
     },

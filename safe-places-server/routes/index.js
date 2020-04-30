@@ -25,13 +25,6 @@ router.post('/login',	passport.authenticate('local'), function(req, res) {
   });
 });
 
-// *** GET health *** //
-router.get('/health', function(req, res) {
-  res.status(200).json({
-    message: 'All Ok!'
-  });
-});
-
 // *** GET all redacted trails *** //
 router.get('/redacted_trails', passport.authenticate('jwt', { session: false }), function(req, res) {
   let redacted_trails = {
