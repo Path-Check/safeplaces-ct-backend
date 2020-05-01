@@ -91,7 +91,15 @@ router.get('/redacted_trails', passport.authenticate('jwt', { session: false }),
         'data': redactedTrailsList
       };
       res.status(200).json(redactedTrailsResponse);
+    }).catch((err) => {
+      //TODO: introduce logger
+      console.log(err);
+      res.status(500).json({message: 'Internal Server Error'})
     });
+  }).catch((err) => {
+    //TODO: introduce logger
+    console.log(err);
+    res.status(500).json({message: 'Internal Server Error'})
   });
 });
 
@@ -113,7 +121,9 @@ router.post('/redacted_trail',
         }
       res.status(200).json(redactedTrailReturnData);
     }).catch((err) => {
-      return done(err);
+      //TODO: introduce logger
+      console.log(err);
+      res.status(500).json({message: 'Internal Server Error'});
     });
   }
 );
