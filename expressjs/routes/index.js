@@ -8,9 +8,12 @@ var router = express.Router();
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 
+var organizations = require('../db/models/organizations');
+var trails = require('../db/models/trails');
 var users = require('../db/models/users');
 
 const LocalStrategy = require('passport-local').Strategy;
+
 
 // *** POST /login user *** //
 router.post('/login',	passport.authenticate('local'), function(req, res) {
@@ -32,59 +35,88 @@ router.get('/health', function(req, res) {
   });
 });
 
+function formatRedactedTrailData(redactedTrailRecords) {
+  let redactedTrailData = {};
+  if (redactedTrailRecords) {
+    let redactedTrail = trails.getRedactedTrailFromRecord(redactedTrailRecords);
+    redactedTrailData = {
+      identifier: redactedTrailRecords[0].redacted_trail_id,
+      organization_id: redactedTrailRecords[0].organization_id,
+      trail: redactedTrail,
+      user_id: redactedTrailRecords[0].user_id
+    }
+  }
+  return redactedTrailData;
+}
+
 // *** GET all redacted trails *** //
 router.get('/redacted_trails', passport.authenticate('jwt', { session: false }), function(req, res) {
-  let redacted_trails = {
-    "data": [
-      {
-        "identifier": "a88309c1-26cd-4d2b-8923-af0779e423a3",
-        "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
-        "trail": [
-          {
-            "latitude": 12.34,
-            "longitude": 12.34,
-            "time": 123456789
-          }
-        ],
-        "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
-      },
-      {
-        "identifier": "a88309c1-26cd-4d2b-8923-af0779e423a4",
-        "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
-        "trail": [
-          {
-            "latitude": 12.34,
-            "longitude": 12.34,
-            "time": 123456789
-          }
-        ],
-        "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
-      }
-    ]
-  };
-  res.status(200).json(redacted_trails);
+  let redactedTrailsResponse = {};
+  trails.getAll().then((redactedTrails) => {
+    let redactedTrailsList = [];
+
+    // Map all redactedTrails by redacted trail 'identifier'
+    // i.e., Groups all trail points belonging to one 'identifier'
+    // into a trail array.
+    let redactedTrailsMap = redactedTrails.reduce(function (r, a) {
+      r[a.redacted_trail_id] = r[a.redacted_trail_id] || [];
+      r[a.redacted_trail_id].push(a);
+      return r;
+    } , Object.create(null));
+
+    // Make the Map with 'identifier' as key into the final
+    // list format with:
+    // [
+    //   {
+    //     identifier: '',
+    //     organization_id: '',
+    //     trail: [],
+    //     user_id: ''
+    //   }, ...
+    // ]
+    Object.keys(redactedTrailsMap).forEach((key, index) => {
+      let element = redactedTrailsMap[key];
+      redactedTrailsList.push(formatRedactedTrailData(element));
+    });
+
+    // Populate organization information in response
+    organizations.findOne({id: req.user.organization_id}).then((organization) => {
+      redactedTrailsResponse = {
+        'organization': {
+          'organization_id' : organization.id,
+          'authority_name' : organization.authority_name,
+          'info_website' : organization.info_website,
+          'safe_path_json' : organization.safe_path_json
+        },
+        'data': redactedTrailsList
+      };
+      res.status(200).json(redactedTrailsResponse);
+    });
+  });
 });
 
 // *** POST redacted trail *** //
 router.post('/redacted_trail',
   passport.authenticate('jwt', { session: false }), function(req, res) {
-    let redacted_trails = {
-      "data": {
-        "identifier": "a88309c1-26cd-4d2b-8923-af0779e423a3",
-        "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
-        "trail": [
-          {
-            "latitude": 12.34,
-            "longitude": 12.34,
-            "time": 123456789
-          }
-        ],
-        "user_id": "a88309ca-26cd-4d2b-8923-af0779e423a3"
-      },
-      "success": true
-    };
-    res.status(200).json(redacted_trails);
-});
+    let redactedTrailReturnData = {};
+    trails.insertRedactedTrailSet(
+        req.body.trail,
+        req.body.identifier,
+        req.user.organization_id,
+        req.user.id
+      ).then((redactedTrailRecords) => {
+        if (redactedTrailRecords) {
+          redactedTrailReturnData = {
+            data: formatRedactedTrailData(redactedTrailRecords),
+            success: true
+          };
+        }
+      res.status(200).json(redactedTrailReturnData);
+    }).catch((err) => {
+      return done(err);
+    });
+  }
+);
 
 // *** GET an organisation's safe paths *** //
 router.get('/safe_path/:organization_id', function(req, res) {
@@ -149,23 +181,20 @@ passport.use(
       try{
         users.findOne({username: username}).then((loginUser) => {
           if(loginUser == null){
-            //TODO: show something logical
-            console.log('Error no user found');
+            //TODO: log error
             return done(null, false);
           }
           else{
             bcrypt.compare(password, loginUser.password, function(err, check) {
               if (err){
-                //TODO: show something logical
-                console.log('Error while checking password');
+                //TODO: log error
                 return done();
               }
               else if (check){
                 return done(null, [{username: loginUser.username}]);
               }
               else{
-                //TODO: show something logical
-                console.log('Error wrong login details');
+                //TODO: log error
                 return done(null, false);
               }
             });
@@ -190,11 +219,9 @@ passport.use(
     try {
       users.findOne({username: jwt_payload.id}).then(user => {
         if (user) {
-          console.log('user found in db in passport');
           // note the return removed with passport JWT - add this return for passport local
           done(null, user);
         } else {
-          console.log('user not found in db');
           done(null, false);
         }
       });
