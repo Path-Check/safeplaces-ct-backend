@@ -36,7 +36,7 @@ describe('GET /redacted_trails', function() {
 
   before(async function(){
     console.log('Seeding trail data');
-    await trails.deleteTable().then(() => {
+    await trails.deleteTable().then(async () => {
       let trail = [
         {
           longitude: 12.34,
@@ -50,7 +50,7 @@ describe('GET /redacted_trails', function() {
         }
       ]
       let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
-      trails.insertRedactedTrailSet(
+      await trails.insertRedactedTrailSet(
           trail,
           identifier,
           ORGANISATION_ID,
