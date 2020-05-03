@@ -9,6 +9,7 @@ const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 
 var organizations = require('../db/models/organizations');
+var publications = require('../db/models/publications');
 var trails = require('../db/models/trails');
 var users = require('../db/models/users');
 
@@ -130,52 +131,104 @@ router.post('/redacted_trail',
 
 // *** GET an organisation's safe paths *** //
 router.get('/safe_path/:organization_id', function(req, res) {
-  let safe_paths = {
-    "authority_name": "Fake Organization",
-    "concern_points": [
-      {
-        "latitude": 12.34,
-        "longitude": 12.34,
-        "time": 1584924233
-      },
-      {
-        "latitude": 12.34,
-        "longitude": 12.34,
-        "time": 1584924583
+  let safePathsResponse = {};
+
+  publications.findLastOne({organization_id: req.params.organization_id})
+    .then((publicationRecord) => {
+
+      safePathsResponse.publish_date = publicationRecord.publish_date.getTime()/1000;
+
+      let timeInterval = {
+        start_date: publicationRecord.start_date.getTime()/1000,
+        end_date: publicationRecord.end_date.getTime()/1000
       }
-    ],
-    "info_website": "https://www.something.gov/path/to/info/website",
-    "publish_date_utc": "1584924583"
-  };
-  res.status(200).json(safe_paths);
+
+      trails.findInterval(timeInterval).then((redactedTrailRecords) => {
+        let intervalTrails = trails.getRedactedTrailFromRecord(redactedTrailRecords);
+
+        organizations.findOne({id: req.params.organization_id}).then((organization) => {
+
+          safePathsResponse.authority_name = organization.authority_name;
+          safePathsResponse.concern_points = intervalTrails;
+          safePathsResponse.info_website = organization.info_website;
+
+          res.status(200).json(safePathsResponse);
+        }).catch((err) => {
+          //TODO: introduce logger
+          console.log(err);
+          res.status(500).json({message: 'Internal Server Error'});
+        });
+      }).catch((err) => {
+        //TODO: introduce logger
+        console.log(err);
+        res.status(500).json({message: 'Internal Server Error'});
+      });
+    }).catch((err) => {
+      //TODO: introduce logger
+      console.log(err);
+      res.status(500).json({message: 'Internal Server Error'});
+    });
 });
 
 // *** POST safe paths *** //
 router.post('/safe_paths',
   passport.authenticate('jwt', { session: false }), function(req, res) {
-    let safe_paths = {
-      "datetime_created": "Fri, 27 Mar 2020 04:32:12 GMT",
-      "organization_id": "a88309c2-26cd-4d2b-8923-af0779e423a3",
-      "safe_path": {
-        "authority_name": "Fake Organization",
-        "concern_points": [
-          {
-            "latitude": 12.34,
-            "longitude": 12.34,
-            "time": 123
-          },
-          {
-            "latitude": 12.34,
-            "longitude": 12.34,
-            "time": 456
-          }
-        ],
-        "info_website": "https://www.something.gov/path/to/info/website",
-        "publish_date_utc": 1584924583
-      },
-      "user_id": "a88309c1-26cd-4d2b-8923-af0779e423a3"
-    };
-    res.status(200).json(safe_paths);
+    let safePathsResponse = {};
+    let safePath = {};
+
+    safePathsResponse.organization_id = req.user.organization_id;
+    safePathsResponse.user_id = req.user.id;
+    safePath.publish_date = req.body.publish_date;
+
+    // Constuct a publication record before inserting
+    let publication = {};
+    publication.start_date = req.body.start_date;
+    publication.end_date = req.body.end_date;
+    publication.publish_date = req.body.publish_date;
+    publication.user_id = req.user.id;
+    publication.organization_id = req.user.organization_id;
+
+    // Construct a organization record before updating
+
+    let organization = {};
+    organization.id = req.user.organization_id;
+    organization.authority_name = req.body.authority_name;
+    organization.info_website = req.body.info_website;
+    organization.safe_path_json = req.body.safe_path_json;
+
+    // Construct a timeSlice record for getting a trail within this time interval
+    let timeSlice = {};
+    timeSlice.start_date = req.body.start_date;
+    timeSlice.end_date = req.body.end_date;
+
+    publications.insert(publication).then((publicationRecords) => {
+
+      safePathsResponse.datetime_created = new Date(publicationRecords[0].created_at).toString();
+
+      organizations.update(organization).then((organizationRecords) => {
+
+        safePath.authority_name = organizationRecords[0].authority_name;
+        safePath.info_website = organizationRecords[0].info_website;
+        safePath.safe_path_json = organizationRecords[0].safe_path_json;
+
+        trails.findInterval(timeSlice).then((intervalTrail) => {
+
+          let intervalPoints = [];
+          intervalPoints = trails.getRedactedTrailFromRecord(intervalTrail);
+          safePath.concern_points = intervalPoints;
+          safePathsResponse.safe_path = safePath;
+
+          res.status(200).json(safePathsResponse);
+        }).catch((err) => {
+          res.status(500).json({'message': err});
+        }); // trails
+      }).catch((err) => {
+        res.status(404).json({'message': err});
+      }) // organization
+
+    }).catch((err) => {
+      res.status(500).json({'message': err});
+    }); // publication
 });
 
 module.exports = router;

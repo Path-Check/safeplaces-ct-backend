@@ -14,6 +14,12 @@ function find(filter){
   return Trails().where(filter).then((rows) => rows);
 }
 
+function findInterval(timeSlice){
+  return Trails().where('time', '>=', new Date(timeSlice.start_date * 1000))
+    .where('time', '<=', new Date(timeSlice.end_date * 1000))
+    .then((rows) => rows);
+}
+
 function getAll(){
   return Trails().select();
 }
@@ -54,6 +60,7 @@ function deleteTable(){
 
 module.exports = {
   find: find,
+  findInterval: findInterval,
   getAll: getAll,
   getRedactedTrailFromRecord: getRedactedTrailFromRecord,
   insertRedactedTrailSet: insertRedactedTrailSet,
