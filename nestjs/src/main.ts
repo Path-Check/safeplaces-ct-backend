@@ -12,7 +12,7 @@ async function bootstrap() {
   app.use(helmet())
   app.enableCors()
   app.useGlobalInterceptors(new NormalizeInterceptor())
-  app.useGlobalPipes(new ValidationPipe())
+  // app.useGlobalPipes(new ValidationPipe()) *Removed until class-transformer CVE is closed
 
   const options = new DocumentBuilder()
     .setTitle('Safe Places - Nest Js Backend')
