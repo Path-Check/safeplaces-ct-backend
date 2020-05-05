@@ -11,7 +11,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.use(helmet())
   app.enableCors()
-  app.useGlobalInterceptors(new NormalizeInterceptor())
+  // app.useGlobalInterceptors(new NormalizeInterceptor()) * Removed because front-end should only send application/json reqs
   // app.useGlobalPipes(new ValidationPipe()) *Removed until class-transformer CVE is closed
 
   const options = new DocumentBuilder()
@@ -19,6 +19,7 @@ async function bootstrap() {
     .setDescription('The Safe Places API Specification')
     .setVersion('1.0')
     .build()
+
   const document = SwaggerModule.createDocument(app, options)
   SwaggerModule.setup('spec', app, document)
 
