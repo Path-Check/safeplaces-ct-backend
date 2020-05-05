@@ -17,16 +17,26 @@ const LocalStrategy = require('passport-local').Strategy;
 
 
 // *** POST /login user *** //
-router.post('/login',	passport.authenticate('local'), function(req, res) {
-  users.findOne({username: req.body.username}).then((user) => {
-    const token = jwt.sign({ id: user.username }, jwtSecret.secret);
-    res.status(200).json({
-      token: token,
-      maps_api_key: user.maps_api_key
-    });
-  }).catch((err) => {
-    return done(err);
-  });
+router.post('/login',	function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) {
+      return done(err);
+    }
+    else if (user) {
+      users.findOne({username: req.body.username}).then((user) => {
+        const token = jwt.sign({ id: user.username }, jwtSecret.secret);
+        res.status(200).json({
+          token: token,
+          maps_api_key: user.maps_api_key
+        });
+      }).catch((err) => {
+        return done(err);
+      });
+    }
+    else{
+      res.status(info.status).json({message: info.message});
+    }
+  })(req, res, next);
 });
 
 // *** GET health *** //
@@ -83,13 +93,13 @@ router.get('/redacted_trails', passport.authenticate('jwt', { session: false }),
     // Populate organization information in response
     organizations.findOne({id: req.user.organization_id}).then((organization) => {
       redactedTrailsResponse = {
-        'organization': {
-          'organization_id' : organization.id,
-          'authority_name' : organization.authority_name,
-          'info_website' : organization.info_website,
-          'safe_path_json' : organization.safe_path_json
+        organization: {
+          organization_id : organization.id,
+          authority_name : organization.authority_name,
+          info_website : organization.info_website,
+          safe_path_json : organization.safe_path_json
         },
-        'data': redactedTrailsList
+        data: redactedTrailsList
       };
       res.status(200).json(redactedTrailsResponse);
     }).catch((err) => {
@@ -220,14 +230,14 @@ router.post('/safe_paths',
 
           res.status(200).json(safePathsResponse);
         }).catch((err) => {
-          res.status(500).json({'message': err});
+          res.status(500).json({message: err});
         }); // trails
       }).catch((err) => {
-        res.status(404).json({'message': err});
+        res.status(404).json({message: err});
       }) // organization
 
     }).catch((err) => {
-      res.status(500).json({'message': err});
+      res.status(500).json({message: err});
     }); // publication
 });
 
@@ -245,7 +255,7 @@ passport.use(
         users.findOne({username: username}).then((loginUser) => {
           if(loginUser == null){
             //TODO: log error
-            return done(null, false);
+            return done(null, false, {status: 401, message: 'Invalid credentials.'});
           }
           else{
             bcrypt.compare(password, loginUser.password, function(err, check) {
@@ -257,8 +267,7 @@ passport.use(
                 return done(null, [{username: loginUser.username}]);
               }
               else{
-                //TODO: log error
-                return done(null, false);
+                return done(null, false, {status: 401, message: 'Invalid credentials.'});
               }
             });
           }
