@@ -1,5 +1,8 @@
-import { SafePath } from 'src/safeplaces/typeorm/entities/safepath.entity'
+import { Point } from '../point.interface'
 
 export interface SafePathsJsonRes {
-  data: SafePath[]
+  authority_name: string
+  concern_points: Point[]
+  info_website: string
+  publish_date: number
 }

@@ -7,5 +7,5 @@ export interface SaveRedactedRes {
     trail: Point[]
     user_id: string
   }
-  success: true
+  success: boolean
 }

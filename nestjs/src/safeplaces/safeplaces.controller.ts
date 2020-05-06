@@ -7,15 +7,16 @@ import {
   UseGuards,
   HttpCode
 } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
+
 import { SafePlacesService } from './safeplaces.service'
 import { GetUser } from '../auth/decorators/get-user'
 import { SaveRedactedDto } from './types/payload/saveRedacted.dto'
 import { SaveRedactedRes } from './types/response/saveRedacted.interface'
-import { LoadRes } from './types/response/load.interface'
+import { LoadAllRedactedRes } from './types/response/loadAllRedacted.interface'
 import { PublishDto } from './types/payload/publish.dto'
 import { PublishRes } from './types/response/publish.interface'
 import { SafePathsJsonRes } from './types/response/safePathsJson.interface'
-import { AuthGuard } from '@nestjs/passport'
 
 @Controller()
 export class SafePlacesController {
@@ -40,7 +41,7 @@ export class SafePlacesController {
   //https://github.com/tripleblindmarket/safe-places/blob/develop/Safe-Places-Server.md#load-all-redacted
   @Get('/redacted_trails')
   @UseGuards(AuthGuard())
-  loadAllRedacted(@GetUser() user): Promise<LoadRes> {
+  loadAllRedacted(@GetUser() user): Promise<LoadAllRedactedRes> {
     return this.safePlacesService.loadAllRedacted(user)
   }
 

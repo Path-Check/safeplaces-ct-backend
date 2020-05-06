@@ -1,5 +1,4 @@
-import { Point } from '../point.interface'
-import { IsString, IsArray, IsNumber } from 'class-validator'
+import { IsString, IsNumber } from 'class-validator'
 
 export class PublishDto {
   @IsString()
@@ -11,6 +10,12 @@ export class PublishDto {
   @IsString()
   info_website: string
 
-  @IsArray()
-  concern_points: Point[]
+  @IsString()
+  safe_path_json: string
+
+  @IsNumber()
+  start_date: number
+
+  @IsNumber()
+  end_date: number
 }

@@ -1,10 +1,10 @@
 import * as uuid from 'uuid/v4'
 import { Repository, EntityRepository } from 'typeorm'
 import { InternalServerErrorException } from '@nestjs/common'
-import { RedactedTrail } from '../entities/redactedTrail.entity'
-import { SaveRedactedDto } from '../../types/payload/saveRedacted.dto'
-import { SaveRedactedRes } from '../../types/response/saveRedacted.interface'
-import { orgId } from '../../../config'
+import { SaveRedactedDto } from '../types/payload/saveRedacted.dto'
+import { SaveRedactedRes } from '../types/response/saveRedacted.interface'
+import { orgId } from '../../config'
+import { RedactedTrail } from './redactedTrail.entity'
 
 @EntityRepository(RedactedTrail)
 export class RedactedTrailRepo extends Repository<RedactedTrail> {
