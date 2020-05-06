@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core'
-import { ValidationPipe } from '@nestjs/common'
+// import { ValidationPipe } from '@nestjs/common'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import * as helmet from 'helmet'
 import { AppModule } from './app.module'
@@ -11,7 +11,7 @@ async function bootstrap() {
   app.use(helmet())
   app.enableCors()
   // app.useGlobalInterceptors(new NormalizeInterceptor()) * Removed because front-end should only send application/json reqs
-  app.useGlobalPipes(new ValidationPipe()) //*Removed until class-transformer CVE is closed
+  // app.useGlobalPipes(new ValidationPipe()) //*Removed until class-transformer CVE is closed
 
   const options = new DocumentBuilder()
     .setTitle('Safe Places - Nest Js Backend')
