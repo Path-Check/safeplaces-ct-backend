@@ -283,7 +283,7 @@ docker run --rm --name safeplaces-expressjs --env-file=.env -p 3000:3000 safepla
  
 Ensure to create application Environment variables  file .env from .env.template
 
-Ensure to create Postgres Environment variables file  .backend.env from .backend.env.template 
+Ensure to create Postgres Environment variables file  .database.env from .database.env.template
 
 ```
 
