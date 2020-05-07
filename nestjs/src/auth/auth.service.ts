@@ -1,14 +1,14 @@
 import { JwtService } from '@nestjs/jwt'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { UserRepo } from './typeorm/repositories/user.repository'
+import { UserRepo } from './typeorm/user.repository'
 import { RegisterDto } from './types/payload/register.dto'
 import { LoginDto, Login2Dto } from './types/payload/login.dto'
 import { ValidateDto } from './types/payload/validate.dto'
 import { JwtPayload } from './types/jwt-payload.interface'
-import { User } from './typeorm/entities/user.entity'
+import { User } from './typeorm/user.entity'
 import { ChangePasswordDto } from './types/payload/change-password.dto'
-import { maps_api_key } from 'src/config'
+import { maps_api_key } from '../config'
 
 @Injectable()
 export class AuthService {

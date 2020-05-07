@@ -1,7 +1,8 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { User } from './auth/typeorm/entities/user.entity'
-import { SafePath } from './safeplaces/typeorm/entities/safepath.entity'
-import { RedactedTrail } from './safeplaces/typeorm/entities/redactedTrail.entity'
+import { User } from './auth/typeorm/user.entity'
+import { Publication } from './safeplaces/typeorm/publication.entity'
+import { RedactedTrail } from './safeplaces/typeorm/redactedTrail.entity'
+import { Organization } from './organization/typeorm/organization.entity'
 
 export const port = parseInt(process.env.PORT) || 3000
 
@@ -23,6 +24,6 @@ export const dbConfig: TypeOrmModuleOptions = {
   password: process.env.DB_PASSWORD || null,
   database: process.env.DB_NAME || 'safeplaces',
   // schema: process.env.DB_SCHEMA, // uncomment if needed
-  entities: [User, SafePath, RedactedTrail],
+  entities: [User, Publication, RedactedTrail, Organization],
   synchronize: true // turn OFF for production
 }

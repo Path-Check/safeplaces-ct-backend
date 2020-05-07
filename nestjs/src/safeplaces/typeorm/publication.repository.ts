@@ -1,27 +1,28 @@
-import * as uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 import { Repository, EntityRepository } from 'typeorm'
 import { InternalServerErrorException } from '@nestjs/common'
-import { SafePath } from '../entities/safepath.entity'
-import { PublishDto } from '../../types/payload/publish.dto'
-import { PublishRes } from '../../types/response/publish.interface'
-import { orgId } from '../../../config'
+import { Publication } from './publication.entity'
+import { PublishDto } from '../types/payload/publish.dto'
+import { PublishRes } from '../types/response/publish.interface'
 
-@EntityRepository(SafePath)
-export class SafePathRepo extends Repository<SafePath> {
-  async saveSafePath(payload: PublishDto, user): Promise<PublishRes> {
+@EntityRepository(Publication)
+export class PublicationRepo extends Repository<Publication> {
+  async publish(payload: PublishDto, user): Promise<PublishRes> {
     const {
       authority_name,
       publish_date,
       info_website,
-      concern_points
+      start_date,
+      end_date
     } = payload
 
-    const sp = new SafePath()
+    const sp = new Publication()
     sp.id = uuid()
-    sp.orgId = orgId
+    sp.orgId = user.organization_id
     sp.infoWebsite = info_website
     sp.authorityName = authority_name
-    sp.concernPoints = concern_points
+    sp.startDate = start_date
+    sp.endDate = end_date
     sp.publishDate = publish_date
     sp.userId = user.id
     sp.createdAt = new Date()

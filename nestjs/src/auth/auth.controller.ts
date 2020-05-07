@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { AuthService } from './auth.service'
-import { User } from './typeorm/entities/user.entity'
+import { User } from './typeorm/user.entity'
 import { AdminGuard } from './guards/admin'
 import { ValidateDto } from './types/payload/validate.dto'
 import { LoginDto, Login2Dto } from './types/payload/login.dto'

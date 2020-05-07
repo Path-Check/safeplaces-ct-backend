@@ -1,6 +1,6 @@
 import { Point } from './point.interface'
 
-export interface SafePath {
+export interface Publication {
   authority_name: string
   concern_points: Point[]
   info_website: string

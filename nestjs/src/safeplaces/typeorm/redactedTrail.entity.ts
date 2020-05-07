@@ -1,5 +1,5 @@
 import { BaseEntity, PrimaryColumn, Column, Entity } from 'typeorm'
-import { Point } from '../../types/point.interface'
+import { Point } from '../types/point.interface'
 
 @Entity('redacted_trails')
 export class RedactedTrail extends BaseEntity {

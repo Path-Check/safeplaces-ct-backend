@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { UserRepo } from './typeorm/repositories/user.repository'
+import { UserRepo } from './typeorm/user.repository'
 import { jwtConfig } from '../config'
 import { JwtStrategy } from './passport/jwt.strategy'
 

@@ -4,4 +4,5 @@ export interface JwtPayload {
   admin: boolean
   role: string
   changePassword: boolean
+  organization_id: string
 }
