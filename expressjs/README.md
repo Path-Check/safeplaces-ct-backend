@@ -208,6 +208,7 @@ mocha
 *Note*:  
 1. The installation assumes you have already installed Postgres DB in your local environment listening for connections at port 5432.
 2. Your Postgres instance should listen to '*' instead of 'localhost' by setting the `listen_addresses` parameter, [this setting can be found in your pgconfig file](https://www.postgresql.org/docs/current/runtime-config-connection.html).
+3. Your `pg_hba.conf` should have a rule added for `host all all 172.18.0.0/16 md5`.
 
  
 
