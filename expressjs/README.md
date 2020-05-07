@@ -88,6 +88,7 @@ Refer [.env.template](.env.template) for environment variables to be exported to
 
 1. Create databases and users mentioned exported in your environment.
 1. Grant users sufficient access to the database.
+1. Install [PostGIS extension](https://postgis.net/install/).
 
 #### Knex migrations and seed the database
 
