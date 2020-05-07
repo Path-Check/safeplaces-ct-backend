@@ -1,7 +1,7 @@
 import { Repository, EntityRepository } from 'typeorm'
 import * as bcrypt from 'bcrypt'
 import * as node2fa from 'node-2fa'
-import * as uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 import { ConflictException, InternalServerErrorException } from '@nestjs/common'
 import { User } from './user.entity'
 import { JwtPayload } from '../types/jwt-payload.interface'

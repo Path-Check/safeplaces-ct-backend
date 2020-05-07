@@ -8,7 +8,7 @@ import { ValidateDto } from './types/payload/validate.dto'
 import { JwtPayload } from './types/jwt-payload.interface'
 import { User } from './typeorm/user.entity'
 import { ChangePasswordDto } from './types/payload/change-password.dto'
-import { maps_api_key } from 'src/config'
+import { maps_api_key } from '../config'
 
 @Injectable()
 export class AuthService {
