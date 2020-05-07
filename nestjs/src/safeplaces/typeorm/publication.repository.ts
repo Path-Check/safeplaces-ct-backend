@@ -1,4 +1,4 @@
-import * as uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 import { Repository, EntityRepository } from 'typeorm'
 import { InternalServerErrorException } from '@nestjs/common'
 import { Publication } from './publication.entity'

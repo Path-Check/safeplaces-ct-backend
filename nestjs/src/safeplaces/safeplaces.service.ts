@@ -10,6 +10,8 @@ import { PublishRes } from './types/response/publish.interface'
 import { Publication } from './typeorm/publication.entity'
 import { PublicationRepo } from './typeorm/publication.repository'
 import { SafePathsJsonRes } from './types/response/safePathsJson.interface'
+import { OrganizationRepo } from 'src/organization/typeorm/organization.repository'
+import { Organization } from 'src/organization/typeorm/organization.entity'
 
 @Injectable()
 export class SafePlacesService {
@@ -17,7 +19,9 @@ export class SafePlacesService {
     @InjectRepository(PublicationRepo)
     private publicationRepo: PublicationRepo,
     @InjectRepository(RedactedTrailRepo)
-    private redactedTrailRepo: RedactedTrailRepo
+    private redactedTrailRepo: RedactedTrailRepo,
+    @InjectRepository(OrganizationRepo)
+    private orgRepo: OrganizationRepo
   ) {}
 
   async saveRedactedTrail(
@@ -29,13 +33,14 @@ export class SafePlacesService {
 
   async loadAllRedacted(user): Promise<LoadAllRedactedRes> {
     const results: RedactedTrail[] = await this.redactedTrailRepo.find()
-
     // TODO: Add Organization Module to manage orgs or add one org as .env vars (Maybe HA's only use one?)
+    const org: Organization = await this.orgRepo.findOne(user.orgId)
+
     const organization = {
-      organization_id: '',
-      authority_name: '',
-      info_website: '',
-      safe_path_json: ''
+      organization_id: org.id,
+      authority_name: org.authorityName,
+      info_website: org.infoWebsite,
+      safe_path_json: org.safePathJson
     }
 
     const data = results.map(rt => ({
