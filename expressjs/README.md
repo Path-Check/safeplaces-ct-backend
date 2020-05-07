@@ -17,8 +17,9 @@
 
   
 
-*Note*: The installation assumes you have already installed Postgres DB in your local environment listening for connections at port 5432.
-
+*Note*:
+1. The installation assumes you have already installed Postgres DB in your local environment listening for connections at port 5432.
+2. Your Postgres instance should listen to '*' instead of 'localhost' by setting the `listen_addresses` parameter, [this setting can be found in your pgconfig file](https://www.postgresql.org/docs/current/runtime-config-connection.html).
   
 
   
@@ -33,7 +34,7 @@ Clone this repository
 
   
 
-cd safeplaces-backend
+cd safeplaces-backend/expressjs
 
   
 
@@ -79,7 +80,14 @@ npm install
 
   
 
-  
+#### Setup Environment
+
+Refer [.env.template](.env.template) for environment variables to be exported to your environment.
+
+#### Setup Database
+
+1. Create databases and users mentioned exported in your environment.
+1. Grant users sufficient access to the database.
 
 #### Knex migrations and seed the database
 
@@ -214,6 +222,19 @@ mocha
 
 Clone this repository
 
+
+
+
+
+```
+
+  
+
+cd safeplaces-backend/expressjs
+
+  
+
+```
   
 
   
