@@ -1,16 +1,16 @@
 import { Controller, Get, Post, Put, Delete } from '@nestjs/common'
 
-@Controller('organization')
+@Controller('organizations')
 export class OrganizationController {
-  @Get('/organizations')
+  @Get('/')
   getOrgs() {}
 
-  @Post('/organizations')
+  @Post('/')
   insertOrg() {}
 
-  @Put('/organizations')
+  @Put('/:orgId')
   updateOrg() {}
 
-  @Delete('/organizations')
+  @Delete('/:orgId')
   deleteOrg() {}
 }
