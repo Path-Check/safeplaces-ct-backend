@@ -359,4 +359,36 @@ describe('POST /login', function() {
       done();
     });
   });
+
+  it('should fail when wrong password is given saying creds are invalid', function(done) {
+    chai.request(server)
+    .post('/login')
+    .send({
+      username: 'admin',
+      password : 'wrongpassword'
+    })
+    .end(function(err, res) {
+      res.should.have.status(401);
+      res.should.be.json; // jshint ignore:line
+      res.body.should.have.property('message');
+      res.body.message.should.equal('Invalid credentials.');
+      done();
+    });
+  });
+
+  it('should fail with invalid username saying creds are invalid', function(done) {
+    chai.request(server)
+    .post('/login')
+    .send({
+      username: 'invaliduser',
+      password : 'somepassword'
+    })
+    .end(function(err, res) {
+      res.should.have.status(401);
+      res.should.be.json; // jshint ignore:line
+      res.body.should.have.property('message');
+      res.body.message.should.equal('Invalid credentials.');
+      done();
+    });
+  });
 });
