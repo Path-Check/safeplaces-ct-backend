@@ -48,7 +48,7 @@ router.get('/health', function(req, res) {
 
 function formatRedactedTrailData(redactedTrailRecords) {
   let redactedTrailData = {};
-  if (redactedTrailRecords) {
+  if (Array.isArray(redactedTrailRecords)) {
     let redactedTrail = trails.getRedactedTrailFromRecord(redactedTrailRecords);
     redactedTrailData = {
       identifier: redactedTrailRecords[0].redacted_trail_id,
@@ -118,24 +118,32 @@ router.get('/redacted_trails', passport.authenticate('jwt', { session: false }),
 router.post('/redacted_trail',
   passport.authenticate('jwt', { session: false }), function(req, res) {
     let redactedTrailReturnData = {};
-    trails.insertRedactedTrailSet(
-        req.body.trail,
-        req.body.identifier,
-        req.user.organization_id,
-        req.user.id
-      ).then((redactedTrailRecords) => {
-        if (redactedTrailRecords) {
-          redactedTrailReturnData = {
-            data: formatRedactedTrailData(redactedTrailRecords),
-            success: true
-          };
-        }
-      res.status(200).json(redactedTrailReturnData);
-    }).catch((err) => {
-      //TODO: introduce logger
-      console.log(err);
-      res.status(500).json({message: 'Internal Server Error'});
-    });
+    if (Array.isArray(req.body.trail) && req.body.trail.length) {
+      trails.insertRedactedTrailSet(
+          req.body.trail,
+          req.body.identifier,
+          req.user.organization_id,
+          req.user.id
+        ).then((redactedTrailRecords) => {
+          if (Array.isArray(redactedTrailRecords)) {
+            redactedTrailReturnData = {
+              data: formatRedactedTrailData(redactedTrailRecords),
+              success: true
+            };
+          }
+          else {
+            res.status(500).json({message: 'Internal Server Error'});
+          }
+        res.status(200).json(redactedTrailReturnData);
+      }).catch((err) => {
+        //TODO: introduce logger
+        console.log(err);
+        res.status(500).json({message: 'Internal Server Error'});
+      });
+    }
+    else {
+      res.status(400).json({message: 'Trail can not be empty.'});
+    }
   }
 );
 
