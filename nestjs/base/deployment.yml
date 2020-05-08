@@ -32,11 +32,11 @@ spec:
             httpGet:
               path: /bootstrap
               port: nest
-            initialDelaySeconds: 20
+            initialDelaySeconds: 40
             periodSeconds: 3
           readinessProbe:
             httpGet:
               path: /bootstrap
               port: nest
-            initialDelaySeconds: 30
+            initialDelaySeconds: 41
             periodSeconds: 2
