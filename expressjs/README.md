@@ -17,8 +17,9 @@
 
   
 
-*Note*: The installation assumes you have already installed Postgres DB in your local environment listening for connections at port 5432.
-
+*Note*:
+1. The installation assumes you have already installed Postgres DB in your local environment listening for connections at port 5432.
+2. Your Postgres instance should listen to '*' instead of 'localhost' by setting the `listen_addresses` parameter, [this setting can be found in your pgconfig file](https://www.postgresql.org/docs/current/runtime-config-connection.html).
   
 
   
@@ -33,7 +34,7 @@ Clone this repository
 
   
 
-cd safeplaces-backend
+cd safeplaces-backend/expressjs
 
   
 
@@ -79,7 +80,15 @@ npm install
 
   
 
-  
+#### Setup Environment
+
+Refer [.env.template](.env.template) for environment variables to be exported to your environment.
+
+#### Setup Database
+
+1. Create databases and users mentioned exported in your environment.
+1. Grant database user superuser privilege to the database to create POSTGIS extension and setup other tables. Reduce this privilege later to just create and modify tables or tuples in this database after you run the migration for the first time.
+1. Install [PostGIS extension](https://postgis.net/install/).
 
 #### Knex migrations and seed the database
 
@@ -205,12 +214,28 @@ mocha
 
   
 
-*Note*: The installation assumes you have already installed Postgres DB in your local environment listening for connections at port 5432. Your Postgres instance should listen to '*' instead of 'localhost', this setting can be found in your pgconfig file.
+*Note*:  
+1. The installation assumes you have already installed Postgres DB in your local environment listening for connections at port 5432.
+2. Your Postgres instance should listen to '*' instead of 'localhost' by setting the `listen_addresses` parameter, [this setting can be found in your pgconfig file](https://www.postgresql.org/docs/current/runtime-config-connection.html).
+3. Your `pg_hba.conf` should have a rule added for `host all all <docker-subnet> md5`. Replace `<docker-subnet>` with the actual CIDR for your docker installation's subnet. Note that `172.18.0.0/16` is usually the default.
 
  
 
 Clone this repository
 
+
+
+
+
+```
+
+  
+
+cd safeplaces-backend/expressjs
+
+  
+
+```
   
 
   
@@ -258,13 +283,42 @@ docker run --rm --name safeplaces-expressjs --env-file=.env -p 3000:3000 safepla
  
 Ensure to create application Environment variables  file .env from .env.template
 
-Ensure to create Postgres Environment variables file  .backend.env from .backend.env.template 
+Ensure to create Postgres Environment variables file  .database.env from .database.env.template
+
+
+#### Run the following:
 
 ```
 
-#### Run the following:
 
 docker-compose build
 docker-compose up
 
-Test your deployment via `curl http://127.0.0.1:3000/health`
+
+```
+
+
+### Testing Your Deployment
+
+Run:
+
+```
+
+
+curl http://localhost:3000/health
+
+
+```
+
+Should respond with:
+
+```
+
+
+{
+  "message": "All Ok!"
+}
+
+
+
+```
