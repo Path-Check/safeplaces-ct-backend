@@ -19,8 +19,8 @@ spec:
           image: gcr.io/PROJECT_ID/IMAGE:TAG
           imagePullPolicy: IfNotPresent
           env:
-          - name: PORT
-            value: "3000"
+            - name: PORT
+              value: '3000'
           envFrom:
             - secretRef:
                 name: nestapp
@@ -30,13 +30,13 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /bootstrap
+              path: /health
               port: nest
             initialDelaySeconds: 40
             periodSeconds: 3
           readinessProbe:
             httpGet:
-              path: /bootstrap
+              path: /health
               port: nest
             initialDelaySeconds: 41
             periodSeconds: 2

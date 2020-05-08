@@ -3,5 +3,5 @@ ENV NODE_ENV=development
 WORKDIR /app
 ADD . $WORKDIR
 RUN yarn install
-CMD ["yarn", "start:full"]
+CMD ["yarn", "start:prod"]
 
