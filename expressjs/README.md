@@ -285,14 +285,17 @@ Ensure to create application Environment variables  file .env from .env.template
 
 Ensure to create Postgres Environment variables file  .database.env from .database.env.template
 
-```
 
 #### Run the following:
+
+```
+
 
 docker-compose build
 docker-compose up
 
-Test your deployment via `curl http://127.0.0.1:3000/health`
+
+```
 
 
 ### Testing Your Deployment
