@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "nyc mocha"
+    "test": "nyc --reporter=html --reporter=text mocha"
   },
   "dependencies": {
     "atob": "^2.1.2",

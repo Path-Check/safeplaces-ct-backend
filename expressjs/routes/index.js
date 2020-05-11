@@ -24,7 +24,14 @@ router.post('/login',	function(req, res, next) {
     }
     else if (user) {
       users.findOne({username: req.body.username}).then((user) => {
-        const token = jwt.sign({ id: user.username }, jwtSecret.secret);
+        const token = jwt.sign(
+          {
+            sub: user.username,
+            iat: ~~(Date.now() / 1000),
+            exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || (1 * 60 * 60)) // Default expires in an hour
+          },
+          jwtSecret.secret
+        );
         res.status(200).json({
           token: token,
           maps_api_key: user.maps_api_key
@@ -297,12 +304,16 @@ passport.use(
   'jwt',
   new JWTstrategy(opts, (jwt_payload, done) => {
     try {
-      users.findOne({username: jwt_payload.id}).then(user => {
+      const isExpired = (jwt_payload.exp - ~~(Date.now()/1000)) < 0;
+      if (isExpired){
+        return done(new Error('Token Expired'), false);
+      }
+      users.findOne({username: jwt_payload.sub}).then(user => {
         if (user) {
           // note the return removed with passport JWT - add this return for passport local
           done(null, user);
         } else {
-          done(null, false);
+          done(new Error('User not found!'), false);
         }
       });
     } catch (err) {

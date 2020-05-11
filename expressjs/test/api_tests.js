@@ -14,7 +14,23 @@ var publications = require('../db/models/publications');
 const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
 const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
 const USERNAME = 'admin';
-const ADMIN_JWT_TOKEN = jwt.sign({ id: USERNAME }, jwtSecret.secret);
+const ADMIN_JWT_TOKEN = jwt.sign(
+  {
+    sub: USERNAME,
+    iat: ~~(Date.now() / 1000),
+    exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || (1 * 60 * 60)) // Default expires in an hour
+  },
+  jwtSecret.secret
+);
+
+const ADMIN_JWT_TOKEN_EXPIRED = jwt.sign(
+  {
+    sub: USERNAME,
+    iat: ~~(Date.now() / 1000),
+    exp: ~~(Date.now() / 1000) - 1
+  },
+  jwtSecret.secret
+);
 
 chai.use(chaiHttp);
 
@@ -142,7 +158,7 @@ describe('POST /redacted_trail', function() {
     await trails.deleteTable().then(() => {});
   });
 
-  it('should check for right JWT token', function(done) {
+  it('should check for correct JWT token', function(done) {
     chai.request(server)
     .post('/redacted_trail')
     .send({
@@ -156,6 +172,27 @@ describe('POST /redacted_trail', function() {
       ]
     })
     .set('Authorization', `somebadtoken`)
+    .end(function(err, res) {
+      res.should.have.status(401);
+      res.text.should.equal('Unauthorized');
+      done();
+    });
+  });
+
+  it('should check for unexpired JWT token', function(done) {
+    chai.request(server)
+    .post('/redacted_trail')
+    .send({
+      'identifier': 'a88309c4-26cd-4d2b-8923-af0779e423a3',
+      'trail': [
+        {
+          'time': 123456789,
+          'latitude': 12.34,
+          'longitude': 12.34
+        }
+      ]
+    })
+    .set('Authorization', `${ADMIN_JWT_TOKEN_EXPIRED}`)
     .end(function(err, res) {
       res.should.have.status(401);
       res.text.should.equal('Unauthorized');
@@ -471,7 +508,12 @@ describe('POST /login', function() {
       res.should.be.json; // jshint ignore:line
       res.body.should.have.property('token');
       let parsedJwt = parseJwt(res.body.token);
-      parsedJwt.id.should.equal('admin');
+      parsedJwt.should.have.property('sub');
+      parsedJwt.sub.should.equal('admin');
+      parsedJwt.should.have.property('iat');
+      chai.assert.equal(new Date(parsedJwt.iat * 1000) instanceof Date, true);
+      parsedJwt.should.have.property('exp');
+      chai.assert.equal(new Date(parsedJwt.exp * 1000) instanceof Date, true);
       res.body.should.have.property('maps_api_key');
       res.body.maps_api_key.should.equal(process.env.SEED_MAPS_API_KEY);
       done();
