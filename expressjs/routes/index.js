@@ -154,7 +154,12 @@ router.get('/safe_path/:organization_id', function(req, res) {
   publications.findLastOne({organization_id: req.params.organization_id})
     .then((publicationRecord) => {
 
-      safePathsResponse.publish_date = publicationRecord.publish_date.getTime()/1000;
+      if (publicationRecord) {
+        safePathsResponse.publish_date = publicationRecord.publish_date.getTime()/1000;
+      }
+      else {
+        return res.status(204).send('');
+      }
 
       let timeInterval = {
         start_date: publicationRecord.start_date.getTime()/1000,
