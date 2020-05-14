@@ -1,7 +1,7 @@
 **Table of Contents**
 
 - [How to Contribute](#how-to-contribute)
-  - [Contributor License Agreement](#contributor-license-agreement)
+  - [Active Contributor Agreement](#active-contributor-agreement)
   - [Git Flow](#git-flow)
   - [Code reviews](#code-reviews)
   - [Get involved](#get-involved)
@@ -11,19 +11,11 @@
 We'd love to accept your patches and contributions to this project. There are
 just a few small guidelines you need to follow.
 
-## Contributor License Agreement
+## Active Contributor Agreement
 
-TODO: Change CLA Text
-
-Contributions to this project must be accompanied by a Contributor License
-Agreement. You (or your employer) retain the copyright to your contribution,
-this simply gives us permission to use and redistribute your contributions as
-part of the project. Head over to <CLA Path-Check> to see
-your current agreements on file or to sign a new one.
-
-You generally only need to submit a CLA once, so if you've already submitted one
-(even if it was for a different project), you probably don't need to do it
-again.
+Contributions to this project must be accompanied by a Active Contributor Agreement.
+This is an agreement between Safe Paths Active Contributing Members (ACM) and Path Check, Inc. (PCI)
+By completing the attached Google Form at the bottom of [this agreement](https://docs.google.com/document/d/1sExarTjhd3vV1GWWA32BAEhpS_Rl1n-LD0qPURAeSoU), you will affirm this agreement.
 
 ## Git Flow
 
@@ -52,8 +44,7 @@ information on using pull requests.
 
 ## Get involved
 
-TODO: Change Mailing List link
-
 * [Slack](https://covidsafepaths.slack.com)
 * [Twitter](https://twitter.com/covidsafepaths)
-* [Mailing List](https://mailinglist.com)
+* [Mailing List - Frontend](safe-places-fe@googlegroups.com)
+* [Mailing List - Backend](safe-places-be@googlegroups.com)
