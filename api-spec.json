@@ -2,21 +2,98 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Safe Places - Server Backend",
-    "description": "The Safe Places API Specification for Backend Server",
-    "version": "1.0",
-    "contact": {}
+    "description": "API spec for SAFE PLACES Backend as part of the SAFE PATHS initiative.  You can find out more about SAFE PATHS AT [https://covidsafepaths.org/](https://covidsafepaths.org/)",
+    "version": "1.0.0",
+    "contact": {
+      "email": "satoshi.kawase@pathcheck.org"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
   },
-  "tags": [],
-  "servers": [],
+  "tags": [
+    {
+      "name": "user admin",
+      "description": "endpoints to manage user identity",
+      "externalDocs": {
+        "url": "http://confluence.com"
+      }
+    },
+    {
+      "name": "default",
+      "description": "endpoints for database CRUD",
+      "externalDocs": {
+        "url": "http://confluence.com"
+      }
+    }
+  ],
+  "servers": [
+    {
+      "url": "/v1"
+    }
+  ],
   "components": {
     "securitySchemes": {
-      "bearer": {
+      "contactTracer": {
+        "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "type": "http"
+        "description": "contact tracer access"
+      },
+      "admin": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "admin access"
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Access token is missing or invalid"
       }
     },
     "schemas": {
+      "concernPoints": {
+        "type": "array",
+        "items": {
+          "properties": {
+            "longitude": {
+              "type": "number",
+              "example": 14.91328448
+            },
+            "latitude": {
+              "type": "number",
+              "example": 41.24060321
+            },
+            "time": {
+              "type": "number",
+              "example": 1589117739000
+            },
+            "hash": {
+              "type": "string",
+              "example": "87e916850d4def3c"
+            }
+          }
+        }
+      },
+      "caseId": {
+        "type": "number",
+        "example": 23432461
+      },
+      "caseState": {
+        "type": "string",
+        "enum": [
+          "original",
+          "unpublished",
+          "staging",
+          "published"
+        ]
+      },
+      "authCode": {
+        "type": "string",
+        "example": "bluebird"
+      },
       "ValidateDto": {
         "type": "object",
         "properties": {
@@ -109,56 +186,355 @@
         "required": [
           "password"
         ]
-      },
-      "SaveRedactedDto": {
-        "type": "object",
-        "properties": {
-          "identifier": {
-            "type": "string"
-          },
-          "trail": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "required": [
-          "identifier",
-          "trail"
-        ]
-      },
-      "PublishDto": {
-        "type": "object",
-        "properties": {
-          "authority_name": {
-            "type": "string"
-          },
-          "publish_date": {
-            "type": "number"
-          },
-          "info_website": {
-            "type": "string"
-          },
-          "concern_points": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "required": [
-          "authority_name",
-          "publish_date",
-          "info_website",
-          "concern_points"
-        ]
       }
     }
   },
   "paths": {
+    "/upload": {
+      "post": {
+        "tags": [
+          "default"
+        ],
+        "summary": "Accepts SAFE PATHS data upload from user.  Auth code sent in body must match auth code in POST /patient",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "authCode": {
+                    "$ref": "#/components/schemas/authCode"
+                  },
+                  "concernPoints": {
+                    "$ref": "#/components/schemas/concernPoints"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {}
+          },
+          "403": {
+            "description": "Access forbidden",
+            "content": {}
+          },
+          "405": {
+            "description": "Invalid input",
+            "content": {}
+          },
+          "default": {
+            "description": "Unexpected behavior"
+          }
+        }
+      }
+    },
+    "/patient": {
+      "get": {
+        "tags": [
+          "default"
+        ],
+        "summary": "Gets list of patient records",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/caseId"
+                  }
+                }
+              }
+            },
+            "links": {
+              "getCaseByCaseId": {
+                "operationId": "getCase",
+                "parameters": {
+                  "caseId": "$response.body#/caseId"
+                },
+                "description": "caseId can be used as the `caseId` parameter in /patient/{caseId}"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "contactTracer": []
+          },
+          {
+            "admin": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "default"
+        ],
+        "summary": "Creates a record into the database which allows the patient to upload concern points from the PATHS app",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "authCode": {
+                    "$ref": "#/components/schemas/authCode"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Patient file was created with the id: 'caseId'",
+            "content": {
+              "appliction/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "caseId": {
+                      "$ref": "#/components/schemas/caseId"
+                    }
+                  }
+                }
+              }
+            },
+            "links": {
+              "getCaseByCaseId": {
+                "operationId": "getCase",
+                "parameters": {
+                  "caseId": "$response.body#/caseId"
+                },
+                "description": "caseId can be used as the `caseId` parameter in /patient/{caseId}"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "409": {
+            "description": "Auth code may only be used once",
+            "content": {}
+          },
+          "default": {
+            "description": "Unexpected behavior"
+          }
+        },
+        "security": [
+          {
+            "contactTracer": []
+          },
+          {
+            "admin": []
+          }
+        ]
+      }
+    },
+    "/patient/{caseId}": {
+      "get": {
+        "tags": [
+          "default"
+        ],
+        "summary": "Gets patient case record",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the case to return",
+            "schema": {
+              "$ref": "#/components/schemas/caseId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "caseState": {
+                      "$ref": "#/components/schemas/caseState"
+                    },
+                    "concernPoints": {
+                      "$ref": "#/components/schemas/concernPoints"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "contactTracer": []
+          },
+          {
+            "admin": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "default"
+        ],
+        "summary": "Update patient case record",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the case to update",
+            "schema": {
+              "$ref": "#/components/schemas/caseId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "caseState": {
+                    "$ref": "#/components/schemas/caseState"
+                  },
+                  "concernPoints": {
+                    "$ref": "#/components/schemas/concernPoints"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Patient case updated",
+            "content": {}
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {}
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Lacks sufficient authority for operation",
+            "content": {}
+          },
+          "default": {
+            "description": "Unexpected behavior"
+          }
+        },
+        "security": [
+          {
+            "contactTracer": []
+          },
+          {
+            "admin": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "default"
+        ],
+        "summary": "delete patient case record",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the case to delete",
+            "schema": {
+              "$ref": "#/components/schemas/caseId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient case deleted",
+            "content": {}
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {}
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Lacks sufficient authority for operation",
+            "content": {}
+          },
+          "default": {
+            "description": "Unexpected behavior"
+          }
+        },
+        "security": [
+          {
+            "contactTracer": []
+          },
+          {
+            "admin": []
+          }
+        ]
+      }
+    },
+    "/safe_path/{orgId}": {
+      "get": {
+        "tags": [
+          "default"
+        ],
+        "operationId": "SafePlacesController_loadSafePathJson",
+        "summary": "Retrieve current set of points of concern, no auth needed, called by mobile phone app - part of mandatory API",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "post": {
+        "tags": [
+          "user admin"
+        ],
         "operationId": "AuthController_bootstrap",
         "parameters": [],
         "responses": {
@@ -180,6 +556,9 @@
     },
     "/validate": {
       "post": {
+        "tags": [
+          "user admin"
+        ],
         "operationId": "AuthController_validate",
         "parameters": [],
         "requestBody": {
@@ -201,6 +580,9 @@
     },
     "/login": {
       "post": {
+        "tags": [
+          "user admin"
+        ],
         "operationId": "AuthController_login",
         "summary": "Initiate authorization - part of mandatory API",
         "parameters": [],
@@ -223,6 +605,9 @@
     },
     "/login2": {
       "post": {
+        "tags": [
+          "user admin"
+        ],
         "operationId": "AuthController_login2",
         "summary": "Alternate authorization path if 2 factor login in use - part of extension API",
         "parameters": [],
@@ -245,6 +630,9 @@
     },
     "/register": {
       "post": {
+        "tags": [
+          "user admin"
+        ],
         "operationId": "AuthController_register",
         "summary": "Establish a new user - part of extension API",
         "parameters": [],
@@ -267,6 +655,9 @@
     },
     "/updatePassword": {
       "post": {
+        "tags": [
+          "user admin"
+        ],
         "operationId": "AuthController_updatePassword",
         "summary": "Update the password - part of extension API",
         "parameters": [],
@@ -289,6 +680,9 @@
     },
     "/users": {
       "get": {
+        "tags": [
+          "user admin"
+        ],
         "operationId": "AuthController_listUsers",
         "summary": "List users visible to the person logged in - part of extension API",
         "parameters": [],
@@ -301,6 +695,9 @@
     },
     "/health": {
       "get": {
+        "tags": [
+          "user admin"
+        ],
         "operationId": "SafePlacesController_health",
         "summary": "Probe readyness of server - part of extension API",
         "parameters": [],
@@ -311,111 +708,6 @@
               "application/json": {
                 "schema": {
                   "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/redacted_trail": {
-      "post": {
-        "operationId": "SafePlacesController_saveRedactedTrail",
-        "summary": "Called to save a redacted trail - part of mandatory API",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SaveRedactedDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/redacted_trails": {
-      "get": {
-        "operationId": "SafePlacesController_loadAllRedacted",
-        "summary": "Load all redacted trails - part of mandatory API",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/safe_paths": {
-      "post": {
-        "operationId": "SafePlacesController_publish",
-        "summary": "Publish current set of redacted trails - part of mandatory API",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PublishDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/safe_path/{orgId}": {
-      "get": {
-        "operationId": "SafePlacesController_loadSafePathJson",
-        "summary": "Retrieve current set of points of concern, no auth needed, called by mobile phone app - part of mandatory API",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "orgId",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
                 }
               }
             }
