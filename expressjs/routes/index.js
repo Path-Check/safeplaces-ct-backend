@@ -20,7 +20,7 @@ const LocalStrategy = require('passport-local').Strategy;
 router.post('/login',	function(req, res, next) {
   passport.authenticate('local', function(err, user, info) {
     if (err) {
-      return done(err);
+      return next(err);
     }
     else if (user) {
       users.findOne({username: req.body.username}).then((user) => {
@@ -37,7 +37,7 @@ router.post('/login',	function(req, res, next) {
           maps_api_key: user.maps_api_key
         });
       }).catch((err) => {
-        return done(err);
+        return next(err);
       });
     }
     else{
