@@ -8,9 +8,9 @@ class API {
     })
   }
 
-  // start(port) {
-  //   return server.start(port)
-  // }
+  start(port) {
+    return server.start(port)
+  }
 }
 
 module.exports = new API()
