@@ -11,8 +11,6 @@ const publications = require('../../../db/models/publications');
 exports.fetchSafePaths = async (req, res) => {
   let safePathsResponse = {};
 
-  console.log('Starting...')
-
   const publicationRecord = await publications.findLastOne({organization_id: req.params.organization_id})
   if (publicationRecord) {
     safePathsResponse.publish_date = publicationRecord.publish_date.getTime()/1000;
@@ -24,8 +22,6 @@ exports.fetchSafePaths = async (req, res) => {
     start_date: publicationRecord.start_date.getTime()/1000,
     end_date: publicationRecord.end_date.getTime()/1000
   }
-
-  console.log(timeInterval)
 
   const redactedTrailRecords = await trails.findInterval(timeInterval)
   if (redactedTrailRecords) {
@@ -43,69 +39,6 @@ exports.fetchSafePaths = async (req, res) => {
   } else {
     res.status(500).json({message: 'Internal Server Error'});
   }
-
-  // trails.findInterval(timeInterval).then((redactedTrailRecords) => {
-  //   let intervalTrails = trails.getRedactedTrailFromRecord(redactedTrailRecords);
-
-  //   organizations.findOne({id: req.params.organization_id}).then((organization) => {
-
-  //     safePathsResponse.authority_name = organization.authority_name;
-  //     safePathsResponse.concern_points = intervalTrails;
-  //     safePathsResponse.info_website = organization.info_website;
-
-  //     res.status(200).json(safePathsResponse);
-  //   }).catch((err) => {
-  //     //TODO: introduce logger
-  //     console.log(err);
-  //     res.status(500).json({message: 'Internal Server Error'});
-  //   });
-  // }).catch((err) => {
-  //   //TODO: introduce logger
-  //   console.log(err);
-  //   res.status(500).json({message: 'Internal Server Error'});
-  // });
-
-  // publications.findLastOne({organization_id: req.params.organization_id})
-  //   .then((publicationRecord) => {
-
-  //     if (publicationRecord) {
-  //       safePathsResponse.publish_date = publicationRecord.publish_date.getTime()/1000;
-  //     } else {
-  //       return res.status(204).send('');
-  //     }
-
-  //     let timeInterval = {
-  //       start_date: publicationRecord.start_date.getTime()/1000,
-  //       end_date: publicationRecord.end_date.getTime()/1000
-  //     }
-
-  //     trails.findInterval(timeInterval)
-  //       .then((redactedTrailRecords) => {
-  //         let intervalTrails = trails.getRedactedTrailFromRecord(redactedTrailRecords);
-
-  //         organizations.findOne({id: req.params.organization_id})
-  //           .then((organization) => {
-
-  //             safePathsResponse.authority_name = organization.authority_name;
-  //             safePathsResponse.concern_points = intervalTrails;
-  //             safePathsResponse.info_website = organization.info_website;
-
-  //             res.status(200).json(safePathsResponse);
-  //           }).catch((err) => {
-  //             //TODO: introduce logger
-  //             console.log(err);
-  //             res.status(500).json({message: 'Internal Server Error'});
-  //           });
-  //       }).catch((err) => {
-  //         //TODO: introduce logger
-  //         console.log(err);
-  //         res.status(500).json({message: 'Internal Server Error'});
-  //       });
-  //   }).catch((err) => {
-  //     //TODO: introduce logger
-  //     console.log(err);
-  //     res.status(500).json({message: 'Internal Server Error'});
-  //   });
 }
 
 /**
