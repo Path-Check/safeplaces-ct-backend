@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const passport = require('passport');
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
-const config = require('../config')
+const jwtSecret = require('../../config/jwtConfig');
 const users = require('../../db/models/users');
 
 const LocalStrategy = require('passport-local').Strategy;
@@ -46,7 +46,7 @@ passport.use(
 
 const opts = {
   jwtFromRequest: ExtractJWT.fromHeader("authorization"),
-  secretOrKey: config.jwt.secret,
+  secretOrKey: jwtSecret.secret,
 };
 
 passport.use(
