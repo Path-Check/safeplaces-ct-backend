@@ -2,11 +2,11 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const atob = require('atob');
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const jwtSecret = require('../config/jwtConfig');
 const jwt = require('jsonwebtoken');
-var server = require('../app');
+const server = require('../app');
 const USERNAME = 'admin';
 
 const ADMIN_JWT_TOKEN_EXPIRED = jwt.sign(
@@ -30,7 +30,7 @@ function parseJwt (token) {
   return JSON.parse(jsonPayload);
 }
 
-describe.only('POST /login', function() {
+describe('POST /login', function() {
   it('should login on user creds and return map api key', function(done) {
     chai.request(server.app)
     .post('/login')

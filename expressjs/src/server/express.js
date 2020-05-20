@@ -119,13 +119,23 @@ class Server {
    * @method wrapAsync
    */
   wrapAsync(fn, validate = false) {
-    return function(req, res, next) {
+    return (req, res, next) => {
       // Make sure to `.catch()` any errors and pass them along to the `next()`
       // middleware in the chain, in this case the error handler.
-
-      // if (validate) passport.authenticate('jwt', { session: false })
-
-      fn(req, res, next).catch(next)
+      if (validate) {
+        passport.authenticate('jwt', { session: false }, (err, user, info) => {
+          if (err) {
+            return res.status(500).json({message: err.message});
+          } else if (user) {
+            req.user = user
+            fn(req, res, next).catch(next)
+          } else {
+            return res.status(401).send('Unauthorized')
+          }
+        })(req, res, next)
+      } else {
+        fn(req, res, next).catch(next)
+      }
     }
   }
 

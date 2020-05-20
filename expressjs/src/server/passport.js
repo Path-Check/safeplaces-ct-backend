@@ -12,7 +12,7 @@ const opts = {
   secretOrKey: jwtSecret.secret,
 };
 
-const strategy = new LocalStrategy({
+const localStrategy = new LocalStrategy({
     passReqToCallback : true,
     session : false
   }, async (req, username, password, done) => {
@@ -39,29 +39,29 @@ const strategy = new LocalStrategy({
   }
 );
 
-passport.use('local', strategy);
+passport.use('local', localStrategy);
 
-passport.use(
-  'jwt',
-  new JWTstrategy(opts, (jwt_payload, done) => {
-    try {
-      const isExpired = (jwt_payload.exp - ~~(Date.now()/1000)) < 0;
-      if (isExpired){
-        return done(new Error('Token Expired'), false);
-      }
-      users.findOne({username: jwt_payload.sub}).then(user => {
-        if (user) {
-          // note the return removed with passport JWT - add this return for passport local
-          done(null, user);
-        } else {
-          done(new Error('User not found!'), false);
-        }
-      });
-    } catch (err) {
-      done(err);
+const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
+  try {
+    const { sub, exp } = jwt_payload
+
+    const isExpired = (exp - ~~(Date.now()/1000)) < 0;
+    if (isExpired) {
+      return done(new Error('Token Expired'), false);
     }
-  })
-);
+    
+    const user = await users.findOne({ username: sub })
+    if (user) {
+      done(null, user);
+    } else {
+      done(new Error('User not found!'), false);
+    }
+  } catch (err) {
+    done(err);
+  }
+})
+
+passport.use('jwt', jwtStrategy);
 
 passport.serializeUser(function(user, done) {
 	done(null, user);

@@ -121,8 +121,7 @@ router.get('/redacted_trails', passport.authenticate('jwt', { session: false }),
 });
 
 // *** POST redacted trail *** //
-router.post('/redacted_trail',
-  passport.authenticate('jwt', { session: false }), function(req, res) {
+router.post('/redacted_trail', passport.authenticate('jwt', { session: false }), function(req, res) {
     let redactedTrailReturnData = {};
     if (Array.isArray(req.body.trail) && req.body.trail.length) {
       trails.insertRedactedTrailSet(
