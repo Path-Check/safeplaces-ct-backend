@@ -4,6 +4,7 @@
 
 # Config
 .env
+.envrc
 
 # Logs
 logs

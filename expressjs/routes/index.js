@@ -1,20 +1,19 @@
 const bcrypt = require('bcrypt');
-var express = require('express');
+const express = require('express');
 const jwtSecret = require('../config/jwtConfig');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-var router = express.Router();
+const router = express.Router();
 
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 
-var organizations = require('../db/models/organizations');
-var publications = require('../db/models/publications');
-var trails = require('../db/models/trails');
-var users = require('../db/models/users');
+const organizations = require('../db/models/organizations');
+const publications = require('../db/models/publications');
+const trails = require('../db/models/trails');
+const users = require('../db/models/users');
 
 const LocalStrategy = require('passport-local').Strategy;
-
 
 // *** POST /login user *** //
 router.post('/login',	function(req, res, next) {
