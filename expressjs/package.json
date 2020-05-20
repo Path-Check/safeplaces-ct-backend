@@ -7,8 +7,10 @@
     "test": "nyc --reporter=html --reporter=text mocha"
   },
   "dependencies": {
+    "app-module-path": "^2.2.0",
     "atob": "^2.1.2",
     "bcrypt": "^4.0.1",
+    "bluebird": "^3.7.2",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",

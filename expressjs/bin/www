@@ -2,7 +2,7 @@
 
 require('../paths.js')
 
-const { api } = require('src')
+const { server, api } = require('src')
 
 /**
  * Module dependencies.

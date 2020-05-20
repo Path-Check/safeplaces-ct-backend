@@ -7,47 +7,39 @@ const users = require('../../db/models/users');
 
 const LocalStrategy = require('passport-local').Strategy;
 
-passport.use(
-  'local',
-  new  LocalStrategy({
-    passReqToCallback : true,
-    session : false
-  }, (req, username, password, done) => {
-    loginAttempt();
-    async function loginAttempt() {
-      try{
-        users.findOne({username: username}).then((loginUser) => {
-          if(loginUser == null){
-            //TODO: log error
-            return done(null, false, {status: 401, message: 'Invalid credentials.'});
-          }
-          else{
-            bcrypt.compare(password, loginUser.password, function(err, check) {
-              if (err){
-                //TODO: log error
-                return done();
-              }
-              else if (check){
-                return done(null, [{username: loginUser.username}]);
-              }
-              else{
-                return done(null, false, {status: 401, message: 'Invalid credentials.'});
-              }
-            });
-          }
-        }).catch((err) => {
-          return done(err);
-        });
-      }
-      catch(e){throw (e);}
-    }
-  })
-);
-
 const opts = {
   jwtFromRequest: ExtractJWT.fromHeader("authorization"),
   secretOrKey: jwtSecret.secret,
 };
+
+const strategy = new LocalStrategy({
+    passReqToCallback : true,
+    session : false
+  }, async (req, username, password, done) => {
+    let user;
+    try {
+      user = await users.findOne({ username: username })
+      if (!user) {
+        return done(null, false, { status: 401, message: 'Invalid credentials.' });
+      } else {
+        bcrypt.compare(password, user.password, (err, check) => {
+          if (err){
+            //TODO: log error
+            return done();
+          } else if (check) {
+            return done(null, [{ username: user.username }]); // TODO: Why are we passing just the username back and not the user.
+          } else {
+            return done(null, false, { status: 401, message: 'Invalid credentials.' });
+          }
+        });
+      }
+    } catch (e) {
+      return done(e);
+    }
+  }
+);
+
+passport.use('local', strategy);
 
 passport.use(
   'jwt',
@@ -68,7 +60,7 @@ passport.use(
     } catch (err) {
       done(err);
     }
-  }),
+  })
 );
 
 passport.serializeUser(function(user, done) {

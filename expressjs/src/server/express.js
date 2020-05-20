@@ -111,7 +111,7 @@ class Server {
   /**
    * @method delete
    */
-  post() {
+  delete() {
     return this._router.delete(...arguments)
   }
 
@@ -123,7 +123,7 @@ class Server {
       // Make sure to `.catch()` any errors and pass them along to the `next()`
       // middleware in the chain, in this case the error handler.
 
-      if (validate) passport.authenticate('jwt', { session: false })
+      // if (validate) passport.authenticate('jwt', { session: false })
 
       fn(req, res, next).catch(next)
     }

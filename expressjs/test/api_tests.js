@@ -36,7 +36,7 @@ chai.use(chaiHttp);
 
 describe('GET /health', function() {
   it('should return 200 and all ok message', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .get('/health')
     .end(function(err, res) {
       res.should.have.status(200);
@@ -51,7 +51,7 @@ describe('GET /health', function() {
 describe('GET /redacted_trails when DB is empty', function() {
 
   it('should return empty array for redacted trail', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .get('/redacted_trails')
     .set('Authorization', `${ADMIN_JWT_TOKEN}`)
     .end(function(err, res) {
@@ -109,7 +109,7 @@ describe('GET /redacted_trails with some values', function() {
   });
 
   it('should return all redacted trails', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .get('/redacted_trails')
     .set('Authorization', `${ADMIN_JWT_TOKEN}`)
     .end(function(err, res) {
@@ -159,7 +159,7 @@ describe('POST /redacted_trail', function() {
   });
 
   it('should check for correct JWT token', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .post('/redacted_trail')
     .send({
       'identifier': 'a88309c4-26cd-4d2b-8923-af0779e423a3',
@@ -180,7 +180,7 @@ describe('POST /redacted_trail', function() {
   });
 
   it('should check for unexpired JWT token', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .post('/redacted_trail')
     .send({
       'identifier': 'a88309c4-26cd-4d2b-8923-af0779e423a3',
@@ -201,7 +201,7 @@ describe('POST /redacted_trail', function() {
   });
 
   it('should fail when redacted trail is empty', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .post('/redacted_trail')
     .send({
       'identifier': 'a88309c4-26cd-4d2b-8923-af0779e423a3',
@@ -218,7 +218,7 @@ describe('POST /redacted_trail', function() {
   });
 
   it('should accept redacted trail', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .post('/redacted_trail')
     .send({
       'identifier': 'a88309c4-26cd-4d2b-8923-af0779e423a3',
@@ -258,7 +258,7 @@ describe('POST /redacted_trail', function() {
   });
 
   it('should accept multiple co-ordinates in redacted trail', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .post('/redacted_trail')
     .send({
       'identifier': 'a88309c4-26cd-4d2b-8923-af0779e423a3',
@@ -332,7 +332,7 @@ describe('GET /safe_path without redacted_trails and with publication', function
   });
 
   it('should return an organization`s safe paths as empty', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .get('/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3')
     .end(function(err, res) {
       res.should.have.status(200);
@@ -385,7 +385,7 @@ describe('GET /safe_path with redacted_trails and without publication', function
   });
 
   it('should return an organization`s safe paths as empty', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .get('/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3')
     .end(function(err, res) {
       res.should.have.status(204);
@@ -441,7 +441,7 @@ describe('GET /safe_path with redacted_trails and publication', function() {
   });
 
   it('should return an organization`s safe paths', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .get('/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3')
     .end(function(err, res) {
       res.should.have.status(200);
@@ -481,7 +481,7 @@ describe('POST /safe_paths without redacted trails', function() {
   });
 
   it('should accept safe path being submitted and create publication record', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .post('/safe_paths')
     .send({
       'authority_name':  'Test Organization',
@@ -567,7 +567,7 @@ describe('POST /safe_paths with redacted trails and start_date, end_date respect
   });
 
   it('should accept safe path being submitted', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .post('/safe_paths')
     .send({
       'authority_name':  'Test Organization',
@@ -659,7 +659,7 @@ describe('POST /safe_paths with redacted trails', function() {
   });
 
   it('should accept safe path being submitted', function(done) {
-    chai.request(server)
+    chai.request(server.app)
     .post('/safe_paths')
     .send({
       'authority_name':  'Test Organization',
@@ -718,73 +718,5 @@ describe('POST /safe_paths with redacted trails', function() {
       res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
       done();
     })
-  });
-});
-
-function parseJwt (token) {
-  var base64Url = token.split('.')[1];
-  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
-
-  return JSON.parse(jsonPayload);
-}
-
-describe('POST /login', function() {
-  it('should login on user creds and return map api key', function(done) {
-    chai.request(server)
-    .post('/login')
-    .send({
-      username: 'admin',
-      password : 'admin'
-    })
-    .end(function(err, res) {
-      res.should.have.status(200);
-      res.should.be.json; // jshint ignore:line
-      res.body.should.have.property('token');
-      let parsedJwt = parseJwt(res.body.token);
-      parsedJwt.should.have.property('sub');
-      parsedJwt.sub.should.equal('admin');
-      parsedJwt.should.have.property('iat');
-      chai.assert.equal(new Date(parsedJwt.iat * 1000) instanceof Date, true);
-      parsedJwt.should.have.property('exp');
-      chai.assert.equal(new Date(parsedJwt.exp * 1000) instanceof Date, true);
-      res.body.should.have.property('maps_api_key');
-      res.body.maps_api_key.should.equal(process.env.SEED_MAPS_API_KEY);
-      done();
-    });
-  });
-
-  it('should fail when wrong password is given saying creds are invalid', function(done) {
-    chai.request(server)
-    .post('/login')
-    .send({
-      username: 'admin',
-      password : 'wrongpassword'
-    })
-    .end(function(err, res) {
-      res.should.have.status(401);
-      res.should.be.json; // jshint ignore:line
-      res.body.should.have.property('message');
-      res.body.message.should.equal('Invalid credentials.');
-      done();
-    });
-  });
-
-  it('should fail with invalid username saying creds are invalid', function(done) {
-    chai.request(server)
-    .post('/login')
-    .send({
-      username: 'invaliduser',
-      password : 'somepassword'
-    })
-    .end(function(err, res) {
-      res.should.have.status(401);
-      res.should.be.json; // jshint ignore:line
-      res.body.should.have.property('message');
-      res.body.message.should.equal('Invalid credentials.');
-      done();
-    });
   });
 });
