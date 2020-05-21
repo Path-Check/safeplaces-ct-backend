@@ -35,7 +35,7 @@ chai.use(chaiHttp);
 
 let currentOrg;
 
-describe.only('Organization ', () => {
+describe('Organization ', () => {
 
   before(async () => {
     currentOrg = {
@@ -43,7 +43,7 @@ describe.only('Organization ', () => {
       authority_name: 'My Example Name',
       info_website: 'http://sample.com'
     };
-    await organizations.deleteAllRows();
+    // await organizations.deleteAllRows();
     await organizations.create(currentOrg);
   });
 

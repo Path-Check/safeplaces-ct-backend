@@ -40,6 +40,7 @@ describe('Redacted ', function() {
         .get('/redacted_trails')
         .set('Authorization', `${ADMIN_JWT_TOKEN}`)
         .end(function(err, res) {
+          console.log(res)
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
           res.body.should.have.property('organization');

@@ -7,16 +7,21 @@ class BaseService {
   }
 
   async findOne(query) {
+    if (!query) throw new Error('Filter was not provided');
+
     return knex(this._name).where(query).first();
   }
 
   updateOne(id, params) {
     if (!id) throw new Error('ID was not provided');
+    if (!params) throw new Error('Params were not provided');
 
     return knex(this._name).where({ id: id }).update(params).returning('*');
   }
 
   create(params) {
+    if (!params) throw new Error('Params were not provided');
+
     return knex(this._name).insert(params).returning('*');
   }
 
