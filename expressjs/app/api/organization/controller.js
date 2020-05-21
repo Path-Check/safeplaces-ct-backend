@@ -6,7 +6,7 @@ const organizations = require('../../../db/models/organizations');
  * Fetch Organization
  * 
  */
-exports.fetchOrganization = async (req, res) => {
+exports.fetchOrganizationById = async (req, res) => {
   const { organization_id } = req.params;
 
   if (!organization_id) throw new Error('Organization ID is missing.');

@@ -5,47 +5,46 @@ const { v4: uuidv4 } = require('uuid');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../app');
+const mockData = require('./lib/mockData');
 const organizations = require('../db/models/organizations');
 
-// const jwtSecret = require('../config/jwtConfig');
-// const jwt = require('jsonwebtoken');
-// const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
-// const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
-
-// const USERNAME = 'admin';
-// const ADMIN_JWT_TOKEN = jwt.sign(
-//   {
-//     sub: USERNAME,
-//     iat: ~~(Date.now() / 1000),
-//     exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || (1 * 60 * 60)) // Default expires in an hour
-//   },
-//   jwtSecret.secret
-// );
-
-// const ADMIN_JWT_TOKEN_EXPIRED = jwt.sign(
-//   {
-//     sub: USERNAME,
-//     iat: ~~(Date.now() / 1000),
-//     exp: ~~(Date.now() / 1000) - 1
-//   },
-//   jwtSecret.secret
-// );
+const jwtSecret = require('../config/jwtConfig');
+const jwt = require('jsonwebtoken');
 
 chai.use(chaiHttp);
 
+let currentUser;
 let currentOrg;
+let token;
 
-describe('Organization ', () => {
+before(async () => {
 
-  before(async () => {
-    currentOrg = {
-      id: uuidv4(),
-      authority_name: 'My Example Name',
-      info_website: 'http://sample.com'
-    };
-    // await organizations.deleteAllRows();
-    await organizations.create(currentOrg);
-  });
+  let orgParams = {
+    id: uuidv4(),
+    authority_name: 'My Example Organization',
+    info_website: 'http://sample.com'
+  };
+  currentOrg = await mockData.mockOrganization(orgParams);
+
+  let newUserParams = {
+    username: 'myAwesomeUser',
+    password: 'myAwesomePassword',
+    email: 'myAwesomeUser@yomanbob.com',
+    organization: currentOrg.id
+  };
+  currentUser = await mockData.mockUser(newUserParams);
+
+  token = jwt.sign(
+    {
+      sub: currentUser.username,
+      iat: ~~(Date.now() / 1000),
+      exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || (1 * 60 * 60)) // Default expires in an hour
+    },
+    jwtSecret.secret
+  );
+});
+
+describe.only('Organization ', () => {
 
   describe('GET /organization when DB is empty', () => {
 
@@ -54,12 +53,12 @@ describe('Organization ', () => {
       results.id.should.equal(currentOrg.id);
     });
 
-    it('find the record using http', async () => {
+    it.only('find the record using http', async () => {
         const results = await chai.request(server.app)
           .get(`/organization/${currentOrg.id}`)
-          // .set('Authorization', `${ADMIN_JWT_TOKEN}`)
+          .set('Authorization', `${token}`)
           .set('content-type', 'application/json');
-
+          // console.log(results)
         results.body.id.should.equal(currentOrg.id);
     });
 
@@ -70,7 +69,7 @@ describe('Organization ', () => {
 
         const results = await chai.request(server.app)
           .put(`/organization/${currentOrg.id}`)
-          // .set('Authorization', `${ADMIN_JWT_TOKEN}`)
+          .set('Authorization', `${token}`)
           .set('content-type', 'application/json')
           .send(newParams);
 
