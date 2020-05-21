@@ -4,11 +4,11 @@ process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/saf
 const { v4: uuidv4 } = require('uuid');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-// const jwtSecret = require('../config/jwtConfig');
-// const jwt = require('jsonwebtoken');
 const server = require('../app');
 const organizations = require('../db/models/organizations');
 
+// const jwtSecret = require('../config/jwtConfig');
+// const jwt = require('jsonwebtoken');
 // const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
 // const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
 

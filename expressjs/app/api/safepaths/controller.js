@@ -65,8 +65,8 @@ exports.createSafePath = async (req, res) => {
 
   // Construct a organization record before updating
 
+  let organizationId = req.user.organization_id;
   let organization = {};
-  organization.id = req.user.organization_id;
   organization.authority_name = req.body.authority_name;
   organization.info_website = req.body.info_website;
   organization.safe_path_json = req.body.safe_path_json;
@@ -76,17 +76,18 @@ exports.createSafePath = async (req, res) => {
   timeSlice.start_date = req.body.start_date;
   timeSlice.end_date = req.body.end_date;
 
-  publications.insert(publication).then(publicationRecords => {
-
+  const publicationRecords = await publications.insert(publication)
+  if (publicationRecords) {
     safePathsResponse.datetime_created = new Date(publicationRecords[0].created_at).toString();
 
-    organizations.update(organization).then(organizationRecords => {
-
+    const organizationRecords = await organizations.update(organizationId, organization);
+    if (organizationRecords) {
       safePath.authority_name = organizationRecords[0].authority_name;
       safePath.info_website = organizationRecords[0].info_website;
       safePath.safe_path_json = organizationRecords[0].safe_path_json;
 
-      trails.findInterval(timeSlice).then(intervalTrail => {
+      const intervalTrail = await trails.findInterval(timeSlice);
+      if (intervalTrail) {
 
         let intervalPoints = [];
         intervalPoints = trails.getRedactedTrailFromRecord(intervalTrail);
@@ -94,14 +95,13 @@ exports.createSafePath = async (req, res) => {
         safePathsResponse.safe_path = safePath;
 
         res.status(200).json(safePathsResponse);
-      }).catch(err => {
-        res.status(500).json({message: err});
-      }); // trails
-    }).catch(err => {
-      res.status(404).json({message: err});
-    }); // organization
-
-  }).catch(err => {
-    res.status(500).json({message: err});
-  }); // publication
+      } else {
+        res.status(500).json({message: 'Internal Server Error'});
+      }
+    } else {
+      res.status(404).json({message: 'Internal Server Error'});
+    }
+  } else {
+    res.status(500).json({message: 'Internal Server Error'});
+  }
 };

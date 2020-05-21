@@ -26,13 +26,12 @@ exports.fetchOrganization = async (req, res) => {
  * 
  */
 exports.updateOrganization = async (req, res) => {
-  const { params: { organization_id }, body } = req;
+  const { params: { organization_id }, body: organization } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const results = await organizations.updateOne(organization_id, body);
+  const results = await organizations.updateOne(organization_id, organization);
   if (results) {
     res.status(200).json(results[0]);
   }
-
 };

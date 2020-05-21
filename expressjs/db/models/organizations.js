@@ -8,7 +8,7 @@ class Service extends BaseService {
     organizationRecord.info_website = organization.info_website;
     organizationRecord.safe_path_json = organization.safe_path_json;
 
-    this.updateOne(id, organization);
+    return this.updateOne(id, organization);
   }
 
 }

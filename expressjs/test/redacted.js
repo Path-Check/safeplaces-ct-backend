@@ -40,7 +40,6 @@ describe('Redacted ', function() {
         .get('/redacted_trails')
         .set('Authorization', `${ADMIN_JWT_TOKEN}`)
         .end(function(err, res) {
-          console.log(res)
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
           res.body.should.have.property('organization');
@@ -65,33 +64,30 @@ describe('Redacted ', function() {
   describe('GET /redacted_trails with some values', function() {
 
     before(async function(){
-      console.log('Seeding trail data');
-      await trails.deleteTable().then(async () => {
-        let trail = [
-          {
-            longitude: 12.34,
-            latitude: 12.34,
-            time: 123456789
-          },
-          {
-            longitude: 12.34,
-            latitude: 12.34,
-            time: 123456789
-          }
-        ];
-        let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
-        await trails.insertRedactedTrailSet(
-            trail,
-            identifier,
-            ORGANISATION_ID,
-            USER_ID
-          );
-      });
+      await trails.deleteTable();
+      let trail = [
+        {
+          longitude: 12.34,
+          latitude: 12.34,
+          time: 123456789
+        },
+        {
+          longitude: 12.34,
+          latitude: 12.34,
+          time: 123456789
+        }
+      ];
+      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
+      await trails.insertRedactedTrailSet(
+        trail,
+        identifier,
+        ORGANISATION_ID,
+        USER_ID
+      );
     });
 
     after(async function(){
-      console.log('Deleting seeded trail data');
-      await trails.deleteTable().then(() => {});
+      await trails.deleteTable()
     });
 
     it('should return all redacted trails', function(done) {
@@ -140,7 +136,6 @@ describe('Redacted ', function() {
   describe('POST /redacted_trail', function() {
 
     afterEach(async function(){
-      console.log('Deleting posted trail data');
       await trails.deleteTable();
     });
 

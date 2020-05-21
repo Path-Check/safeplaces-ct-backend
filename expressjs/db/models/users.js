@@ -1,15 +1,33 @@
-var knex = require('../knex.js');
+// var knex = require('../knex.js');
 
-function Users() {
-  return knex('users');
+// function Users() {
+//   return knex('users');
+// }
+
+// // *** queries *** //
+
+// function findOne(filter){
+//   return Users().where(filter).first().then(row => row);
+// }
+
+// module.exports = {
+//   findOne: findOne
+// };
+
+
+const BaseService = require('../common/service.js');
+
+class Service extends BaseService {
+
+  update(id, organization) {
+    let organizationRecord = {};
+    organizationRecord.authority_name = organization.authority_name;
+    organizationRecord.info_website = organization.info_website;
+    organizationRecord.safe_path_json = organization.safe_path_json;
+
+    this.updateOne(id, organization);
+  }
+
 }
 
-// *** queries *** //
-
-function findOne(filter){
-  return Users().where(filter).first().then(row => row);
-}
-
-module.exports = {
-  findOne: findOne
-};
+module.exports = new Service('users');
