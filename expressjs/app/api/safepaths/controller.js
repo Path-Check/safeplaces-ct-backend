@@ -76,7 +76,7 @@ exports.createSafePath = async (req, res) => {
   timeSlice.start_date = req.body.start_date;
   timeSlice.end_date = req.body.end_date;
 
-  const publicationRecords = await publications.insert(publication)
+  const publicationRecords = await publications.insert(publication);
   if (publicationRecords) {
     safePathsResponse.datetime_created = new Date(publicationRecords[0].created_at).toString();
 

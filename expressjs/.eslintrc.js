@@ -13,4 +13,4 @@ module.exports = {
     'arrow-parens': ['error', 'as-needed'],
     semi: ['error', 'always']
   }
-}
+};

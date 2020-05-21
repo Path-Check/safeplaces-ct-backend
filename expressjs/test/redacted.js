@@ -87,7 +87,7 @@ describe('Redacted ', function() {
     });
 
     after(async function(){
-      await trails.deleteTable()
+      await trails.deleteTable();
     });
 
     it('should return all redacted trails', function(done) {
