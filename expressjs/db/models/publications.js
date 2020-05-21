@@ -7,12 +7,12 @@ function Publications() {
 // *** queries *** //
 
 function findOne(filter){
-  return Publications().where(filter).first().then((row) => row);
+  return Publications().where(filter).first().then(row => row);
 }
 
 function findLastOne(filter){
   return Publications().where(filter).orderBy(
-    'created_at', 'desc').first().then((row) => row);
+    'created_at', 'desc').first().then(row => row);
 }
 
 function insert(publication){
