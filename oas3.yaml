@@ -11,15 +11,6 @@ info:
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-tags:
-  - name: user admin
-    description: endpoints to manage user identity
-    externalDocs:
-      url: 'http://confluence.com'
-  - name: default
-    description: endpoints for database CRUD
-    externalDocs:
-      url: 'http://confluence.com'
 servers:
   - url: /v1
 components:
@@ -27,33 +18,53 @@ components:
     contactTracer:
       type: http
       scheme: bearer
-      bearerFormat: JWT
       description: contact tracer access
     admin:
       type: http
       scheme: bearer
-      bearerFormat: JWT
       description: admin access
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
+      
+  parameters:
+    caseIdParam:
+      in : path
+      name: caseId
+      required : true
+      description: 'The ID of the case'
+      schema:
+        $ref: '#/components/schemas/caseId'
+    orgIdParam:
+      in : path
+      name: orgId
+      required: true
+      description: 'the ID of the org'
+      schema:
+        $ref: '#/components/schemas/orgId'
   schemas:
+    orgId:
+      type: number
+      example: 123456
+    concernPoint: 
+      type: object
+      properties:
+        longitude:
+          type: number
+          example: 14.91328448
+        latitude:
+          type: number
+          example: 41.24060321
+        time:
+          type: number
+          example: 1589117739000
+        hash:
+          type: string
+          example: 87e916850d4def3c
     concernPoints:
       type: array
       items:
-        properties:
-          longitude:
-            type: number
-            example: 14.91328448
-          latitude:
-            type: number
-            example: 41.24060321
-          time:
-            type: number
-            example: 1589117739000
-          hash:
-            type: string
-            example: 87e916850d4def3c
+        $ref: '#/components/schemas/concernPoint'
     caseId:
       type: number
       example: 23432461
@@ -77,16 +88,63 @@ components:
       required:
         - username
         - password
+  examples:
+    concernPointsOriginal:
+      value: {  "caseState" : "original", 
+                "concernPoints" : 
+              [  {"time":1583069745916,"longitude":-0.10753902581515137,"latitude":51.55987524514395, "hash": "c4ca4238a0b923820dcc509a6f75849b"},
+                {"time":1583069765568,"longitude":-0.06407687379643874,"latitude":51.53626227398831, "hash": "c81e728d9d4c2f636f067f89cc14862c"},
+                {"time":1583069873127,"longitude":-0.10383699531844902,"latitude":51.5687569927817, "hash": "eccbc87e4b5ce2fe28308fd9f2a7baf3"},
+                {"time":1583070083733,"longitude":-0.09565287120047716,"latitude":51.56663238135933, "hash": "a87ff679a2f3e71d9181a67b7542122c"},
+                {"time":1583070140324,"longitude":-0.13367363946595986,"latitude":51.53989797636888, "hash": "e4da3b7fbbce2345d7772b0674a318d5"},
+                {"time":1583070243827,"longitude":-0.05729357699158614,"latitude":51.53321925729781, "hash": "1679091c5a880faf6fb5e6087eb1b2dc"},
+                {"time":1583070298326,"longitude":-0.054365847106010994,"latitude":51.550572004199395, "hash": "8f14e45fceea167a5a36dedd4bea2543"},
+                {"time":1583070431693,"longitude":-0.12014169804782877,"latitude":51.54859663929235, "hash": "c9f0f895fb98ab9159f51fd0297e236d"}
+              ]}
+    concernPointsUnpublished:
+      value : {  "caseState" : "unpublished", 
+                "concernPoints" : 
+              [  {"time":1583069745916,"longitude":-0.10753902581515137,"latitude":51.55987524514395, "hash": "c4ca4238a0b923820dcc509a6f75849b"},
+                {"time":1583069765568,"longitude":-0.06407687379643874,"latitude":51.53626227398831, "hash": "c81e728d9d4c2f636f067f89cc14862c"},
+                {"time":1583069873127,"longitude":-0.10383699531844902,"latitude":51.5687569927817, "hash": "eccbc87e4b5ce2fe28308fd9f2a7baf3"},
+                {"time":1583070083733,"longitude":-0.09565287120047716,"latitude":51.56663238135933, "hash": "a87ff679a2f3e71d9181a67b7542122c"},
+                {"time":1583070140324,"longitude":-0.13367363946595986,"latitude":51.53989797636888, "hash": "e4da3b7fbbce2345d7772b0674a318d5"},
+                {"time":1583070243827,"longitude":-0.05729357699158614,"latitude":51.53321925729781, "hash": "1679091c5a880faf6fb5e6087eb1b2dc"},
+                {"time":1583070298326,"longitude":-0.054365847106010994,"latitude":51.550572004199395, "hash": "8f14e45fceea167a5a36dedd4bea2543"},
+                {"time":1583070431693,"longitude":-0.12014169804782877,"latitude":51.54859663929235, "hash": "c9f0f895fb98ab9159f51fd0297e236d"}
+              ]}
+    concernPointsStaging:
+      value : {  "caseState" : "staging", 
+                "concernPoints" : 
+              [  {"time":1583069745916,"longitude":-0.10753902581515137,"latitude":51.55987524514395, "hash": "c4ca4238a0b923820dcc509a6f75849b"},
+                {"time":1583069765568,"longitude":-0.06407687379643874,"latitude":51.53626227398831, "hash": "c81e728d9d4c2f636f067f89cc14862c"},
+                {"time":1583069873127,"longitude":-0.10383699531844902,"latitude":51.5687569927817, "hash": "eccbc87e4b5ce2fe28308fd9f2a7baf3"},
+                {"time":1583070083733,"longitude":-0.09565287120047716,"latitude":51.56663238135933, "hash": "a87ff679a2f3e71d9181a67b7542122c"},
+                {"time":1583070140324,"longitude":-0.13367363946595986,"latitude":51.53989797636888, "hash": "e4da3b7fbbce2345d7772b0674a318d5"},
+                {"time":1583070243827,"longitude":-0.05729357699158614,"latitude":51.53321925729781, "hash": "1679091c5a880faf6fb5e6087eb1b2dc"},
+                {"time":1583070298326,"longitude":-0.054365847106010994,"latitude":51.550572004199395, "hash": "8f14e45fceea167a5a36dedd4bea2543"},
+                {"time":1583070431693,"longitude":-0.12014169804782877,"latitude":51.54859663929235, "hash": "c9f0f895fb98ab9159f51fd0297e236d"}
+              ]}
+    concernPointsPublished:
+      value : {  "caseState" : "published", 
+                "concernPoints" : 
+              [  {"time":1583069745916,"longitude":-0.10753902581515137,"latitude":51.55987524514395, "hash": "c4ca4238a0b923820dcc509a6f75849b"},
+                {"time":1583069765568,"longitude":-0.06407687379643874,"latitude":51.53626227398831, "hash": "c81e728d9d4c2f636f067f89cc14862c"},
+                {"time":1583069873127,"longitude":-0.10383699531844902,"latitude":51.5687569927817, "hash": "eccbc87e4b5ce2fe28308fd9f2a7baf3"},
+                {"time":1583070083733,"longitude":-0.09565287120047716,"latitude":51.56663238135933, "hash": "a87ff679a2f3e71d9181a67b7542122c"},
+                {"time":1583070140324,"longitude":-0.13367363946595986,"latitude":51.53989797636888, "hash": "e4da3b7fbbce2345d7772b0674a318d5"},
+                {"time":1583070243827,"longitude":-0.05729357699158614,"latitude":51.53321925729781, "hash": "1679091c5a880faf6fb5e6087eb1b2dc"},
+                {"time":1583070298326,"longitude":-0.054365847106010994,"latitude":51.550572004199395, "hash": "8f14e45fceea167a5a36dedd4bea2543"},
+                {"time":1583070431693,"longitude":-0.12014169804782877,"latitude":51.54859663929235, "hash": "c9f0f895fb98ab9159f51fd0297e236d"}
+              ]}
+    
 paths:
   /upload:
     post:
-      tags:
-        - default
       summary: >-
         Accepts SAFE PATHS data upload from user.  Auth code sent in body must
-        match auth code in POST /patient
+        match auth code in POST /patients
       requestBody:
-        required: true
         content:
           application/json:
             schema:
@@ -110,8 +168,6 @@ paths:
           description: Unexpected behavior
   /patients:
     get:
-      tags:
-        - default
       summary: Gets list of patient records
       responses:
         '200':
@@ -122,27 +178,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/caseId'
-          links:
-            getCaseByCaseId:
-              operationId: getCase
-              parameters:
-                caseId: '$response.body#/caseId'
-              description: >-
-                caseId can be used as the `caseId` parameter in
-                /patient/{caseId}
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
         - contactTracer: []
         - admin: []
     post:
-      tags:
-        - default
       summary: >-
         Creates a record into the database which allows the patient to upload
         concern points from the PATHS app
       requestBody:
-        required: true
         content:
           application/json:
             schema:
@@ -160,14 +205,6 @@ paths:
                 properties:
                   caseId:
                     $ref: '#/components/schemas/caseId'
-          links:
-            getCaseByCaseId:
-              operationId: getCase
-              parameters:
-                caseId: '$response.body#/caseId'
-              description: >-
-                caseId can be used as the `caseId` parameter in
-                /patient/{caseId}
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '409':
@@ -180,16 +217,9 @@ paths:
         - admin: []
   '/patients/{caseId}':
     get:
-      tags:
-        - default
       summary: Gets patient case record
       parameters:
-        - name: caseId
-          in: path
-          required: true
-          description: The ID of the case to return
-          schema:
-            $ref: '#/components/schemas/caseId'
+        - $ref: '#/components/parameters/caseIdParam'
       responses:
         '200':
           description: OK
@@ -202,24 +232,25 @@ paths:
                     $ref: '#/components/schemas/caseState'
                   concernPoints:
                     $ref: '#/components/schemas/concernPoints'
+              examples:
+                original: 
+                  $ref: '#/components/examples/concernPointsOriginal'
+                unpublished:
+                  $ref : '#/components/examples/concernPointsUnpublished'
+                staging:
+                  $ref : '#/components/examples/concernPointsStaging'
+                published:
+                  $ref : '#/components/examples/concernPointsPublished'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
         - contactTracer: []
         - admin: []
     post:
-      tags:
-        - default
       summary: Update patient case record
       parameters:
-        - name: caseId
-          in: path
-          required: true
-          description: The ID of the case to update
-          schema:
-            $ref: '#/components/schemas/caseId'
+        - $ref: '#/components/parameters/caseIdParam'
       requestBody:
-        required: true
         content:
           application/json:
             schema:
@@ -247,16 +278,9 @@ paths:
         - contactTracer: []
         - admin: []
     delete:
-      tags:
-        - default
       summary: delete patient case record
       parameters:
-        - name: caseId
-          in: path
-          required: true
-          description: The ID of the case to delete
-          schema:
-            $ref: '#/components/schemas/caseId'
+        - $ref: '#/components/parameters/caseIdParam'
       responses:
         '200':
           description: Patient case deleted
@@ -276,18 +300,11 @@ paths:
         - admin: []
   '/safe_path/{orgId}':
     get:
-      tags:
-        - default
-      operationId: SafePlacesController_loadSafePathJson
       summary: >-
         Retrieve current set of points of concern, no auth needed, called by
         mobile phone app - part of mandatory API
       parameters:
-        - in: path
-          name: orgId
-          schema:
-            type: string
-          required: true
+        - $ref: '#/components/parameters/orgIdParam'
       responses:
         '200':
           description: ''
@@ -297,13 +314,10 @@ paths:
                 type: object
   /login:
     post:
-      tags:
-        - user admin
       operationId: AuthController_login
       summary: Initiate authorization - part of mandatory API
       parameters: []
       requestBody:
-        required: true
         content:
           application/json:
             schema:
