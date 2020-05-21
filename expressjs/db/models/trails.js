@@ -11,13 +11,13 @@ function Trails() {
 // *** queries *** //
 
 function find(filter){
-  return Trails().where(filter).then((rows) => rows);
+  return Trails().where(filter).then(rows => rows);
 }
 
 function findInterval(timeSlice){
   return Trails().where('time', '>=', new Date(timeSlice.start_date * 1000))
     .where('time', '<=', new Date(timeSlice.end_date * 1000))
-    .then((rows) => rows);
+    .then(rows => rows);
 }
 
 function getAll(){
@@ -33,9 +33,9 @@ function getRedactedTrailFromRecord(trails){
     trail.longitude = c.x;
     trail.latitude = c.y;
     trail.time = element.time.getTime()/1000;
-    identifier = element.redacted_trail_id;
+    // identifier = element.redacted_trail_id;
     redactedTrail.push(trail);
-  })
+  });
   return redactedTrail;
 }
 

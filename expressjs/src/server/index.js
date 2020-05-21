@@ -1,3 +1,3 @@
-const Server = require('./express')
+const Server = require('./express');
 
-module.exports = new Server()
+module.exports = new Server();

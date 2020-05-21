@@ -1,16 +1,19 @@
-const server = require('src/server')
-const fs = require('fs')
+const server = require('../server');
+const fs = require('fs');
+const path = require('path');
 
 class API {
   constructor() {
-    fs.readdirSync('app/api/').forEach(file => {
-      require(`app/api/${file}`)
-    })
+
+    const appPath = path.join(__dirname, '../../app/api');
+    fs.readdirSync(appPath).forEach(file => {
+      require(`${appPath}/${file}`);
+    });
   }
 
   start(port) {
-    return server.start(port)
+    return server.start(port);
   }
 }
 
-module.exports = new API()
+module.exports = new API();

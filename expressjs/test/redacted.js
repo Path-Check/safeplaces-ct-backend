@@ -84,7 +84,7 @@ describe('Redacted ', function() {
             identifier,
             ORGANISATION_ID,
             USER_ID
-          ).then((redactedTrailRecords) => {});
+          );
       });
     });
 

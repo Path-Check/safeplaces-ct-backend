@@ -7,7 +7,7 @@ function Organizations() {
 // *** queries *** //
 
 function findOne(filter){
-  return Organizations().where(filter).first().then((row) => row);
+  return Organizations().where(filter).first().then(row => row);
 }
 
 function update(organization){

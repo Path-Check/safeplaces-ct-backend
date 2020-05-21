@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const passport = require('src/server/passport')
+const passport = require('../../../src/server/passport');
 const users = require('../../../db/models/users');
 const jwtSecret = require('../../../config/jwtConfig');
 
@@ -11,18 +11,18 @@ const jwtSecret = require('../../../config/jwtConfig');
  */
 exports.login = async (req, res, next) => {
 
-  const { username } = req.body
+  const { username } = req.body;
 
   try {
     passport.authenticate('local', async (err, user, info) => {
       if (err) {
-        console.log('Error 1: ', err)
+        console.log('Error 1: ', err);
         res.status(404);
       } else if (user) {
 
         // TODO: We are making two calls here pulling the user...why?
 
-        const foundUser = await users.findOne({ username })
+        const foundUser = await users.findOne({ username });
         if (foundUser) {
           const token = jwt.sign(
             {
@@ -42,6 +42,6 @@ exports.login = async (req, res, next) => {
       }
     })(req, res, next);
   } catch(e) {
-    throw new Error('WTF!')
+    throw new Error('WTF!');
   }
-}
+};

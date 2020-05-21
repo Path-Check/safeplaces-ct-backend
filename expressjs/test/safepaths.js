@@ -21,15 +21,6 @@ const ADMIN_JWT_TOKEN = jwt.sign(
   jwtSecret.secret
 );
 
-const ADMIN_JWT_TOKEN_EXPIRED = jwt.sign(
-  {
-    sub: USERNAME,
-    iat: ~~(Date.now() / 1000),
-    exp: ~~(Date.now() / 1000) - 1
-  },
-  jwtSecret.secret
-);
-
 chai.use(chaiHttp);
 
 describe('Safe Path ', function() {
@@ -38,7 +29,7 @@ describe('Safe Path ', function() {
 
     before(async () => {
       console.log('Seeding trail data');
-      await trails.deleteTable()
+      await trails.deleteTable();
       let trail = [
         {
           longitude: 12.34,
@@ -53,13 +44,13 @@ describe('Safe Path ', function() {
       ];
       let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
       await trails.insertRedactedTrailSet(
-          trail,
-          identifier,
-          ORGANISATION_ID,
-          USER_ID
-        ).then((redactedTrailRecords) => {});
+        trail,
+        identifier,
+        ORGANISATION_ID,
+        USER_ID
+      );
       console.log('Seeding publication data');
-      await publications.deleteTable()
+      await publications.deleteTable();
       
       let publication = {
         organization_id: ORGANISATION_ID,
@@ -68,7 +59,7 @@ describe('Safe Path ', function() {
         end_date: 1584924583,
         publish_date: 1584924583
       };
-      await publications.insert(publication).then((publicationRecords) => {});
+      await publications.insert(publication);
     });
 
     after(async function(){
@@ -113,14 +104,14 @@ describe('Safe Path ', function() {
             latitude: 12.34,
             time: 1584924456
           }
-        ]
+        ];
         let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
         await trails.insertRedactedTrailSet(
-            trail,
-            identifier,
-            ORGANISATION_ID,
-            USER_ID
-          ).then((redactedTrailRecords) => {});
+          trail,
+          identifier,
+          ORGANISATION_ID,
+          USER_ID
+        );
       });
     });
 
@@ -156,14 +147,14 @@ describe('Safe Path ', function() {
             latitude: 12.34,
             time: 1584924456
           }
-        ]
+        ];
         let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
         await trails.insertRedactedTrailSet(
-            trail,
-            identifier,
-            ORGANISATION_ID,
-            USER_ID
-          ).then((redactedTrailRecords) => {});
+          trail,
+          identifier,
+          ORGANISATION_ID,
+          USER_ID
+        );
       });
       console.log('Seeding publication data');
       await publications.deleteTable().then(async() => {
@@ -174,7 +165,7 @@ describe('Safe Path ', function() {
           end_date: 1584924583,
           publish_date: 1584924583
         };
-        await publications.insert(publication).then((publicationRecords) => {});
+        await publications.insert(publication);
       });
     });
 
@@ -272,7 +263,7 @@ describe('Safe Path ', function() {
         res.body.should.have.property('user_id');
         res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
         done();
-      })
+      });
     });
 
   });
@@ -293,14 +284,14 @@ describe('Safe Path ', function() {
             latitude: 12.34,
             time: 1584924456
           }
-        ]
+        ];
         let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
         await trails.insertRedactedTrailSet(
-            trail,
-            identifier,
-            ORGANISATION_ID,
-            USER_ID
-          ).then((redactedTrailRecords) => {});
+          trail,
+          identifier,
+          ORGANISATION_ID,
+          USER_ID
+        );
       });
     });
 
@@ -365,7 +356,7 @@ describe('Safe Path ', function() {
         res.body.should.have.property('user_id');
         res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
         done();
-      })
+      });
     });
   });
 
@@ -385,14 +376,14 @@ describe('Safe Path ', function() {
             latitude: 12.34,
             time: 1584924456
           }
-        ]
+        ];
         let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
         await trails.insertRedactedTrailSet(
-            trail,
-            identifier,
-            ORGANISATION_ID,
-            USER_ID
-          ).then((redactedTrailRecords) => {});
+          trail,
+          identifier,
+          ORGANISATION_ID,
+          USER_ID
+        );
       });
     });
 
@@ -462,7 +453,7 @@ describe('Safe Path ', function() {
         res.body.should.have.property('user_id');
         res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
         done();
-      })
+      });
     });
   });
 });

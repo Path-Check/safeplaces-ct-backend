@@ -2,7 +2,7 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 var chai = require('chai');
-var should = chai.should();
+var should = chai.should(); // eslint-disable-line
 var chaiHttp = require('chai-http');
 var server = require('../app');
 

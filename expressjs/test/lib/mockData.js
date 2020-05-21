@@ -1,27 +1,29 @@
-const _ = require('lodash')
+const _ = require('lodash');
 
 class MockData {
 
   /**
-   * @method mockUserVictim
+   * @method mockUser
    * 
    * Generate Mock User
    */
   async mockUser(options={}) {
 
-    const { seekerInfo } = defendentPayload
+    const { info } = options;
 
-    const data = _.extend(seekerInfo, options)
+    const data = _.extend(info, options);
 
-    const user = await userService.createUser(data)
-    if (user) {
-      return user
-    } else {
-      throw new Error('Could not create user.')
-    }
+    return data;
+
+    // const user = await userService.createUser(data);
+    // if (user) {
+    //   return user;
+    // } else {
+    //   throw new Error('Could not create user.');
+    // }
   }
 
 }
 
 
-module.exports = new MockData()
+module.exports = new MockData();

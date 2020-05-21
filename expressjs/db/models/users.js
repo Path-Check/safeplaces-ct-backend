@@ -7,7 +7,7 @@ function Users() {
 // *** queries *** //
 
 function findOne(filter){
-  return Users().where(filter).first().then((row) => row);
+  return Users().where(filter).first().then(row => row);
 }
 
 module.exports = {

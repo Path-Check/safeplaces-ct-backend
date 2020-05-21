@@ -11,7 +11,7 @@ const publications = require('../../../db/models/publications');
 exports.fetchSafePaths = async (req, res) => {
   let safePathsResponse = {};
 
-  const publicationRecord = await publications.findLastOne({organization_id: req.params.organization_id})
+  const publicationRecord = await publications.findLastOne({organization_id: req.params.organization_id});
   if (publicationRecord) {
     safePathsResponse.publish_date = publicationRecord.publish_date.getTime()/1000;
   } else {
@@ -21,9 +21,9 @@ exports.fetchSafePaths = async (req, res) => {
   let timeInterval = {
     start_date: publicationRecord.start_date.getTime()/1000,
     end_date: publicationRecord.end_date.getTime()/1000
-  }
+  };
 
-  const redactedTrailRecords = await trails.findInterval(timeInterval)
+  const redactedTrailRecords = await trails.findInterval(timeInterval);
   if (redactedTrailRecords) {
     const intervalTrails = trails.getRedactedTrailFromRecord(redactedTrailRecords);
     const organization = await organizations.findOne({id: req.params.organization_id});
@@ -39,7 +39,7 @@ exports.fetchSafePaths = async (req, res) => {
   } else {
     res.status(500).json({message: 'Internal Server Error'});
   }
-}
+};
 
 /**
  * @method createSafePath
@@ -76,17 +76,17 @@ exports.createSafePath = async (req, res) => {
   timeSlice.start_date = req.body.start_date;
   timeSlice.end_date = req.body.end_date;
 
-  publications.insert(publication).then((publicationRecords) => {
+  publications.insert(publication).then(publicationRecords => {
 
     safePathsResponse.datetime_created = new Date(publicationRecords[0].created_at).toString();
 
-    organizations.update(organization).then((organizationRecords) => {
+    organizations.update(organization).then(organizationRecords => {
 
       safePath.authority_name = organizationRecords[0].authority_name;
       safePath.info_website = organizationRecords[0].info_website;
       safePath.safe_path_json = organizationRecords[0].safe_path_json;
 
-      trails.findInterval(timeSlice).then((intervalTrail) => {
+      trails.findInterval(timeSlice).then(intervalTrail => {
 
         let intervalPoints = [];
         intervalPoints = trails.getRedactedTrailFromRecord(intervalTrail);
@@ -94,14 +94,14 @@ exports.createSafePath = async (req, res) => {
         safePathsResponse.safe_path = safePath;
 
         res.status(200).json(safePathsResponse);
-      }).catch((err) => {
+      }).catch(err => {
         res.status(500).json({message: err});
       }); // trails
-    }).catch((err) => {
+    }).catch(err => {
       res.status(404).json({message: err});
-    }) // organization
+    }); // organization
 
-  }).catch((err) => {
+  }).catch(err => {
     res.status(500).json({message: err});
   }); // publication
-}
+};

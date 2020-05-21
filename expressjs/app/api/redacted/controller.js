@@ -10,7 +10,7 @@ function formatRedactedTrailData(redactedTrailRecords) {
       organization_id: redactedTrailRecords[0].organization_id,
       trail: redactedTrail,
       user_id: redactedTrailRecords[0].user_id
-    }
+    };
   }
   return redactedTrailData;
 }
@@ -24,9 +24,9 @@ function formatRedactedTrailData(redactedTrailRecords) {
 exports.fetchRedactedTrails = async (req, res) => {
   let redactedTrailsResponse = {};
 
-  const { user } = req
+  const { user } = req;
 
-  const redactedTrails = await trails.getAll()
+  const redactedTrails = await trails.getAll();
   if (redactedTrails) {
     let redactedTrailsList = [];
 
@@ -49,13 +49,13 @@ exports.fetchRedactedTrails = async (req, res) => {
     //     user_id: ''
     //   }, ...
     // ]
-    Object.keys(redactedTrailsMap).forEach((key, index) => {
+    Object.keys(redactedTrailsMap).forEach(key => {
       let element = redactedTrailsMap[key];
       redactedTrailsList.push(formatRedactedTrailData(element));
     });
 
     // Populate organization information in response
-    const organization = await organizations.findOne({id: user.organization_id})
+    const organization = await organizations.findOne({id: user.organization_id});
     if (organization) {
       redactedTrailsResponse = {
         organization: {
@@ -69,15 +69,15 @@ exports.fetchRedactedTrails = async (req, res) => {
       res.status(200).json(redactedTrailsResponse);
     } else {
       //TODO: introduce logger
-      console.log(err);
-      res.status(500).json({message: 'Internal Server Error'})
+      console.log(organization);
+      res.status(500).json({message: 'Internal Server Error'});
     }
   } else {
     //TODO: introduce logger
-    console.log(err);
-    res.status(500).json({message: 'Internal Server Error'})
+    console.log(redactedTrails);
+    res.status(500).json({message: 'Internal Server Error'});
   }
-}
+};
 
 /**
  * @method createRedactedTrail
@@ -88,7 +88,7 @@ exports.fetchRedactedTrails = async (req, res) => {
 exports.createRedactedTrail = async (req, res) => {
   let redactedTrailReturnData = {};
 
-  const { trail } = req.body
+  const { trail } = req.body;
 
   if (Array.isArray(trail) && trail.length) {
     trails.insertRedactedTrailSet(
@@ -96,7 +96,7 @@ exports.createRedactedTrail = async (req, res) => {
         req.body.identifier,
         req.user.organization_id,
         req.user.id
-      ).then((redactedTrailRecords) => {
+      ).then(redactedTrailRecords => {
         if (Array.isArray(redactedTrailRecords)) {
           redactedTrailReturnData = {
             data: formatRedactedTrailData(redactedTrailRecords),
@@ -106,7 +106,7 @@ exports.createRedactedTrail = async (req, res) => {
           res.status(500).json({message: 'Internal Server Error'});
         }
         res.status(200).json(redactedTrailReturnData);
-    }).catch((err) => {
+    }).catch(err => {
       //TODO: introduce logger
       console.log(err);
       res.status(500).json({message: 'Internal Server Error'});
@@ -114,4 +114,4 @@ exports.createRedactedTrail = async (req, res) => {
   } else {
     res.status(400).json({message: 'Trail can not be empty.'});
   }
-}
+};

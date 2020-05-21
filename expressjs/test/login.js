@@ -4,19 +4,7 @@ process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/saf
 const atob = require('atob');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const jwtSecret = require('../config/jwtConfig');
-const jwt = require('jsonwebtoken');
 const server = require('../app');
-const USERNAME = 'admin';
-
-const ADMIN_JWT_TOKEN_EXPIRED = jwt.sign(
-  {
-    sub: USERNAME,
-    iat: ~~(Date.now() / 1000),
-    exp: ~~(Date.now() / 1000) - 1
-  },
-  jwtSecret.secret
-);
 
 chai.use(chaiHttp);
 

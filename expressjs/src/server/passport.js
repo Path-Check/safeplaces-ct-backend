@@ -18,7 +18,7 @@ const localStrategy = new LocalStrategy({
   }, async (req, username, password, done) => {
     let user;
     try {
-      user = await users.findOne({ username: username })
+      user = await users.findOne({ username: username });
       if (!user) {
         return done(null, false, { status: 401, message: 'Invalid credentials.' });
       } else {
@@ -43,14 +43,14 @@ passport.use('local', localStrategy);
 
 const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
   try {
-    const { sub, exp } = jwt_payload
+    const { sub, exp } = jwt_payload;
 
     const isExpired = (exp - ~~(Date.now()/1000)) < 0;
     if (isExpired) {
       return done(new Error('Token Expired'), false);
     }
     
-    const user = await users.findOne({ username: sub })
+    const user = await users.findOne({ username: sub });
     if (user) {
       done(null, user);
     } else {
@@ -59,7 +59,7 @@ const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
   } catch (err) {
     done(err);
   }
-})
+});
 
 passport.use('jwt', jwtStrategy);
 
@@ -71,4 +71,4 @@ passport.deserializeUser(function(user, done) {
 	done(null, user);
 });		
 
-module.exports = passport
+module.exports = passport;
