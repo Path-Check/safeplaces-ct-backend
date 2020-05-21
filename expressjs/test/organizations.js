@@ -44,7 +44,7 @@ before(async () => {
   );
 });
 
-describe.only('Organization ', () => {
+describe('Organization ', () => {
 
   describe('GET /organization when DB is empty', () => {
 
@@ -53,7 +53,7 @@ describe.only('Organization ', () => {
       results.id.should.equal(currentOrg.id);
     });
 
-    it.only('find the record using http', async () => {
+    it('find the record using http', async () => {
         const results = await chai.request(server.app)
           .get(`/organization/${currentOrg.id}`)
           .set('Authorization', `${token}`)
