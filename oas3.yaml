@@ -34,6 +34,12 @@ components:
       description: Access forbidden
     NotFound:
       description: Not Found
+    InvalidToken:
+      description: "There is no user with the username or the password does not match."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/token'
   parameters:
     authCodeParam:
       in : path
@@ -161,22 +167,27 @@ components:
     timeString:
       type: string
       example: "2020-05-30T18:25:43.511Z"
+    token: 
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyABCD4321JIUzI1NiIsInR5cCI6IkpXVCJ9"
     valid:
       type: object
       properties:
         valid : 
           type: boolean
           example: true
-    LoginDto:
+    login:
       type: object
       properties:
         username:
           type: string
+          example: "admin"
         password:
           type: string
-      required:
-        - username
-        - password
+          example: "admin"
   examples:
     concernPoints:
       value: {  
@@ -215,6 +226,23 @@ components:
                   ]
         }
 paths:
+  /login:
+    post:
+      operationId: AuthController_login
+      summary: Initiate authorization - part of mandatory API
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login'
+      responses:
+        '200':
+          description: The user was found and the password matched.
+        '401':
+          $ref: '#/components/responses/InvalidToken'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   '/organization/{orgId}/cases':
     parameters:
       - $ref: '#/components/parameters/orgIdParam'
@@ -437,17 +465,3 @@ paths:
           $ref: '#/components/responses/AccessForbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  
-  /login:
-    post:
-      operationId: AuthController_login
-      summary: Initiate authorization - part of mandatory API
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginDto'
-      responses:
-        '200':
-          description: ''
