@@ -7,7 +7,7 @@
     "migrate:down": "knex migrate:rollback",
     "start": "node ./bin/www",
     "lint": "eslint ./",
-    "lint:fix": "eslint ./ --fix",
+    "format": "prettier --write **/*.{js,json}",
     "test": "nyc --reporter=html --reporter=text mocha"
   },
   "dependencies": {
@@ -17,7 +17,6 @@
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
-    "eslint": "^7.0.0",
     "express": "~4.16.1",
     "express-session": "^1.17.1",
     "http-errors": "~1.6.3",
@@ -29,14 +28,16 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "pg": "^8.0.2",
+    "uuidv4": "^6.0.9",
     "wkx": "^0.5.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "eslint": "^7.0.0",
     "jshint": "^2.11.0",
     "mocha": "^7.1.1",
     "nyc": "^15.0.1",
-    "uuidv4": "^6.0.9"
+    "prettier": "^2.0.5"
   }
 }

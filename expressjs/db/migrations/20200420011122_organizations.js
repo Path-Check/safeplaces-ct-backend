@@ -1,6 +1,6 @@
 const { onUpdateTrigger } = require('../../knexfile');
 
-exports.up = function(knex) {
+exports.up = function (knex) {
   let createQuery = `CREATE TABLE organizations(
     id UUID NOT NULL,
     authority_name VARCHAR(128),
@@ -10,10 +10,12 @@ exports.up = function(knex) {
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT org_pkey PRIMARY KEY(id)
   ) WITH (oids = false)`;
-  return knex.raw(createQuery).then(() => knex.raw(onUpdateTrigger('organizations')));
+  return knex
+    .raw(createQuery)
+    .then(() => knex.raw(onUpdateTrigger('organizations')));
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   let dropQuery = `DROP TABLE organizations`;
   return knex.raw(dropQuery);
 };

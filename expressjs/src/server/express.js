@@ -14,7 +14,6 @@ const logger = require('morgan');
 const passport = require('./passport');
 
 class Server {
-
   constructor() {
     this._app = express();
 
@@ -31,19 +30,21 @@ class Server {
     this._app.use(express.json());
     this._app.use(express.urlencoded({ extended: false }));
     this._app.use(cookieParser());
-    this._app.use(bodyParser.urlencoded({ extended: true }));   
-    this._app.use(expressSession({
-      secret: 'keyboard cat',
-      resave: true,
-      saveUninitialized: true
-    }));
+    this._app.use(bodyParser.urlencoded({ extended: true }));
+    this._app.use(
+      expressSession({
+        secret: 'keyboard cat',
+        resave: true,
+        saveUninitialized: true,
+      }),
+    );
     this._app.use(passport.initialize());
     this._app.use(passport.session());
-    
+
     this._router = express.Router();
     this._app.use('/', this._router);
 
-    this._app.use(function(req, res, next) {
+    this._app.use(function (req, res, next) {
       next(createError(404));
     });
 
@@ -53,23 +54,26 @@ class Server {
     // error handler
 
     // TODO: Move error handling into module...
-    if (this._app.get('env') === 'development' || this._app.get('env') === 'test') {
-      this._app.use(function(err, req, res) {
+    if (
+      this._app.get('env') === 'development' ||
+      this._app.get('env') === 'test'
+    ) {
+      this._app.use(function (err, req, res) {
         res.status(err.status || 500);
         res.json({
           message: err.message,
-          error: err
+          error: err,
         });
       });
     }
 
     // production error handler
     // no stacktraces leaked to user
-    else{
-      this._app.use(function(err, req, res) {
+    else {
+      this._app.use(function (err, req, res) {
         res.status(err.status || 500);
         res.json({
-          message: err.message
+          message: err.message,
         });
       });
     }
@@ -83,7 +87,7 @@ class Server {
 
   start(port = 3000) {
     if (!port) throw new Error('Port not set.');
-    
+
     return Promise.fromCallback(cb => this._server.listen(port, cb));
   }
 
@@ -125,7 +129,7 @@ class Server {
       if (validate) {
         passport.authenticate('jwt', { session: false }, (err, user) => {
           if (err) {
-            return res.status(500).json({message: err.message});
+            return res.status(500).json({ message: err.message });
           } else if (user) {
             req.user = user;
             fn(req, res, next).catch(next);
@@ -138,7 +142,6 @@ class Server {
       }
     };
   }
-
 }
 
 module.exports = Server;

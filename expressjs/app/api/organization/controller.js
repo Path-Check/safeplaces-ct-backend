@@ -2,9 +2,9 @@ const organizations = require('../../../db/models/organizations');
 
 /**
  * @method fetchOrganization
- * 
+ *
  * Fetch Organization
- * 
+ *
  */
 exports.fetchOrganizationById = async (req, res) => {
   const { organization_id } = req.params;
@@ -15,18 +15,21 @@ exports.fetchOrganizationById = async (req, res) => {
   if (organization) {
     res.status(200).json(organization);
   } else {
-    res.status(500).json({message: 'Internal Server Error'});
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
 /**
  * @method updateOrganization
- * 
+ *
  * Update Organization
- * 
+ *
  */
 exports.updateOrganization = async (req, res) => {
-  const { params: { organization_id }, body: organization } = req;
+  const {
+    params: { organization_id },
+    body: organization,
+  } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
@@ -34,6 +37,6 @@ exports.updateOrganization = async (req, res) => {
   if (results) {
     res.status(200).json(results[0]);
   } else {
-    res.status(500).json({message: 'Internal Server Error'});
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
