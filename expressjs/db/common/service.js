@@ -6,7 +6,17 @@ class BaseService {
     this._name = name;
   }
 
-  async findOne(query) {
+  all() {
+    return knex(this._name).select();
+  }
+
+  find(query) {
+    if (!query) throw new Error('Filter was not provided');
+
+    return knex(this._name).where(query);
+  }
+
+  findOne(query) {
     if (!query) throw new Error('Filter was not provided');
 
     return knex(this._name).where(query).first();

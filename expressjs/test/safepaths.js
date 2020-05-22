@@ -23,13 +23,13 @@ const ADMIN_JWT_TOKEN = jwt.sign(
 
 chai.use(chaiHttp);
 
-describe('Safe Path ', function() {
+describe('Safe Paths', function() {
 
   describe('GET /safe_path without redacted_trails and with publication', function() {
 
     before(async () => {
 
-      await trails.deleteTable();
+      await trails.deleteAllRows();
 
       let trail = [
         {
@@ -51,7 +51,7 @@ describe('Safe Path ', function() {
         USER_ID
       );
 
-      await publications.deleteTable();
+      await publications.deleteAllRows();
 
       let publication = {
         organization_id: ORGANISATION_ID,
@@ -65,7 +65,7 @@ describe('Safe Path ', function() {
     });
 
     after(async function(){
-      await publications.deleteTable();
+      await publications.deleteAllRows();
     });
 
     it('should return an organization`s safe paths as empty', function(done) {
@@ -90,9 +90,9 @@ describe('Safe Path ', function() {
   });
 
   describe('GET /safe_path with redacted_trails and without publication', function() {
-const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
+    const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
     before(async function(){
-      await trails.deleteTable();
+      await trails.deleteAllRows();
       let trail = [
         {
           longitude: 12.34,
@@ -107,14 +107,14 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
       ];
       await trails.insertRedactedTrailSet(
         trail,
-        identifier,
+        trailIdentifier,
         ORGANISATION_ID,
         USER_ID
       );
     });
 
     after(async function(){
-      await trails.deleteTable();
+      await trails.deleteAllRows();
     });
 
     it('should return an organization`s safe paths as empty', function(done) {
@@ -131,7 +131,7 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
   describe('GET /safe_path with redacted_trails and publication', function() {
 
     before(async function(){
-      await trails.deleteTable();
+      await trails.deleteAllRows();
       
       let trail = [
         {
@@ -153,7 +153,7 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
         USER_ID
       );
 
-      await publications.deleteTable();
+      await publications.deleteAllRows();
       let publication = {
         organization_id: ORGANISATION_ID,
         user_id: USER_ID,
@@ -165,8 +165,8 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
     });
 
     after(async function(){
-      await trails.deleteTable();
-      await publications.deleteTable();
+      await trails.deleteAllRows();
+      await publications.deleteAllRows();
     });
 
     it('should return an organization`s safe paths', function(done) {
@@ -202,10 +202,28 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
     });
   });
 
+  // describe('GET /safe_paths with ', () => {
+  //   before(async () => {
+
+  //   });
+
+  //   after(async () => {
+      
+  //   });
+
+  //   it('cursor is empty', async () => {
+      
+  //   });
+
+  //   it('cursor is not empty', async () => {
+      
+  //   });
+  // });
+
   describe('POST /safe_paths without redacted trails', function() {
 
     after(async function(){
-      await publications.deleteTable();
+      await publications.deleteAllRows();
     });
 
     it('should accept safe path being submitted and create publication record', function(done) {
@@ -263,7 +281,7 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
   describe('POST /safe_paths with redacted trails and start_date, end_date respects interval', function() {
 
     before(async function(){
-      await trails.deleteTable();
+      await trails.deleteAllRows();
       let trail = [
         {
           longitude: 12.34,
@@ -286,8 +304,8 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
     });
 
     after(async function(){
-      await trails.deleteTable();
-      await publications.deleteTable();
+      await trails.deleteAllRows();
+      await publications.deleteAllRows();
     });
 
     it('should accept safe path being submitted', function(done) {
@@ -351,7 +369,7 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
   describe('POST /safe_paths with redacted trails', function() {
 
     before(async function(){
-      await trails.deleteTable();
+      await trails.deleteAllRows();
       let trail = [
         {
           longitude: 12.34,
@@ -374,8 +392,8 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
     });
 
     after(async function(){
-      await trails.deleteTable();
-      await publications.deleteTable();
+      await trails.deleteAllRows();
+      await publications.deleteAllRows();
     });
 
     it('should accept safe path being submitted', function(done) {
@@ -440,4 +458,5 @@ const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
       });
     });
   });
+
 });

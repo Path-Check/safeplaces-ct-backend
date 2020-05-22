@@ -9,11 +9,13 @@ const publications = require('../../../db/models/publications');
  * 
  */
 exports.fetchSafePaths = async (req, res) => {
+  const { organization_id, cursor } = req.params;
+
   let safePathsResponse = {};
 
-  const publicationRecord = await publications.findLastOne({organization_id: req.params.organization_id});
+  const publicationRecord = await publications.findLastOne({organization_id: organization_id});
   if (publicationRecord) {
-    safePathsResponse.publish_date = publicationRecord.publish_date.getTime()/1000;
+    safePathsResponse.publish_date = (publicationRecord.publish_date.getTime() / 1000);
   } else {
     return res.status(204).send('');
   }
@@ -25,8 +27,9 @@ exports.fetchSafePaths = async (req, res) => {
 
   const redactedTrailRecords = await trails.findInterval(timeInterval);
   if (redactedTrailRecords) {
+    
     const intervalTrails = trails.getRedactedTrailFromRecord(redactedTrailRecords);
-    const organization = await organizations.findOne({id: req.params.organization_id});
+    const organization = await organizations.findOne({id: organization_id});
     if (organization) {
       safePathsResponse.authority_name = organization.authority_name;
       safePathsResponse.concern_points = intervalTrails;
@@ -64,8 +67,8 @@ exports.createSafePath = async (req, res) => {
   publication.organization_id = req.user.organization_id;
 
   // Construct a organization record before updating
-
   let organizationId = req.user.organization_id;
+
   let organization = {};
   organization.authority_name = req.body.authority_name;
   organization.info_website = req.body.info_website;
