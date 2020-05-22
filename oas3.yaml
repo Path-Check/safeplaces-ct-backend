@@ -197,7 +197,7 @@ paths:
               examples:
                 one:
                   $ref: '#/components/examples/casesList'
-  '/organizatin/{orgId}/case':
+  '/organization/{orgId}/case':
     parameters:
       - $ref: '#/components/parameters/orgIdParam'
     post:
