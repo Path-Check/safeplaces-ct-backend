@@ -25,9 +25,23 @@ components:
       description: admin access
   responses:
     UnauthorizedError:
-      description: Access token is missing or invalid
-      
+      description: Lacks sufficient authority for operation
+    InvalidRequest:
+      description: Invalid request
+    InternalServerError:
+      description: Internal Server Error
+    AccessForbidden:
+      description: Access forbidden
+    NotFound:
+      description: Not Found
   parameters:
+    authCodeParam:
+      in : path
+      name: code
+      required: true
+      description: 'Access code'
+      schema:
+        $ref: '#/components/schemas/authCode'
     caseIdParam:
       in : path
       name: caseId
@@ -42,29 +56,24 @@ components:
       description: 'the ID of the org'
       schema:
         $ref: '#/components/schemas/orgId'
+    pointIdParam:
+      in : path
+      name: pointId
+      required: true
+      description: 'The Id of the point'
+      schema:
+        $ref: '#/components/schemas/pointId'
   schemas:
-    orgId:
-      type: number
-      example: 32424552
-    concernPoint: 
+    authCode:
+      type: string
+      example: bluebird
+    authCodeExpiration:
       type: object
       properties:
-        longitude:
-          type: number
-          example: 14.91328448
-        latitude:
-          type: number
-          example: 41.24060321
-        time:
-          type: number
-          example: 1589117739000
-        hash:
-          type: string
-          example: 87e916850d4def3c
-    concernPoints:
-      type: array
-      items:
-        $ref: '#/components/schemas/concernPoint'
+        code:
+          $ref: '#/components/schemas/authCode'
+        expiresAt:
+          $ref : '#/components/schemas/timeString'
     caseId:
       type: number
       example: 23432461
@@ -82,20 +91,82 @@ components:
           type: integer
           example: 14
         updatedAt:
-          type: string
-          example: "2020-05-21T18:25:43.511Z"
+          $ref : '#/components/schemas/timeString'
         status:
           $ref: '#/components/schemas/caseState'
         expiresAt:
-          type: string
-          example: "2020-05-30T18:25:43.511Z"
+          $ref : '#/components/schemas/timeString'
     cases:
       type: array
       items:
         $ref: '#/components/schemas/case'
-    authCode:
+    concernPointDBAdd:
+      type: object
+      properties:
+        longitude: 
+          type : number
+          example: 14.91328448
+        latitude:
+          type : number
+          example: 41.24060321
+        time : 
+          $ref : '#/components/schemas/timeString'
+    concernPointDb:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 12
+        longitude: 
+          type : number
+          example: 14.91328448
+        latitude:
+          type : number
+          example: 41.24060321
+        time : 
+          type : string
+          example: "2020-05-30T18:25:43.511Z"
+    concernPointApp: 
+      type: object
+      properties:
+        longitude:
+          type: number
+          example: 14.91328448
+        latitude:
+          type: number
+          example: 41.24060321
+        time:
+          type: number
+          example: 1589117739000
+        hash:
+          type: string
+          example: 87e916850d4def3c
+    concernPoints:
+      type: array
+      items:
+        $ref: '#/components/schemas/concernPointApp'
+    consent:
+      type: object
+      properties:
+        consent : 
+          type: boolean
+          example: true
+        accessCode:
+          $ref : '#/components/schemas/authCode'
+    orgId:
+      type: number
+      example: 32424552
+    pointId:
+      type: integer
+    timeString:
       type: string
-      example: bluebird
+      example: "2020-05-30T18:25:43.511Z"
+    valid:
+      type: object
+      properties:
+        valid : 
+          type: boolean
+          example: true
     LoginDto:
       type: object
       properties:
@@ -107,53 +178,17 @@ components:
         - username
         - password
   examples:
-    concernPointsOriginal:
-      value: {  "caseState" : "original", 
+    concernPoints:
+      value: {  
                 "concernPoints" : 
-              [  {"time":1583069745916,"longitude":-0.10753902581515137,"latitude":51.55987524514395, "hash": "c4ca4238a0b923820dcc509a6f75849b"},
-                {"time":1583069765568,"longitude":-0.06407687379643874,"latitude":51.53626227398831, "hash": "c81e728d9d4c2f636f067f89cc14862c"},
-                {"time":1583069873127,"longitude":-0.10383699531844902,"latitude":51.5687569927817, "hash": "eccbc87e4b5ce2fe28308fd9f2a7baf3"},
-                {"time":1583070083733,"longitude":-0.09565287120047716,"latitude":51.56663238135933, "hash": "a87ff679a2f3e71d9181a67b7542122c"},
-                {"time":1583070140324,"longitude":-0.13367363946595986,"latitude":51.53989797636888, "hash": "e4da3b7fbbce2345d7772b0674a318d5"},
-                {"time":1583070243827,"longitude":-0.05729357699158614,"latitude":51.53321925729781, "hash": "1679091c5a880faf6fb5e6087eb1b2dc"},
-                {"time":1583070298326,"longitude":-0.054365847106010994,"latitude":51.550572004199395, "hash": "8f14e45fceea167a5a36dedd4bea2543"},
-                {"time":1583070431693,"longitude":-0.12014169804782877,"latitude":51.54859663929235, "hash": "c9f0f895fb98ab9159f51fd0297e236d"}
-              ]}
-    concernPointsUnpublished:
-      value : {  "caseState" : "unpublished", 
-                "concernPoints" : 
-              [  {"time":1583069745916,"longitude":-0.10753902581515137,"latitude":51.55987524514395, "hash": "c4ca4238a0b923820dcc509a6f75849b"},
-                {"time":1583069765568,"longitude":-0.06407687379643874,"latitude":51.53626227398831, "hash": "c81e728d9d4c2f636f067f89cc14862c"},
-                {"time":1583069873127,"longitude":-0.10383699531844902,"latitude":51.5687569927817, "hash": "eccbc87e4b5ce2fe28308fd9f2a7baf3"},
-                {"time":1583070083733,"longitude":-0.09565287120047716,"latitude":51.56663238135933, "hash": "a87ff679a2f3e71d9181a67b7542122c"},
-                {"time":1583070140324,"longitude":-0.13367363946595986,"latitude":51.53989797636888, "hash": "e4da3b7fbbce2345d7772b0674a318d5"},
-                {"time":1583070243827,"longitude":-0.05729357699158614,"latitude":51.53321925729781, "hash": "1679091c5a880faf6fb5e6087eb1b2dc"},
-                {"time":1583070298326,"longitude":-0.054365847106010994,"latitude":51.550572004199395, "hash": "8f14e45fceea167a5a36dedd4bea2543"},
-                {"time":1583070431693,"longitude":-0.12014169804782877,"latitude":51.54859663929235, "hash": "c9f0f895fb98ab9159f51fd0297e236d"}
-              ]}
-    concernPointsStaging:
-      value : {  "caseState" : "staging", 
-                "concernPoints" : 
-              [  {"time":1583069745916,"longitude":-0.10753902581515137,"latitude":51.55987524514395, "hash": "c4ca4238a0b923820dcc509a6f75849b"},
-                {"time":1583069765568,"longitude":-0.06407687379643874,"latitude":51.53626227398831, "hash": "c81e728d9d4c2f636f067f89cc14862c"},
-                {"time":1583069873127,"longitude":-0.10383699531844902,"latitude":51.5687569927817, "hash": "eccbc87e4b5ce2fe28308fd9f2a7baf3"},
-                {"time":1583070083733,"longitude":-0.09565287120047716,"latitude":51.56663238135933, "hash": "a87ff679a2f3e71d9181a67b7542122c"},
-                {"time":1583070140324,"longitude":-0.13367363946595986,"latitude":51.53989797636888, "hash": "e4da3b7fbbce2345d7772b0674a318d5"},
-                {"time":1583070243827,"longitude":-0.05729357699158614,"latitude":51.53321925729781, "hash": "1679091c5a880faf6fb5e6087eb1b2dc"},
-                {"time":1583070298326,"longitude":-0.054365847106010994,"latitude":51.550572004199395, "hash": "8f14e45fceea167a5a36dedd4bea2543"},
-                {"time":1583070431693,"longitude":-0.12014169804782877,"latitude":51.54859663929235, "hash": "c9f0f895fb98ab9159f51fd0297e236d"}
-              ]}
-    concernPointsPublished:
-      value : {  "caseState" : "published", 
-                "concernPoints" : 
-              [  {"time":1583069745916,"longitude":-0.10753902581515137,"latitude":51.55987524514395, "hash": "c4ca4238a0b923820dcc509a6f75849b"},
-                {"time":1583069765568,"longitude":-0.06407687379643874,"latitude":51.53626227398831, "hash": "c81e728d9d4c2f636f067f89cc14862c"},
-                {"time":1583069873127,"longitude":-0.10383699531844902,"latitude":51.5687569927817, "hash": "eccbc87e4b5ce2fe28308fd9f2a7baf3"},
-                {"time":1583070083733,"longitude":-0.09565287120047716,"latitude":51.56663238135933, "hash": "a87ff679a2f3e71d9181a67b7542122c"},
-                {"time":1583070140324,"longitude":-0.13367363946595986,"latitude":51.53989797636888, "hash": "e4da3b7fbbce2345d7772b0674a318d5"},
-                {"time":1583070243827,"longitude":-0.05729357699158614,"latitude":51.53321925729781, "hash": "1679091c5a880faf6fb5e6087eb1b2dc"},
-                {"time":1583070298326,"longitude":-0.054365847106010994,"latitude":51.550572004199395, "hash": "8f14e45fceea167a5a36dedd4bea2543"},
-                {"time":1583070431693,"longitude":-0.12014169804782877,"latitude":51.54859663929235, "hash": "c9f0f895fb98ab9159f51fd0297e236d"}
+              [  {"id": 232, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10753902581515137,"latitude":51.55987524514395},
+                {"id": 233, "time":"2020-05-30T18:25:43.511Z","longitude":-0.06407687379643874,"latitude":51.53626227398831},
+                {"id": 234, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10383699531844902,"latitude":51.5687569927817},
+                {"id": 235, "time":"2020-05-30T18:25:43.511Z","longitude":-0.09565287120047716,"latitude":51.56663238135933},
+                {"id": 236, "time":"2020-05-30T18:25:43.511Z","longitude":-0.13367363946595986,"latitude":51.53989797636888},
+                {"id": 237, "time":"2020-05-30T18:25:43.511Z","longitude":-0.05729357699158614,"latitude":51.53321925729781},
+                {"id": 238, "time":"2020-05-30T18:25:43.511Z","longitude":-0.054365847106010994,"latitude":51.550572004199395},
+                {"id": 239, "time":"2020-05-30T18:25:43.511Z","longitude":-0.12014169804782877,"latitude":51.54859663929235}
               ]}
     casesList:
       value: 
@@ -197,6 +232,12 @@ paths:
               examples:
                 one:
                   $ref: '#/components/examples/casesList'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   '/organization/{orgId}/case':
     parameters:
       - $ref: '#/components/parameters/orgIdParam'
@@ -208,11 +249,173 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/case'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  '/case/{caseId}':
+    delete:
+      summary: Delete case record
+      parameters:
+        - $ref: '#/components/parameters/caseIdParam'
+      responses:
+        '200':
+          description: Case deleted
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'        
+  '/case/{caseId}/points':
+    get:
+      summary: Gets patient case record
+      parameters:
+        - $ref: '#/components/parameters/caseIdParam'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  concernPoints:
+                    $ref: '#/components/schemas/concernPointDb'
+              examples:
+                one: 
+                  $ref : '#/components/examples/concernPoints'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+  '/case/{caseId}/point':
+    post:
+      summary: Creates a new point of concern to be asssociated with the case
+      parameters:
+        - $ref: '#/components/parameters/caseIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/concernPointDBAdd'
+      responses:
+        '200':
+          description: Patient case updated
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/concernPointDb'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+        
+  '/point/{pointId}':
+    put:
+      summary: Updates an existing point of concern
+      parameters: 
+        - $ref : '#/components/parameters/pointIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/concernPointDBAdd'
+      responses:
+        '200': 
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/concernPointDb'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Deletes an existing point of concern
+      parameters: 
+        - $ref: '#/components/parameters/pointIdParam'
+      responses:
+        '200':
+          description: Point was deleted
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  '/case/{caseId}/access-code':
+    post:
+      summary: Return an access code that needs to be passed in the payload of the `/upload` endpoint
+      parameters:
+        - $ref: '#/components/parameters/caseIdParam'
+      responses:
+        '201':
+          description: Created access code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authCodeExpiration'
+        '400': 
+          $ref : '#/components/responses/InvalidRequest'
+        '401': 
+          $ref : '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/AccessForbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      
+
+  '/access-code/valid/{code}':
+    get:
+      summary: Determines whether an access code is valid and if it can be used to perform an `/upload` API call
+      parameters: 
+        - $ref: '#/components/parameters/authCodeParam'
+      responses:
+        '200':
+          description: Successful REquest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/valid'
+        '500': 
+          $ref: '#/components/responses/InternalServerError'
+
+  /consent:
+    post:
+      summary: Logs user consent to health authority’s terms of service. Invalidates the accessCode that is passed in the payload if  consent  is false.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/consent'
+      responses:
+        '200':
+          description: Successful request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError' 
   /upload:
     post:
-      summary: >-
-        Accepts SAFE PATHS data upload from user.  Auth code sent in body must
-        match auth code in POST /patients
+      summary: Accepts SAFE PATHS data upload from user. Access code sent in body must match access code created in /case/{caseId}/auth_code call
       requestBody:
         content:
           application/json:
@@ -226,161 +429,15 @@ paths:
       responses:
         '201':
           description: Created
-          content: {}
-        '403':
-          description: Access forbidden
-          content: {}
-        '405':
-          description: Invalid input
-          content: {}
-        default:
-          description: Unexpected behavior
-  /patients:
-    get:
-      summary: Gets list of patient records
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/caseId'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-      security:
-        - contactTracer: []
-        - admin: []
-    post:
-      summary: >-
-        Creates a record into the database which allows the patient to upload
-        concern points from the PATHS app
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                authCode:
-                  $ref: '#/components/schemas/authCode'
-      responses:
-        '200':
-          description: 'Patient file was created with the id: ''caseId'''
-          content:
-            appliction/json:
-              schema:
-                type: object
-                properties:
-                  caseId:
-                    $ref: '#/components/schemas/caseId'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '409':
-          description: Auth code may only be used once
-          content: {}
-        default:
-          description: Unexpected behavior
-      security:
-        - contactTracer: []
-        - admin: []
-  '/patients/{caseId}':
-    get:
-      summary: Gets patient case record
-      parameters:
-        - $ref: '#/components/parameters/caseIdParam'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  caseState:
-                    $ref: '#/components/schemas/caseState'
-                  concernPoints:
-                    $ref: '#/components/schemas/concernPoints'
-              examples:
-                original: 
-                  $ref: '#/components/examples/concernPointsOriginal'
-                unpublished:
-                  $ref : '#/components/examples/concernPointsUnpublished'
-                staging:
-                  $ref : '#/components/examples/concernPointsStaging'
-                published:
-                  $ref : '#/components/examples/concernPointsPublished'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-      security:
-        - contactTracer: []
-        - admin: []
-    post:
-      summary: Update patient case record
-      parameters:
-        - $ref: '#/components/parameters/caseIdParam'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                caseState:
-                  $ref: '#/components/schemas/caseState'
-                concernPoints:
-                  $ref: '#/components/schemas/concernPoints'
-      responses:
-        '200':
-          description: Patient case updated
-          content: {}
         '400':
-          description: Invalid request
-          content: {}
+          $ref: '#/components/responses/InvalidRequest'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
-          description: Lacks sufficient authority for operation
-          content: {}
-        default:
-          description: Unexpected behavior
-      security:
-        - contactTracer: []
-        - admin: []
-    delete:
-      summary: delete patient case record
-      parameters:
-        - $ref: '#/components/parameters/caseIdParam'
-      responses:
-        '200':
-          description: Patient case deleted
-          content: {}
-        '400':
-          description: Invalid request
-          content: {}
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          description: Lacks sufficient authority for operation
-          content: {}
-        default:
-          description: Unexpected behavior
-      security:
-        - contactTracer: []
-        - admin: []
-  '/safe_path/{orgId}':
-    get:
-      summary: >-
-        Retrieve current set of points of concern, no auth needed, called by
-        mobile phone app - part of mandatory API
-      parameters:
-        - $ref: '#/components/parameters/orgIdParam'
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/responses/AccessForbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
   /login:
     post:
       operationId: AuthController_login
