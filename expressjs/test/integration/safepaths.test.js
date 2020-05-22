@@ -3,11 +3,11 @@ process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/saf
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const jwtSecret = require('../config/jwtConfig');
+const jwtSecret = require('../../config/jwtConfig');
 const jwt = require('jsonwebtoken');
-const server = require('../app');
-const trails = require('../db/models/trails');
-const publications = require('../db/models/publications');
+const server = require('../../app');
+const trails = require('../../db/models/trails');
+const publications = require('../../db/models/publications');
 
 const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
 const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
@@ -202,23 +202,24 @@ describe('Safe Paths', function() {
     });
   });
 
-  // describe('GET /safe_paths with ', () => {
-  //   before(async () => {
+  describe('GET /safe_paths with cursor', () => {
+    before(async () => {
 
-  //   });
+    });
 
-  //   after(async () => {
+    after(async () => {
+      await trails.deleteAllRows();
+      await publications.deleteAllRows();
+    });
+
+    it('cursor is empty', async () => {
       
-  //   });
+    });
 
-  //   it('cursor is empty', async () => {
+    it('cursor is not empty', async () => {
       
-  //   });
-
-  //   it('cursor is not empty', async () => {
-      
-  //   });
-  // });
+    });
+  });
 
   describe('POST /safe_paths without redacted trails', function() {
 

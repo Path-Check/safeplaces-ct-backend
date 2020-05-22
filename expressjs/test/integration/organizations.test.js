@@ -4,11 +4,11 @@ process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/saf
 const { v4: uuidv4 } = require('uuid');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../app');
-const mockData = require('./lib/mockData');
-const organizations = require('../db/models/organizations');
+const server = require('../../app');
+const mockData = require('../lib/mockData');
+const organizations = require('../../db/models/organizations');
 
-const jwtSecret = require('../config/jwtConfig');
+const jwtSecret = require('../../config/jwtConfig');
 const jwt = require('jsonwebtoken');
 
 chai.use(chaiHttp);

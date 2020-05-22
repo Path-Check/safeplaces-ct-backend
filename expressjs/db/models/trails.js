@@ -15,7 +15,7 @@ class Service extends BaseService {
     
     return knex(this._name)
       .where('time', '>=', new Date(timeSlice.start_date * 1000))
-      .where('time', '<=', new Date(timeSlice.end_date * 1000))
+      .where('time', '<=', new Date(timeSlice.end_date * 1000));
   }
   
   

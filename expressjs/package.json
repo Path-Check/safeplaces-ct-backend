@@ -8,7 +8,8 @@
     "start": "node ./bin/www",
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
-    "test": "nyc --reporter=html --reporter=text mocha"
+    "test:all": "mocha test/**/*.*",
+    "test": "nyc --reporter=html --reporter=text mocha mocha test/**/*.*"
   },
   "dependencies": {
     "atob": "^2.1.2",
@@ -16,6 +17,7 @@
     "bluebird": "^3.7.2",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "debug": "~2.6.9",
     "eslint": "^7.0.0",
     "express": "~4.16.1",
@@ -25,6 +27,7 @@
     "knex": "^0.20.15",
     "knex-postgis": "^0.12.0",
     "morgan": "~1.9.1",
+    "ngeohash": "^0.6.3",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

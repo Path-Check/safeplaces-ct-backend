@@ -5,11 +5,12 @@ const publications = require('../../../db/models/publications');
 /**
  * @method fetchSafePaths
  * 
- * fetchSafePaths
+ * The Health Authority will reach out and pull down the most recent publication.
+ * This needs to be done
  * 
  */
 exports.fetchSafePaths = async (req, res) => {
-  const { organization_id, cursor } = req.params;
+  const { params: { organization_id } } = req;
 
   let safePathsResponse = {};
 
@@ -27,7 +28,7 @@ exports.fetchSafePaths = async (req, res) => {
 
   const redactedTrailRecords = await trails.findInterval(timeInterval);
   if (redactedTrailRecords) {
-    
+
     const intervalTrails = trails.getRedactedTrailFromRecord(redactedTrailRecords);
     const organization = await organizations.findOne({id: organization_id});
     if (organization) {
