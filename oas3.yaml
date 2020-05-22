@@ -39,7 +39,11 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/token'
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Invalid credentials"
   parameters:
     authCodeParam:
       in : path
@@ -239,6 +243,10 @@ paths:
       responses:
         '200':
           description: The user was found and the password matched.
+          content:
+            application/json:
+              schema:
+                $ref : '#/components/schemas/token'
         '401':
           $ref: '#/components/responses/InvalidToken'
         '500':
