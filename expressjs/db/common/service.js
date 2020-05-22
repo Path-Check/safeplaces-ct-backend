@@ -1,4 +1,4 @@
-var knex = require('../knex.js');
+const knex = require('../knex.js');
 
 class BaseService {
 

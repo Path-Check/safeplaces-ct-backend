@@ -33,5 +33,7 @@ exports.updateOrganization = async (req, res) => {
   const results = await organizations.updateOne(organization_id, organization);
   if (results) {
     res.status(200).json(results[0]);
+  } else {
+    res.status(500).json({message: 'Internal Server Error'});
   }
 };

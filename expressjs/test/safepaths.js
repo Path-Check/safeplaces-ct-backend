@@ -90,7 +90,7 @@ describe('Safe Path ', function() {
   });
 
   describe('GET /safe_path with redacted_trails and without publication', function() {
-
+const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
     before(async function(){
       await trails.deleteTable();
       let trail = [
@@ -105,7 +105,6 @@ describe('Safe Path ', function() {
           time: 1584924456
         }
       ];
-      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
       await trails.insertRedactedTrailSet(
         trail,
         identifier,
