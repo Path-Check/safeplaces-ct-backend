@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 
 const users = require('../../db/models/users');
+const cases = require('../../db/models/cases');
 const organizations = require('../../db/models/organizations');
 
 class MockData {
@@ -53,6 +54,21 @@ class MockData {
       return results[0];
     }
     throw new Error('Problem adding the organization.');
+  }
+
+  async mockCase(options = {}) {
+    if (!options.state) throw new Error('State must be provided.');
+
+    const params = {
+      id: uuidv4(),
+      state: options.state,
+    };
+
+    const results = await cases.create(params);
+    if (results) {
+      return results[0];
+    }
+    throw new Error('Problem adding the case.');
   }
 }
 
