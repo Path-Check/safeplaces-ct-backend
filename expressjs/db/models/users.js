@@ -1,7 +1,6 @@
 const BaseService = require('../common/service.js');
 
 class Service extends BaseService {
-
   update(id, organization) {
     let organizationRecord = {};
     organizationRecord.authority_name = organization.authority_name;
@@ -10,7 +9,6 @@ class Service extends BaseService {
 
     this.updateOne(id, organization);
   }
-
 }
 
 module.exports = new Service('users');

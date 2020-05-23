@@ -1,0 +1,574 @@
+{
+	"info": {
+		"_postman_id": "79ee301a-c9f8-42e5-a6a0-3552bad34e68",
+		"name": "PQA Safe Places - Backend",
+		"description": "The Safe Places API Specification",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "001 Safe Places Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3f67bfc1-daa5-4a68-a1ca-9568946495c8",
+						"exec": [
+							"var response = JSON.parse(responseBody);\r",
+							"\r",
+							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
+							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
+							"    var token = response.token;\r",
+							"    if (tests[\"Token is not empty\"] = token.length > 0) {\r",
+							"        pm.environment.set(\"token\", token);\r",
+							"    }\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Check maps_api_key \", function () {\r",
+							"    pm.expect(response.maps_api_key).to.eql(\"AIzaSyBvm-T7hqlAtAcQqPy0nOS1CSmXJQeZSPI\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				},
+				"description": "This is the beginning of a user interaction with the tool page. They must be authenticated, but the authentication will be saved using a cookie for future sessions.\r\nCredentials will be controlled and issued by the server implementor."
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\",\n    \"code\": \"<string>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login2"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "002 Safe Places Safe Redacted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "066c8340-ba75-4a5f-ad9b-aeca615bbfee",
+						"exec": [
+							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
+							"  tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
+							"  var response = JSON.parse(responseBody);\r",
+							"  var SuccessMessage = response.success;\r",
+							"  tests[\"Success Message = true \"] = SuccessMessage === true\r",
+							"  var orgId = response.data.organization_id;\r",
+							"  pm.environment.set(\"organizationId\", orgId);\r",
+							"}\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"var count = Object.keys(jsonData.data.trail).length;\r",
+							"\r",
+							"pm.test(\"Check organization - identifier \", function () {\r",
+							"    pm.expect(count).not.to.eql(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - identifier \", function () {\r",
+							"    pm.expect(jsonData.data.identifier).to.eql(\"Test ID\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - organization_id \", function () {\r",
+							"    pm.expect(jsonData.data.organization_id).to.eql(\"a88309c2-26cd-4d2b-8923-af0779e423a3\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - trail[0].longitude \", function () {\r",
+							"    pm.expect(jsonData.data.trail[0].longitude).to.eql(-0.11477509793272855);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[0].latitude \", function () {\r",
+							"    pm.expect(jsonData.data.trail[0].latitude).to.eql(51.53839304439309);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[0].time \", function () {\r",
+							"    pm.expect(jsonData.data.trail[0].time).to.eql(1583069740);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[1].longitude \", function () {\r",
+							"    pm.expect(jsonData.data.trail[1].longitude).to.eql(-0.10753902581515137);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[1].latitude \", function () {\r",
+							"    pm.expect(jsonData.data.trail[1].latitude).to.eql(51.55987524514395);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[1].time \", function () {\r",
+							"    pm.expect(jsonData.data.trail[1].time).to.eql(1583069745);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - user_id \", function () {\r",
+							"    pm.expect(jsonData.data.user_id).to.eql(\"a88309ca-26cd-4d2b-8923-af0779e423a3\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"identifier\": \"Test ID\",\r\n      \"trail\":[ {\r\n      \"latitude\": 51.53839304439309,\r\n      \"longitude\":  -0.11477509793272855,\r\n      \"time\": 1583069740\r\n    }, \r\n    {\r\n      \"latitude\": 51.55987524514395,\r\n      \"longitude\":  -0.10753902581515137,\r\n      \"time\": 1583069745\r\n    }\r\n    ]\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/redacted_trail",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"redacted_trail"
+					]
+				},
+				"description": "After a session of redaction, the results are saved to a database/table."
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"identifier\": \"<string>\",\n    \"trail\": [\n        \"<object>\",\n        \"<object>\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/redacted_trail",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"redacted_trail"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "\"<object>\""
+				}
+			]
+		},
+		{
+			"name": "003 Safe Places Load All Redacted Trails",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c8176b1a-c4dd-49a8-8748-ca20835af840",
+						"exec": [
+							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
+							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
+							"    var response = JSON.parse(responseBody);\r",
+							"    var varTrail = response.data[0].trail;\r",
+							"    tests[\"Trail Contains Data \"] = varTrail.length > 0\r",
+							"}\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"var count = Object.keys(jsonData.data[0].trail).length;\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - identifier \", function () {\r",
+							"    pm.expect(count).not.to.eql(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - organization_id \", function () {\r",
+							"    pm.expect(jsonData.organization.organization_id).to.eql(\"a88309c2-26cd-4d2b-8923-af0779e423a3\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - authority_name \", function () {\r",
+							"    pm.expect(jsonData.organization.authority_name).to.eql(\"Dev Organization\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - info_website \", function () {\r",
+							"    pm.expect(jsonData.organization.info_website).to.eql(\"https://www.who.int/emergencies/diseases/novel-coronavirus-2019\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - safe_path_json \", function () {\r",
+							"    pm.expect(jsonData.organization.safe_path_json).to.eql(\"https://www.something.give/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - data[0].identifier \", function () {\r",
+							"    pm.expect(jsonData.data[0].identifier).to.eql(\"Sample_PrivateKit-REDACTED.json\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - data[0].organization_id \", function () {\r",
+							"    pm.expect(jsonData.data[0].organization_id).to.eql(\"a88309c2-26cd-4d2b-8923-af0779e423a3\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[0].longitude \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[0].longitude).to.eql(-94.650847);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[0].latitude \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[0].latitude).to.eql(39.2092214);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[0].time \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[0].time).to.eql(1583104644);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[1].longitude \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[1].longitude).to.eql(-94.66124099999999);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[1].latitude \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[1].latitude).to.eql(39.246539);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[1].time \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[1].time).to.eql(1583106226);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[2].longitude \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[2].longitude).to.eql(-94.651957);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[2].latitude \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[2].latitude).to.eql(39.180015);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - trail[2].time \", function () {\r",
+							"    pm.expect(jsonData.data[0].trail[2].time).to.eql(1583107852);\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "{{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/redacted_trails",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"redacted_trails"
+					]
+				},
+				"description": "Used by the publisher tool, all redaction data is loaded."
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/redacted_trails",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"redacted_trails"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "\"<object>\""
+				}
+			]
+		},
+		{
+			"name": "004 Sefe Places Publish",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"authority_name\": \"PQA Testing\",\n    \"publish_date_utc\": \"1584924583\",\n    \"info_website\": \"https://www.who.int/emergencies/diseases/novel-coronavirus-2019\",\n    \"concern_points\": \n    [\n     {\n      \"time\": 123,\n      \"latitude\": 51.53839304439309,\n      \"longitude\": -0.11477509793272855\n     }, \n     {\n      \"time\": 456,\n      \"latitude\": 51.55987524514395,\n      \"longitude\": -0.10753902581515137\n     }\n    ]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/safe_paths",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"safe_paths"
+					]
+				},
+				"description": "Used by the Publisher tool, all points are published along with extra information."
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"authority_name\": \"<string>\",\n    \"publish_date\": \"<number>\",\n    \"info_website\": \"<string>\",\n    \"concern_points\": [\n        \"<object>\",\n        \"<object>\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/safe_paths",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"safe_paths"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "\"<object>\""
+				}
+			]
+		},
+		{
+			"name": "005 Safe Paths Json",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9a745cff-9ac8-4f0c-8295-cb5495af5755",
+						"exec": [
+							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
+							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
+							"    var response = JSON.parse(responseBody);\r",
+							"    var authorityName = response.authority_name;\r",
+							"    tests[\"authorityName = Dev Organization \"] = authorityName === \"Dev Organization\"\r",
+							"}\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"var count = Object.keys(jsonData.concern_points).length;\r",
+							"\r",
+							"pm.test(\"Check organization - identifier \", function () {\r",
+							"    pm.expect(count).not.to.eql(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - publish_date \", function () {\r",
+							"    pm.expect(jsonData.publish_date).to.eql(1588773515);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - longitude \", function () {\r",
+							"    pm.expect(jsonData.concern_points[0].longitude).to.eql(-94.650847);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - latitude \", function () {\r",
+							"    pm.expect(jsonData.concern_points[0].latitude).to.eql(39.2092214);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - time \", function () {\r",
+							"    pm.expect(jsonData.concern_points[0].time).to.eql(1583104644);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - longitude \", function () {\r",
+							"    pm.expect(jsonData.concern_points[1].longitude).to.eql(-94.66124099999999);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - latitude \", function () {\r",
+							"    pm.expect(jsonData.concern_points[1].latitude).to.eql(39.246539);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - time \", function () {\r",
+							"    pm.expect(jsonData.concern_points[1].time).to.eql(1583106226);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/safe_path/{{organizationId}}/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"safe_path",
+						"{{organizationId}}",
+						""
+					]
+				},
+				"description": "Consumed by the Safe Paths client application. This requires no authentication."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "c5d691e6-3d81-441b-96ec-0bdaae9821de",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "ba4008a7-027a-4e96-b73c-4d1f6e768c03",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "9c2d444f-1d0a-4ed6-b692-155b3cdbcff0",
+			"key": "baseUrl",
+			"value": "/",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

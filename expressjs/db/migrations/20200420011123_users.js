@@ -1,6 +1,6 @@
 const { onUpdateTrigger } = require('../../knexfile');
 
-exports.up = function(knex) {
+exports.up = function (knex) {
   let createQuery = `CREATE TABLE users(
     id UUID NOT NULL,
     organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -15,7 +15,7 @@ exports.up = function(knex) {
   return knex.raw(createQuery).then(() => knex.raw(onUpdateTrigger('users')));
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   let dropQuery = `DROP TABLE users`;
   return knex.raw(dropQuery);
 };

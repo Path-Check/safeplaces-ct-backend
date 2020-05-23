@@ -1,4 +1,3 @@
-
 const BaseService = require('../common/service.js');
 const knex = require('../knex.js');
 const knexPostgis = require("knex-postgis");
