@@ -1,4 +1,6 @@
 const _ = require('lodash')
+const fs = require('fs')
+const AdmZip = require('adm-zip');
 
 /**
  * @class PublicationFiles
@@ -9,15 +11,15 @@ const _ = require('lodash')
 
 class PublicationFiles {
 
-/**
- * Add Product to order
- *
- * @method build
- * @param {Object} organization
- * @param {Object} record
- * @param {Array[Trails]} trails
- * @return {Object}
- */
+  /**
+   * Build Publication File Content
+   *
+   * @method build
+   * @param {Object} organization
+   * @param {Object} record
+   * @param {Array[Trails]} trails
+   * @return {Object}
+   */
   build(organization, record, trails) {
 
     this._apiEndpoint = `${organization.apiEndpoint}${record.id}_[PAGE].json`
@@ -35,6 +37,38 @@ class PublicationFiles {
         pages: this._getPaginationInformation(organization, trailsChunked, (key + 1))
       };
     });
+  }
+
+  /**
+   * 
+   * Build Publication File Content and return zip file Buffer.
+   *
+   * @method build
+   * @param {Object} organization
+   * @param {Object} record
+   * @param {Array[Trails]} trails
+   * @return {<Promise>ZipFile}
+   */
+  // 
+  async buildAndZip(organization, record, trails) {
+    const pages = await this.build(organization, record, trails)
+    if (pages) {
+      const zip = new AdmZip();
+  
+      zip.addFile("instructions.txt", "Place all files in the `trails` folder onto your web server.");
+      zip.addFile('trails/', Buffer.from(''));
+      pages.forEach((page, key) => zip.addFile(`trails/${record.id}_${(key + 1)}.json`, Buffer.from(JSON.stringify(page))));
+
+      // fs.writeFile("/tmp/out1.zip", willSendthis, function(err) {
+      //   if(err) {
+      //       return console.log(err);
+      //   }
+      //   console.log("The file was saved!");
+      // });
+
+      return zip.toBuffer();
+    }
+    throw new Error('Problem generating the zip file.')
   }
 
   // private

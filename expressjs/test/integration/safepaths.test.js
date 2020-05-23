@@ -5,6 +5,7 @@ process.env.DATABASE_URL =
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const jwt = require('jsonwebtoken');
+const AdmZip = require('adm-zip');
 
 const mockData = require('../lib/mockData');
 
@@ -262,11 +263,71 @@ describe('Safe Path ', function () {
     it('return an organization`s safe paths with 5 files', async function() {
       const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}`)
       if (res) {
+        // console.log(res)
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
         res.body.should.be.a('array');
         const firstChunk = res.body.shift()
         firstChunk.pages.endpoints.length.should.equal(5);
+      }
+    });
+
+    after(async function () {
+      await trails.deleteAllRows();
+      await publications.deleteAllRows();
+    });
+
+  });
+
+  describe('GET /safe_path as zip file', function () {
+
+    before(async function () {
+      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
+      
+      await trails.deleteAllRows();
+      await publications.deleteAllRows();
+
+      // Add Org
+      let orgParams = {
+        authority_name: 'My Example Organization',
+        info_website: 'http://sample.com',
+        chunkingInSeconds: 3600
+      };
+      currentOrg = await mockData.mockOrganization(orgParams);
+
+      // Add Trails
+      let trailsParams = {
+        redactedTrailId: identifier,
+        organizationId: currentOrg.id,
+        userId: USER_ID
+      }
+      currentTrails = await mockData.mockTrails(10, 1800, trailsParams) // Generate 10 trails 30 min apart
+
+      let start_date = (new Date(currentTrails[(currentTrails.length - 1)].time).getTime() / 1000)
+      let end_date = (new Date(currentTrails[0].time).getTime() / 1000)
+
+      // Add Publication
+      let publication = {
+        organization_id: currentOrg.id,
+        user_id: USER_ID,
+        start_date,
+        end_date
+      };
+      currentPublication = await mockData.mockPublication(publication)
+    });
+
+    it('return an organization`s safe paths with 5 files', async function() {
+      const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}?type=zip`).buffer()
+      if (res) {
+        var zip = new AdmZip(res.body);
+        var zipEntries = zip.getEntries();
+
+        res.should.have.status(200);
+        res.headers['content-type'].should.equal('application/octet-stream')
+        res.headers['content-disposition'].should.equal(`attachment; filename="${currentPublication.id}.zip"`)
+        zipEntries.length.should.equal(7)
+        zipEntries[0].entryName.should.equal('instructions.txt')
+        zipEntries[2].entryName.should.equal(`trails/${currentPublication.id}_1.json`)        
       }
     });
 

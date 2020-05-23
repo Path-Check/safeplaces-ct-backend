@@ -8,11 +8,12 @@ const publicationFiles = require('../../lib/publicationFiles');
  * @method fetchSafePaths
  *
  * Fetch Safe Paths files for a given organization.
+ * 
+ * https://arjunphp.com/express-js-zip-and-download-files/
  *
  */
 exports.fetchSafePaths = async (req, res) => {
-  const { params: { organization_id } } = req;
-
+  const { params: { organization_id }, query: { type } } = req;
 
   const organization = await organizations.findOne({ id: organization_id });
   if (organization) {
@@ -30,8 +31,19 @@ exports.fetchSafePaths = async (req, res) => {
     if (trailsRecords) {
       const intervalTrails = trails.getRedactedTrailFromRecord(trailsRecords);
       
-      let response = publicationFiles.build(organization, record, intervalTrails)
+      if (type === 'zip') {
+        let data = await publicationFiles.buildAndZip(organization, record, intervalTrails)
 
+        res.status(200)
+          .set({
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': `attachment; filename="${record.id}.zip"`,
+            'Content-Length': data.length
+          })
+          .send(data)
+      }
+      
+      let response = publicationFiles.build(organization, record, intervalTrails)
       res.status(200).json(response);
     } else {
       res.status(500).json({ message: 'Internal Server Error (2)' });
