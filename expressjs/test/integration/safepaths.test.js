@@ -126,7 +126,7 @@ describe('Safe Path ', function () {
       await trails.deleteAllRows();
     });
 
-    it('should return an organization`s safe paths as empty', function (done) {
+    it('return an organization`s safe paths as empty', function (done) {
       chai
         .request(server.app)
         .get('/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3')

@@ -1,5 +1,3 @@
-const _ = require('lodash')
-const fs = require('fs')
 const AdmZip = require('adm-zip');
 
 /**
@@ -58,13 +56,6 @@ class PublicationFiles {
       zip.addFile("instructions.txt", "Place all files in the `trails` folder onto your web server.");
       zip.addFile('trails/', Buffer.from(''));
       pages.forEach((page, key) => zip.addFile(`trails/${record.id}_${(key + 1)}.json`, Buffer.from(JSON.stringify(page))));
-
-      // fs.writeFile("/tmp/out1.zip", willSendthis, function(err) {
-      //   if(err) {
-      //       return console.log(err);
-      //   }
-      //   console.log("The file was saved!");
-      // });
 
       return zip.toBuffer();
     }
