@@ -1,6 +1,7 @@
 const trails = require('../../../db/models/trails');
 const organizations = require('../../../db/models/organizations');
 const publications = require('../../../db/models/publications');
+const publicationFiles = require('../../lib/publicationFiles');
 
 /**
  * @method fetchSafePaths
@@ -11,40 +12,30 @@ const publications = require('../../../db/models/publications');
 exports.fetchSafePaths = async (req, res) => {
   const { params: { organization_id } } = req;
 
-  let safePathsResponse = {};
 
-  const publicationRecord = await publications.findLastOne({
-    organization_id: req.params.organization_id,
-  });
-  if (publicationRecord) {
-    safePathsResponse.publish_date =
-      publicationRecord.publish_date.getTime() / 1000;
-  } else {
-    return res.status(204).send('');
-  }
+  const organization = await organizations.findOne({ id: organization_id });
+  if (organization) {
+    const record = await publications.findLastOne({ organization_id });
+    if (!record) {
+      return res.status(204).send('');
+    }
 
-  let timeInterval = {
-    start_date: publicationRecord.start_date.getTime() / 1000,
-    end_date: publicationRecord.end_date.getTime() / 1000,
-  };
+    let timeInterval = {
+      start_date: record.start_date.getTime() / 1000,
+      end_date: record.end_date.getTime() / 1000,
+    };
 
-  const redactedTrailRecords = await trails.findInterval(timeInterval);
-  if (redactedTrailRecords) {
-    const intervalTrails = trails.getRedactedTrailFromRecord(
-      redactedTrailRecords,
-    );
-    const organization = await organizations.findOne({
-      id: req.params.organization_id,
-    });
-    if (organization) {
-      safePathsResponse.authority_name = organization.authority_name;
-      safePathsResponse.concern_points = intervalTrails;
-      safePathsResponse.info_website = organization.info_website;
+    const trailsRecords = await trails.findInterval(timeInterval);
+    if (trailsRecords) {
+      const intervalTrails = trails.getRedactedTrailFromRecord(trailsRecords);
+      
+      let response = publicationFiles.build(organization, record, intervalTrails)
 
-      res.status(200).json(safePathsResponse);
+      res.status(200).json(response);
     } else {
       res.status(500).json({ message: 'Internal Server Error' });
     }
+
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
   }

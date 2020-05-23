@@ -2,8 +2,9 @@
 exports.up = function(knex) {
   return knex.schema.table('organizations', function(table) {
     table.dropColumn('notificationThreshold');
-    table.integer('notificationThresholdPercent');
-    table.integer('notificationThresholdCount');
+    table.integer('notificationThresholdPercent').defaultTo(66);
+    table.integer('notificationThresholdCount').defaultTo(6);
+    table.integer('chunkingInSeconds').defaultTo(43200);
   });
 };
 
@@ -12,5 +13,6 @@ exports.down = function(knex) {
     table.string('notificationThreshold');
     table.dropColumn('notificationThresholdPercent');
     table.dropColumn('notificationThresholdCount');
+    table.dropColumn('chunkingInSeconds');
   });
 };

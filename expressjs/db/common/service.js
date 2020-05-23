@@ -35,6 +35,7 @@ class BaseService {
   }
 
   deleteAllRows() {
+    // console.log('Delete all rows: ', this._name)
     return knex(this._name).del();
   }
 

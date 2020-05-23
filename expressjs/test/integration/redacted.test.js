@@ -69,7 +69,7 @@ describe('Redacted ', function () {
 
   describe('GET /redacted_trails with some values', function () {
     before(async function () {
-      await trails.deleteTable();
+      await trails.deleteAllRows();
       let trail = [
         {
           longitude: 12.34,
@@ -92,7 +92,7 @@ describe('Redacted ', function () {
     });
 
     after(async function () {
-      await trails.deleteTable();
+      await trails.deleteAllRows();
     });
 
     it('should return all redacted trails', function (done) {
@@ -151,7 +151,7 @@ describe('Redacted ', function () {
 
   describe('POST /redacted_trail', function () {
     afterEach(async function () {
-      await trails.deleteTable();
+      await trails.deleteAllRows();
     });
 
     it('should check for correct JWT token', function (done) {

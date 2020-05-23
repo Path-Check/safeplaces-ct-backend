@@ -3,6 +3,7 @@ const knex = require('../knex.js');
 const knexPostgis = require("knex-postgis");
 const wkx = require('wkx');
 const Buffer = require('buffer').Buffer;
+const geoHash = require('../../app/lib/geoHash');
 
 const st = knexPostgis(knex);
 
@@ -27,27 +28,32 @@ class Service extends BaseService {
       const c = wkx.Geometry.parse(b);
       trail.longitude = c.x;
       trail.latitude = c.y;
-      trail.time = element.time.getTime()/1000;
-      // identifier = element.redacted_trail_id;
+      trail.hash = element.hash;
+      trail.time = (element.time.getTime() / 1000);
       redactedTrail.push(trail);
     });
 
     return redactedTrail;
   }
   
-  insertRedactedTrailSet(trails, redactedTrailId, organizationId, userId) {
+  async insertRedactedTrailSet(trails, redactedTrailId, organizationId, userId) {
     let trailRecords = [];
 
-    trails.forEach(element => {
-      let trailRecord = {};
-      trailRecord.coordinates = st.setSRID(
-        st.makePoint(element.longitude, element.latitude), 4326);
-      trailRecord.time = new Date(element.time * 1000); // Assumes time in epoch seconds
-      trailRecord.redacted_trail_id = redactedTrailId;
-      trailRecord.organization_id = organizationId;
-      trailRecord.user_id = userId;
-      trailRecords.push(trailRecord);
-    });
+    let trail, record, hash;
+    for(trail of trails) {
+      record = {};
+      hash = await geoHash.encrypt(trail)
+      if (hash) {
+        record.hash = hash.encodedString
+        record.coordinates = st.setSRID(
+          st.makePoint(trail.longitude, trail.latitude), 4326);
+        record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
+        record.redacted_trail_id = redactedTrailId;
+        record.organization_id = organizationId;
+        record.user_id = userId;
+        trailRecords.push(record);
+      }
+    }
     
     return knex(this._name).insert(trailRecords).returning('*');
   }
