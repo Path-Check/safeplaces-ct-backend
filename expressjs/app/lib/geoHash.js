@@ -16,6 +16,16 @@ We use a scrypt hash with the following parameters:
 
 */
 
+/**
+ * Encrypt location into a Hash
+ *
+ * @method encrypt
+ * @param {Object} location
+ * @param {String} salt
+ * @param {Boolean} debug
+ * @return {String}
+ */
+
 const encrypt = async (location, salt = 'salt', debug = false) => {
   const roundDownTo = roundTo => x => Math.floor(x / roundTo) * roundTo;
   const roundDownTo5Minutes = roundDownTo(1000*60*5);
@@ -37,6 +47,14 @@ const encrypt = async (location, salt = 'salt', debug = false) => {
   }
 };
 
+
+/**
+ * Add Product to order
+ *
+ * @method decrypt
+ * @param {String} hash
+ * @return {Object}
+ */
 const decryptHash = hash => {
   return geohash.decode(hash);
 };

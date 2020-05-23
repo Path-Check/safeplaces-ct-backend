@@ -45,7 +45,7 @@ exports.fetchSafePaths = async (req, res) => {
   }
 };
 
-/**
+/**I 
  * @method createSafePath
  * 
  * createSafePath
