@@ -24,17 +24,17 @@ class PublicationFiles {
 
     const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds)
 
-    const currentPage = 1
-
-    return {
-      authority_name: organization.authority_name,
-      publish_date_utc: (record.publish_date.getTime() / 1000),
-      info_website: organization.info_website,
-      notification_threshold_percent: organization.notificationThresholdPercent,
-      notification_threshold_count: organization.notificationThresholdCount,
-      concern_point_hashes: this._getPointHashes(trailsChunked, currentPage),
-      pages: this._getPaginationInformation(organization, trailsChunked, currentPage)
-    };
+    return trailsChunked.map((chunk, key) => {
+      return {
+        authority_name: organization.authority_name,
+        publish_date_utc: (record.publish_date.getTime() / 1000),
+        info_website: organization.info_website,
+        notification_threshold_percent: organization.notificationThresholdPercent,
+        notification_threshold_count: organization.notificationThresholdCount,
+        concern_point_hashes: this._getPointHashes(chunk),
+        pages: this._getPaginationInformation(organization, trailsChunked, (key + 1))
+      };
+    });
   }
 
   // private
@@ -49,7 +49,7 @@ class PublicationFiles {
    * @param {Number} currentPage
    * @return {Object}
    */
-  _getPaginationInformation(organization, trails, currentPage) {    
+  _getPaginationInformation(organization, trails, currentPage) {
     return {
       chunkingInSeconds: organization.chunkingInSeconds,
       totalPages: trails.length,
@@ -63,12 +63,10 @@ class PublicationFiles {
    *
    * @private
    * @method _getPointHashes
-   * @param {Array} trails
-   * @param {Number} currentPage
+   * @param {Object} chunk
    * @return {Array}
    */
-  _getPointHashes(trails, currentPage) {
-    const chunk = trails.find(p => p.page === currentPage);
+  _getPointHashes(chunk) {
     return chunk.trails.map(trail => trail.hash);
   }
 
@@ -84,6 +82,17 @@ class PublicationFiles {
    */
   _chunkTrails(trails, seconds) {
     const sortedTrails = trails.sort((a,b) => (a.time > b.time) ? 1 : ((b.time > a.time) ? -1 : 0)); // Assure they are sorted properly.
+
+    if (trails.length === 0) {
+      return [
+        {
+          page: 1,
+          startTimestamp: null,
+          endTimestamp: null,
+          trails: []
+        }
+      ]
+    }
 
     let i = 0
     let groups = []

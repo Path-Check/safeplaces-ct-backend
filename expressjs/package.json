@@ -8,8 +8,10 @@
     "start": "node ./bin/www",
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
-    "test:all": "mocha test/**/*.*",
     "test": "nyc --reporter=html --reporter=text mocha test/**/*.*",
+    "test:int": "mocha test/integration/*.*",
+    "test:unit": "mocha test/unit/*.*",
+    "test:all": "mocha test/**/*.*",
     "format": "prettier --write **/*.{js,json}"
   },
   "pre-commit": [

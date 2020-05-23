@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const trails = require('../../../db/models/trails');
 const organizations = require('../../../db/models/organizations');
 const publications = require('../../../db/models/publications');
@@ -6,7 +7,7 @@ const publicationFiles = require('../../lib/publicationFiles');
 /**
  * @method fetchSafePaths
  *
- * fetchSafePaths
+ * Fetch Safe Paths files for a given organization.
  *
  */
 exports.fetchSafePaths = async (req, res) => {
@@ -33,43 +34,38 @@ exports.fetchSafePaths = async (req, res) => {
 
       res.status(200).json(response);
     } else {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(500).json({ message: 'Internal Server Error (2)' });
     }
 
   } else {
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: 'Internal Server Error (1)' });
   }
 };
 
 /**I 
  * @method createSafePath
  *
- * createSafePath
+ * Publish a Safe Paths file(s) 
  *
  */
 exports.createSafePath = async (req, res) => {
+
+  const { body, user: { id: user_id, organization_id } } = req
+
   let safePathsResponse = {};
   let safePath = {};
 
   safePathsResponse.organization_id = req.user.organization_id;
   safePathsResponse.user_id = req.user.id;
+
   safePath.publish_date = req.body.publish_date;
 
   // Constuct a publication record before inserting
-  let publication = {};
-  publication.start_date = req.body.start_date;
-  publication.end_date = req.body.end_date;
-  publication.publish_date = req.body.publish_date;
-  publication.user_id = req.user.id;
-  publication.organization_id = req.user.organization_id;
+  const publication = _.extend(_.pick(body, ['start_date','end_date','publish_date']), { user_id, organization_id })
 
   // Construct a organization record before updating
-  let organizationId = req.user.organization_id;
-
-  let organization = {};
-  organization.authority_name = req.body.authority_name;
-  organization.info_website = req.body.info_website;
-  organization.safe_path_json = req.body.safe_path_json;
+  // TODO: Why are we constructing a new Organization for update?
+  const organization = _.pick(body, ['authority_name','info_website','safe_path_json']);
 
   // Construct a timeSlice record for getting a trail within this time interval
   let timeSlice = {};
@@ -78,12 +74,10 @@ exports.createSafePath = async (req, res) => {
 
   const publicationRecords = await publications.insert(publication);
   if (publicationRecords) {
-    safePathsResponse.datetime_created = new Date(
-      publicationRecords[0].created_at,
-    ).toString();
+    safePathsResponse.datetime_created = new Date(publicationRecords[0].created_at).toString();
 
     const organizationRecords = await organizations.update(
-      organizationId,
+      organization_id,
       organization,
     );
     if (organizationRecords) {
@@ -99,6 +93,11 @@ exports.createSafePath = async (req, res) => {
         safePathsResponse.safe_path = safePath;
 
         res.status(200).json(safePathsResponse);
+
+        // let response = publicationFiles.build(organization, record, intervalTrails)
+
+        // res.status(200).json(response);
+
       } else {
         res.status(500).json({ message: 'Internal Server Error' });
       }

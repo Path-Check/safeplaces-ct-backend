@@ -12,7 +12,6 @@ const jwtSecret = require('../../config/jwtConfig');
 const server = require('../../app');
 const trails = require('../../db/models/trails');
 const publications = require('../../db/models/publications');
-const organizationService = require('../../db/models/organizations');
 
 const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
 const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
@@ -79,18 +78,20 @@ describe('Safe Path ', function () {
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
-          res.body.should.be.a('object');
-          res.body.should.have.property('authority_name');
-          res.body.authority_name.should.equal('Test Organization');
-          res.body.should.have.property('concern_point_hashes');
-          res.body.concern_point_hashes.should.be.a('array');
-          res.body.concern_point_hashes.should.be.empty;
-          res.body.should.have.property('info_website');
-          res.body.info_website.should.equal(
+          res.body.should.be.a('array');
+
+          const firstChunk = res.body.shift()
+          firstChunk.should.have.property('authority_name');
+          firstChunk.authority_name.should.equal('Test Organization');
+          firstChunk.should.have.property('concern_point_hashes');
+          firstChunk.concern_point_hashes.should.be.a('array');
+          firstChunk.concern_point_hashes.should.be.empty;
+          firstChunk.should.have.property('info_website');
+          firstChunk.info_website.should.equal(
             'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
           );
-          res.body.should.have.property('publish_date_utc');
-          res.body.publish_date_utc.should.equal(1584924583);
+          firstChunk.should.have.property('publish_date_utc');
+          firstChunk.publish_date_utc.should.equal(1584924583);
           done();
         });
     });
@@ -172,43 +173,45 @@ describe('Safe Path ', function () {
       currentPublication = await mockData.mockPublication(publication)
     });
 
-    it('return an organization`s safe paths with only one file', async function() {
+    it('return an organization`s chunked safe paths', async function() {
       const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}`)
       if (res) {
-
         let pageEndpoint = `${currentOrg.apiEndpoint}${currentPublication.id}_[PAGE].json`
 
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
-        res.body.should.be.a('object');
-        res.body.should.have.property('authority_name');
-        res.body.authority_name.should.equal(currentOrg.authority_name);
-        res.body.should.have.property('notification_threshold_percent');
-        res.body.should.have.property('notification_threshold_count');
-        res.body.should.have.property('concern_point_hashes');
-        res.body.concern_point_hashes.should.be.a('array');
-        res.body.should.have.property('info_website');
-        res.body.info_website.should.equal(currentOrg.info_website);
-        res.body.should.have.property('publish_date_utc');
-        res.body.publish_date_utc.should.equal((currentPublication.publish_date.getTime() / 1000));
-        res.body.concern_point_hashes.length.should.equal(5);
-        res.body.concern_point_hashes.forEach((point, key) => {
+        res.body.should.be.a('array');
+
+        const firstChunk = res.body.shift()
+        firstChunk.should.be.a('object');
+
+        firstChunk.should.have.property('authority_name');
+        firstChunk.authority_name.should.equal(currentOrg.authority_name);
+        firstChunk.should.have.property('notification_threshold_percent');
+        firstChunk.should.have.property('notification_threshold_count');
+        firstChunk.should.have.property('concern_point_hashes');
+        firstChunk.concern_point_hashes.should.be.a('array');
+        firstChunk.should.have.property('info_website');
+        firstChunk.info_website.should.equal(currentOrg.info_website);
+        firstChunk.should.have.property('publish_date_utc');
+        firstChunk.publish_date_utc.should.equal((currentPublication.publish_date.getTime() / 1000));
+        firstChunk.concern_point_hashes.length.should.equal(5);
+        firstChunk.concern_point_hashes.forEach(point => {
           point.should.be.a('string');
-          point.should.equal(currentTrails[key].hash);
         })
-        res.body.should.have.property('pages');
-        res.body.pages.should.be.a('object');
-        res.body.pages.should.have.property('chunkingInSeconds');
-        res.body.pages.chunkingInSeconds.should.be.a('number');
-        res.body.pages.chunkingInSeconds.should.equal(currentOrg.chunkingInSeconds);
-        res.body.pages.totalPages.should.be.a('number');
-        res.body.pages.totalPages.should.equal(1);
-        res.body.pages.currentPage.should.be.a('number');
-        res.body.pages.currentPage.should.equal(1);
-        res.body.pages.endpoints.should.be.a('array');
-        res.body.pages.endpoints.length.should.equal(1);
-        res.body.pages.endpoints[0].should.be.a('string');
-        res.body.pages.endpoints[0].should.equal(pageEndpoint.replace('[PAGE]', 1));
+        firstChunk.should.have.property('pages');
+        firstChunk.pages.should.be.a('object');
+        firstChunk.pages.should.have.property('chunkingInSeconds');
+        firstChunk.pages.chunkingInSeconds.should.be.a('number');
+        firstChunk.pages.chunkingInSeconds.should.equal(currentOrg.chunkingInSeconds);
+        firstChunk.pages.totalPages.should.be.a('number');
+        firstChunk.pages.totalPages.should.equal(1);
+        firstChunk.pages.currentPage.should.be.a('number');
+        firstChunk.pages.currentPage.should.equal(1);
+        firstChunk.pages.endpoints.should.be.a('array');
+        firstChunk.pages.endpoints.length.should.equal(1);
+        firstChunk.pages.endpoints[0].should.be.a('string');
+        firstChunk.pages.endpoints[0].should.equal(pageEndpoint.replace('[PAGE]', 1));
       }
     });
 
@@ -219,7 +222,7 @@ describe('Safe Path ', function () {
 
   });
 
-  describe.only('GET /safe_path with redacted_trails and publication with 5 file', function () {
+  describe('GET /safe_path with redacted_trails and publication with 5 file', function () {
 
     before(async function () {
       let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
@@ -261,7 +264,9 @@ describe('Safe Path ', function () {
       if (res) {
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
-        res.body.pages.endpoints.length.should.equal(5);
+        res.body.should.be.a('array');
+        const firstChunk = res.body.shift()
+        firstChunk.pages.endpoints.length.should.equal(5);
       }
     });
 
