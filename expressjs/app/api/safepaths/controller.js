@@ -62,10 +62,7 @@ exports.fetchSafePaths = async (req, res) => {
  */
 exports.createSafePath = async (req, res) => {
 
-  const { body, user: { id: user_id, organization_id }, query: { type } } = req
-
-  // let safePathsResponse = {};
-  // let safePath = {};
+  const { body, user: { id: user_id, organization_id } } = req
 
   const response = {
     organization_id,
@@ -87,35 +84,12 @@ exports.createSafePath = async (req, res) => {
   const record = await publications.insert(publicationParams);
   if (record) {
     response.datetime_created = new Date(record.created_at).toString();
-
     const organization = await organizations.updateOne(organization_id, organizationParams);
     if (organization) {
-      
-      // safePath.authority_name = organizationRecords[0].authority_name;
-      // safePath.info_website = organizationRecords[0].info_website;
-      // safePath.safe_path_json = organizationRecords[0].safe_path_json;
-
       const trailsRecords = await trails.findInterval(timeSlice);
       if (trailsRecords) {
         const intervalTrails = trails.getRedactedTrailFromRecord(trailsRecords);
-        // safePath.concern_points = intervalPoints;
-        // safePathsResponse.safe_path = safePath;
-        
-        // TODO: Is there a need to download the zip file on this call?
-        // if (type === 'zip') {
-        //   let data = await publicationFiles.buildAndZip(organization, record, intervalTrails)
-  
-        //   res.status(200)
-        //     .set({
-        //       'Content-Type': 'application/octet-stream',
-        //       'Content-Disposition': `attachment; filename="${record.id}.zip"`,
-        //       'Content-Length': data.length
-        //     })
-        //     .send(data)
-        // }
-
         response.safe_path = publicationFiles.build(organization, record, intervalTrails)
-
         res.status(200).json(response);
       } else {
         res.status(500).json({ message: 'Internal Server Error (3)' });
