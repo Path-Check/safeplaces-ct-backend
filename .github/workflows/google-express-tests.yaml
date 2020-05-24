@@ -93,4 +93,4 @@ jobs:
 
     - name: Run API Tests
       run: |
-        docker run --mount type=bind,source="$(pwd)"/tests/tests,target=/etc/newman postman/newman:ubuntu run backend_collection.json -e FASTAPI.postman_environment.json
+        docker run --mount type=bind,source=$PWD/tests/tests,target=/etc/newman postman/newman:ubuntu run backend_collection.json -e FASTAPI.postman_environment.json
