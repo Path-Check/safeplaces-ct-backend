@@ -20,7 +20,13 @@ class PublicationFiles {
    */
   build(organization, record, trails) {
 
-    this._apiEndpoint = `${organization.apiEndpoint}${record.id}_[PAGE].json`
+    if (!organization.apiEndpoint) throw new Error('Your API endpoint is invalid.') 
+
+    let endpoint = organization.apiEndpoint
+    if (endpoint.substr((endpoint.length - 1), 1) !== '/') {
+      endpoint = '/'
+    }
+    this._apiEndpointPage = `${endpoint}[PAGE].json`;
 
     const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds)
 
@@ -79,7 +85,7 @@ class PublicationFiles {
       chunkingInSeconds: organization.chunkingInSeconds,
       totalPages: trails.length,
       currentPage,
-      endpoints: Array.from(Array(trails.length).keys()).map(page => this._apiEndpoint.replace('[PAGE]', (page + 1)))
+      endpoints: Array.from(Array(trails.length).keys()).map(page => this._apiEndpointPage.replace('[PAGE]', (page + 1)))
     }
   }
 

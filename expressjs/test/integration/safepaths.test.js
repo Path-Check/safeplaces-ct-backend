@@ -177,7 +177,7 @@ describe('Safe Path ', function () {
     it('return an organization`s chunked safe paths', async function() {
       const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}`)
       if (res) {
-        let pageEndpoint = `${currentOrg.apiEndpoint}${currentPublication.id}_[PAGE].json`
+        let pageEndpoint = `${currentOrg.apiEndpoint}[PAGE].json`
 
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
@@ -264,11 +264,14 @@ describe('Safe Path ', function () {
       const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}`)
       if (res) {
         // console.log(res)
+        let pageEndpoint = `${currentOrg.apiEndpoint}[PAGE].json`
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
         res.body.should.be.a('array');
         const firstChunk = res.body.shift()
         firstChunk.pages.endpoints.length.should.equal(5);
+        firstChunk.pages.endpoints[0].should.equal(pageEndpoint.replace('[PAGE]', 1));
+        firstChunk.pages.endpoints[4].should.equal(pageEndpoint.replace('[PAGE]', 5));
       }
     });
 
