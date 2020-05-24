@@ -117,7 +117,7 @@ class MockData {
 
     const results = await publicationService.insert(_.extend(params, options));
     if (results) {
-      return results[0];
+      return results;
     }
     throw new Error('Problem adding the publication.');
   }

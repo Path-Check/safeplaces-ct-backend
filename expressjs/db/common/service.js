@@ -21,7 +21,17 @@ class BaseService {
     return knex(this._name).where(query).first();
   }
 
-  updateOne(id, params) {
+  async updateOne(id, params) {
+    if (!id) throw new Error('ID was not provided');
+    if (!params) throw new Error('Params were not provided');
+
+    let results = await knex(this._name).where({ id: id }).update(params).returning('*');
+    if (results) {
+      return results[0]
+    }
+  }
+
+  updateMany(id, params) {
     if (!id) throw new Error('ID was not provided');
     if (!params) throw new Error('Params were not provided');
 

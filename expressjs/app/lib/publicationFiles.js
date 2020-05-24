@@ -19,7 +19,6 @@ class PublicationFiles {
    * @return {Object}
    */
   build(organization, record, trails) {
-
     if (!organization.apiEndpoint) throw new Error('Your API endpoint is invalid.') 
 
     let endpoint = organization.apiEndpoint
@@ -35,6 +34,7 @@ class PublicationFiles {
         authority_name: organization.authority_name,
         publish_date_utc: (record.publish_date.getTime() / 1000),
         info_website: organization.info_website,
+        safe_path_json: organization.safe_path_json,
         notification_threshold_percent: organization.notificationThresholdPercent,
         notification_threshold_count: organization.notificationThresholdCount,
         concern_point_hashes: this._getPointHashes(chunk),

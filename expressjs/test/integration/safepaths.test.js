@@ -177,6 +177,7 @@ describe('Safe Path ', function () {
     it('return an organization`s chunked safe paths', async function() {
       const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}`)
       if (res) {
+        // console.log(res)
         let pageEndpoint = `${currentOrg.apiEndpoint}[PAGE].json`
 
         res.should.have.status(200);
@@ -263,7 +264,6 @@ describe('Safe Path ', function () {
     it('return an organization`s safe paths with 5 files', async function() {
       const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}`)
       if (res) {
-        // console.log(res)
         let pageEndpoint = `${currentOrg.apiEndpoint}[PAGE].json`
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
@@ -410,30 +410,26 @@ describe('Safe Path ', function () {
           res.body.organization_id.should.equal(
             'a88309c2-26cd-4d2b-8923-af0779e423a3',
           );
-          res.body.should.have.property('safe_path');
-          res.body.safe_path.should.be.a('object');
-          res.body.safe_path.should.have.property('authority_name');
-          res.body.safe_path.authority_name.should.equal('Test Organization');
-          res.body.safe_path.should.have.property('concern_points');
-          res.body.safe_path.concern_points.should.be.a('array');
-          res.body.safe_path.concern_points.length.should.equal(1);
-          res.body.safe_path.concern_points[0].should.be.a('object');
-          res.body.safe_path.concern_points[0].should.have.property('latitude');
-          res.body.safe_path.concern_points[0].latitude.should.equal(12.34);
-          res.body.safe_path.concern_points[0].should.have.property(
-            'longitude',
-          );
-          res.body.safe_path.concern_points[0].longitude.should.equal(12.34);
-          res.body.safe_path.concern_points[0].should.have.property('time');
-          res.body.safe_path.concern_points[0].time.should.equal(1584924123);
-          res.body.safe_path.should.have.property('info_website');
-          res.body.safe_path.info_website.should.equal(
-            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-          );
-          res.body.safe_path.should.have.property('publish_date');
-          res.body.safe_path.publish_date.should.equal(1584924583);
           res.body.should.have.property('user_id');
           res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
+          res.body.should.have.property('safe_path');
+          res.body.safe_path.should.be.a('array');
+
+          const firstChunk = res.body.safe_path.shift()
+          firstChunk.should.be.a('object');
+
+          firstChunk.should.have.property('authority_name');
+          firstChunk.authority_name.should.equal('Test Organization');
+          firstChunk.should.have.property('concern_point_hashes');
+          firstChunk.concern_point_hashes.should.be.a('array');
+          firstChunk.concern_point_hashes.length.should.equal(1);
+          firstChunk.concern_point_hashes[0].should.be.a('string');
+          firstChunk.should.have.property('info_website');
+          firstChunk.info_website.should.equal(
+            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
+          );
+          firstChunk.should.have.property('publish_date_utc');
+          firstChunk.publish_date_utc.should.equal(1584924583);
           done();
         });
     });
@@ -508,37 +504,25 @@ describe('Safe Path ', function () {
           res.body.organization_id.should.equal(
             'a88309c2-26cd-4d2b-8923-af0779e423a3',
           );
-          res.body.should.have.property('safe_path');
-          res.body.safe_path.should.be.a('object');
-          res.body.safe_path.should.have.property('authority_name');
-          res.body.safe_path.authority_name.should.equal('Test Organization');
-          res.body.safe_path.should.have.property('concern_points');
-          res.body.safe_path.concern_points.should.be.a('array');
-          res.body.safe_path.concern_points[0].should.be.a('object');
-          res.body.safe_path.concern_points[0].should.have.property('latitude');
-          res.body.safe_path.concern_points[0].latitude.should.equal(12.34);
-          res.body.safe_path.concern_points[0].should.have.property(
-            'longitude',
-          );
-          res.body.safe_path.concern_points[0].longitude.should.equal(12.34);
-          res.body.safe_path.concern_points[0].should.have.property('time');
-          res.body.safe_path.concern_points[0].time.should.equal(1584924123);
-          res.body.safe_path.concern_points[1].should.have.property('latitude');
-          res.body.safe_path.concern_points[1].latitude.should.equal(12.34);
-          res.body.safe_path.concern_points[1].should.have.property(
-            'longitude',
-          );
-          res.body.safe_path.concern_points[1].longitude.should.equal(12.34);
-          res.body.safe_path.concern_points[1].should.have.property('time');
-          res.body.safe_path.concern_points[1].time.should.equal(1584924456);
-          res.body.safe_path.should.have.property('info_website');
-          res.body.safe_path.info_website.should.equal(
-            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-          );
-          res.body.safe_path.should.have.property('publish_date');
-          res.body.safe_path.publish_date.should.equal(1584924583);
           res.body.should.have.property('user_id');
           res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
+          res.body.should.have.property('safe_path');
+
+          const firstChunk = res.body.safe_path.shift()
+          firstChunk.should.be.a('object');
+
+          firstChunk.should.have.property('authority_name');
+          firstChunk.authority_name.should.equal('Test Organization');
+          firstChunk.should.have.property('concern_point_hashes');
+          firstChunk.concern_point_hashes.should.be.a('array');
+          firstChunk.concern_point_hashes.length.should.equal(2);
+          firstChunk.concern_point_hashes[0].should.be.a('string');
+          firstChunk.should.have.property('info_website');
+          firstChunk.info_website.should.equal(
+            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
+          );
+          firstChunk.should.have.property('publish_date_utc');
+          firstChunk.publish_date_utc.should.equal(1584924583);
           done();
         });
     });

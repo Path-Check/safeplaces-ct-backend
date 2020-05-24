@@ -62,61 +62,68 @@ exports.fetchSafePaths = async (req, res) => {
  */
 exports.createSafePath = async (req, res) => {
 
-  const { body, user: { id: user_id, organization_id } } = req
+  const { body, user: { id: user_id, organization_id }, query: { type } } = req
 
-  let safePathsResponse = {};
-  let safePath = {};
+  // let safePathsResponse = {};
+  // let safePath = {};
 
-  safePathsResponse.organization_id = req.user.organization_id;
-  safePathsResponse.user_id = req.user.id;
-
-  safePath.publish_date = req.body.publish_date;
+  const response = {
+    organization_id,
+    user_id,
+    datetime_created: null,
+    safePath: null
+  }
 
   // Constuct a publication record before inserting
-  const publication = _.extend(_.pick(body, ['start_date','end_date','publish_date']), { user_id, organization_id })
+  const publicationParams = _.extend(_.pick(body, ['start_date','end_date','publish_date']), { user_id, organization_id })
 
   // Construct a organization record before updating
-  // TODO: Why are we constructing a new Organization for update?
-  const organization = _.pick(body, ['authority_name','info_website','safe_path_json']);
+  // TODO: Why are we updating the Organization for publish?
+  const organizationParams = _.pick(body, ['authority_name','info_website','safe_path_json']);
 
   // Construct a timeSlice record for getting a trail within this time interval
-  let timeSlice = {};
-  timeSlice.start_date = req.body.start_date;
-  timeSlice.end_date = req.body.end_date;
+  let timeSlice = _.pick(body, ['start_date','end_date']);
 
-  const publicationRecords = await publications.insert(publication);
-  if (publicationRecords) {
-    safePathsResponse.datetime_created = new Date(publicationRecords[0].created_at).toString();
+  const record = await publications.insert(publicationParams);
+  if (record) {
+    response.datetime_created = new Date(record.created_at).toString();
 
-    const organizationRecords = await organizations.update(
-      organization_id,
-      organization,
-    );
-    if (organizationRecords) {
-      safePath.authority_name = organizationRecords[0].authority_name;
-      safePath.info_website = organizationRecords[0].info_website;
-      safePath.safe_path_json = organizationRecords[0].safe_path_json;
+    const organization = await organizations.updateOne(organization_id, organizationParams);
+    if (organization) {
+      
+      // safePath.authority_name = organizationRecords[0].authority_name;
+      // safePath.info_website = organizationRecords[0].info_website;
+      // safePath.safe_path_json = organizationRecords[0].safe_path_json;
 
-      const intervalTrail = await trails.findInterval(timeSlice);
-      if (intervalTrail) {
-        let intervalPoints = [];
-        intervalPoints = trails.getRedactedTrailFromRecord(intervalTrail);
-        safePath.concern_points = intervalPoints;
-        safePathsResponse.safe_path = safePath;
+      const trailsRecords = await trails.findInterval(timeSlice);
+      if (trailsRecords) {
+        const intervalTrails = trails.getRedactedTrailFromRecord(trailsRecords);
+        // safePath.concern_points = intervalPoints;
+        // safePathsResponse.safe_path = safePath;
+        
+        // TODO: Is there a need to download the zip file on this call?
+        // if (type === 'zip') {
+        //   let data = await publicationFiles.buildAndZip(organization, record, intervalTrails)
+  
+        //   res.status(200)
+        //     .set({
+        //       'Content-Type': 'application/octet-stream',
+        //       'Content-Disposition': `attachment; filename="${record.id}.zip"`,
+        //       'Content-Length': data.length
+        //     })
+        //     .send(data)
+        // }
 
-        res.status(200).json(safePathsResponse);
+        response.safe_path = publicationFiles.build(organization, record, intervalTrails)
 
-        // let response = publicationFiles.build(organization, record, intervalTrails)
-
-        // res.status(200).json(response);
-
+        res.status(200).json(response);
       } else {
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal Server Error (3)' });
       }
     } else {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(500).json({ message: 'Internal Server Error (2)' });
     }
   } else {
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: 'Internal Server Error (1)' });
   }
 };
