@@ -5,10 +5,9 @@ const users = require('../../db/models/users');
 const organizations = require('../../db/models/organizations');
 
 class MockData {
-
   /**
    * @method mockUser
-   * 
+   *
    * Generate Mock User
    */
   async mockUser(options = {}) {
@@ -17,7 +16,7 @@ class MockData {
     if (!options.organization) throw new Error('Organization must be provided');
     if (!options.email) throw new Error('Email must be provided');
 
-    if (!process.env.SEED_MAPS_API_KEY){
+    if (!process.env.SEED_MAPS_API_KEY) {
       throw new Error('Populate environment variable SEED_MAPS_API_KEY');
     }
 
@@ -29,7 +28,7 @@ class MockData {
       username: options.username,
       password: password,
       email: options.password,
-      maps_api_key: process.env.SEED_MAPS_API_KEY
+      maps_api_key: process.env.SEED_MAPS_API_KEY,
     };
 
     const results = await users.create(params);
@@ -41,11 +40,12 @@ class MockData {
 
   /**
    * @method mockOrganization
-   * 
+   *
    * Generate Mock Organization
    */
   async mockOrganization(options = {}) {
-    if (!options.authority_name) throw new Error('Authority Name must be provided');
+    if (!options.authority_name)
+      throw new Error('Authority Name must be provided');
     if (!options.info_website) throw new Error('Info Website must be provided');
 
     const results = await organizations.create(options);
@@ -54,8 +54,6 @@ class MockData {
     }
     throw new Error('Problem adding the organization.');
   }
-
 }
-
 
 module.exports = new MockData();

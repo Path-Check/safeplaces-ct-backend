@@ -4,29 +4,36 @@ const publications = require('../../../db/models/publications');
 
 /**
  * @method fetchSafePaths
- * 
+ *
  * fetchSafePaths
- * 
+ *
  */
 exports.fetchSafePaths = async (req, res) => {
   let safePathsResponse = {};
 
-  const publicationRecord = await publications.findLastOne({organization_id: req.params.organization_id});
+  const publicationRecord = await publications.findLastOne({
+    organization_id: req.params.organization_id,
+  });
   if (publicationRecord) {
-    safePathsResponse.publish_date = publicationRecord.publish_date.getTime()/1000;
+    safePathsResponse.publish_date =
+      publicationRecord.publish_date.getTime() / 1000;
   } else {
     return res.status(204).send('');
   }
 
   let timeInterval = {
-    start_date: publicationRecord.start_date.getTime()/1000,
-    end_date: publicationRecord.end_date.getTime()/1000
+    start_date: publicationRecord.start_date.getTime() / 1000,
+    end_date: publicationRecord.end_date.getTime() / 1000,
   };
 
   const redactedTrailRecords = await trails.findInterval(timeInterval);
   if (redactedTrailRecords) {
-    const intervalTrails = trails.getRedactedTrailFromRecord(redactedTrailRecords);
-    const organization = await organizations.findOne({id: req.params.organization_id});
+    const intervalTrails = trails.getRedactedTrailFromRecord(
+      redactedTrailRecords,
+    );
+    const organization = await organizations.findOne({
+      id: req.params.organization_id,
+    });
     if (organization) {
       safePathsResponse.authority_name = organization.authority_name;
       safePathsResponse.concern_points = intervalTrails;
@@ -34,18 +41,18 @@ exports.fetchSafePaths = async (req, res) => {
 
       res.status(200).json(safePathsResponse);
     } else {
-      res.status(500).json({message: 'Internal Server Error'});
+      res.status(500).json({ message: 'Internal Server Error' });
     }
   } else {
-    res.status(500).json({message: 'Internal Server Error'});
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
 /**
  * @method createSafePath
- * 
+ *
  * createSafePath
- * 
+ *
  */
 exports.createSafePath = async (req, res) => {
   let safePathsResponse = {};
@@ -78,9 +85,14 @@ exports.createSafePath = async (req, res) => {
 
   const publicationRecords = await publications.insert(publication);
   if (publicationRecords) {
-    safePathsResponse.datetime_created = new Date(publicationRecords[0].created_at).toString();
+    safePathsResponse.datetime_created = new Date(
+      publicationRecords[0].created_at,
+    ).toString();
 
-    const organizationRecords = await organizations.update(organizationId, organization);
+    const organizationRecords = await organizations.update(
+      organizationId,
+      organization,
+    );
     if (organizationRecords) {
       safePath.authority_name = organizationRecords[0].authority_name;
       safePath.info_website = organizationRecords[0].info_website;
@@ -88,7 +100,6 @@ exports.createSafePath = async (req, res) => {
 
       const intervalTrail = await trails.findInterval(timeSlice);
       if (intervalTrail) {
-
         let intervalPoints = [];
         intervalPoints = trails.getRedactedTrailFromRecord(intervalTrail);
         safePath.concern_points = intervalPoints;
@@ -96,12 +107,12 @@ exports.createSafePath = async (req, res) => {
 
         res.status(200).json(safePathsResponse);
       } else {
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
       }
     } else {
-      res.status(500).json({message: 'Internal Server Error'});
+      res.status(500).json({ message: 'Internal Server Error' });
     }
   } else {
-    res.status(500).json({message: 'Internal Server Error'});
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };

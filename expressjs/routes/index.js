@@ -1,4 +1,3 @@
-
 // Leaving this here short term for reference.
 
 // const bcrypt = require('bcrypt');
@@ -334,4 +333,4 @@
 
 // passport.deserializeUser(function(user, done) {
 // 	done(null, user);
-// });		
+// });

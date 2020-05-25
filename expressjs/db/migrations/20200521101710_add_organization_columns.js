@@ -1,5 +1,5 @@
-exports.up = function(knex) {
-  return knex.schema.table('organizations', function(table) {
+exports.up = function (knex) {
+  return knex.schema.table('organizations', function (table) {
     table.string('informationWebsiteURL');
     table.string('referenceWebsiteURL');
     table.string('apiEndpoint');
@@ -9,8 +9,8 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {
-  return knex.schema.table('organizations', function(table) {
+exports.down = function (knex) {
+  return knex.schema.table('organizations', function (table) {
     table.dropColumn('informationWebsiteURL');
     table.dropColumn('referenceWebsiteURL');
     table.dropColumn('apiEndpoint');

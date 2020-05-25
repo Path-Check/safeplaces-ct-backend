@@ -1,7 +1,6 @@
 const knex = require('../knex.js');
 
 class BaseService {
-
   constructor(name) {
     this._name = name;
   }
@@ -32,7 +31,6 @@ class BaseService {
   get table() {
     return knex(this._name);
   }
-
 }
 
 module.exports = BaseService;

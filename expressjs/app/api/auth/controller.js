@@ -5,12 +5,11 @@ const jwtSecret = require('../../../config/jwtConfig');
 
 /**
  * @method login
- * 
+ *
  * Login Check
- * 
+ *
  */
 exports.login = async (req, res, next) => {
-
   const { username } = req.body;
 
   try {
@@ -19,7 +18,6 @@ exports.login = async (req, res, next) => {
         console.log('Error 1: ', err);
         res.status(404);
       } else if (user) {
-
         // TODO: We are making two calls here pulling the user...why?
 
         const foundUser = await users.findOne({ username });
@@ -28,20 +26,22 @@ exports.login = async (req, res, next) => {
             {
               sub: foundUser.username,
               iat: ~~(Date.now() / 1000),
-              exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || (1 * 60 * 60)) // Default expires in an hour
+              exp:
+                ~~(Date.now() / 1000) +
+                (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
             },
-            jwtSecret.secret
+            jwtSecret.secret,
           );
           res.status(200).json({
             token: token,
-            maps_api_key: foundUser.maps_api_key
+            maps_api_key: foundUser.maps_api_key,
           });
         }
-      } else{
+      } else {
         res.status(info.status).json({ message: info.message });
       }
     })(req, res, next);
-  } catch(e) {
+  } catch (e) {
     throw new Error('WTF!');
   }
 };

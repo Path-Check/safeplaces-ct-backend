@@ -4,7 +4,6 @@ const path = require('path');
 
 class API {
   constructor() {
-
     const appPath = path.join(__dirname, '../../app/api');
     fs.readdirSync(appPath).forEach(file => {
       require(`${appPath}/${file}`);
