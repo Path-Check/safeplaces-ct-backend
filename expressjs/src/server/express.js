@@ -3,7 +3,7 @@ const http = require('http');
 const Promise = require('bluebird');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-// const errorHandler = require('./errorHandler')
+const errorHandler = require('./errorHandler')
 // const notFoundHandler = require('./notFoundHandler')
 
 const createError = require('http-errors');
@@ -46,37 +46,35 @@ class Server {
 
     this._app.use(function (req, res, next) {
       next(createError(404));
-    });
-
-    // this._app.use(notFoundHandler()) // If we get to here then we obviously didn't find the route, so trigger error.
-    // this._app.use(errorHandler()) // Catch all for errors.
+    }); // If we get to here then we obviously didn't find the route, so trigger error.
+    this._app.use(errorHandler()) // Catch all for errors.
 
     // error handler
 
     // TODO: Move error handling into module...
-    if (
-      this._app.get('env') === 'development' ||
-      this._app.get('env') === 'test'
-    ) {
-      this._app.use(function (err, req, res) {
-        res.status(err.status || 500);
-        res.json({
-          message: err.message,
-          error: err,
-        });
-      });
-    }
+    // if (
+    //   this._app.get('env') === 'development' ||
+    //   this._app.get('env') === 'test'
+    // ) {
+    //   this._app.use(function (err, req, res) {
+    //     res.status(err.status || 500);
+    //     res.json({
+    //       message: err.message,
+    //       error: err,
+    //     });
+    //   });
+    // }
 
-    // production error handler
-    // no stacktraces leaked to user
-    else {
-      this._app.use(function (err, req, res) {
-        res.status(err.status || 500);
-        res.json({
-          message: err.message,
-        });
-      });
-    }
+    // // production error handler
+    // // no stacktraces leaked to user
+    // else {
+    //   this._app.use(function (err, req, res) {
+    //     res.status(err.status || 500);
+    //     res.json({
+    //       message: err.message,
+    //     });
+    //   });
+    // }
 
     this._server = http.createServer(this._app);
   }

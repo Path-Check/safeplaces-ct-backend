@@ -33,7 +33,7 @@ exports.updateOrganization = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const results = await organizations.updateOne(organization_id, organization);
+  const results = await organizations.updateMany(organization_id, organization);
   if (results) {
     res.status(200).json(results[0]);
   } else {

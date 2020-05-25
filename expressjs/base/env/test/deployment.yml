@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spp-be-hermes
+  labels:
+    app: spp-be-hermes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spp-be-hermes
+  template:
+    metadata:
+      labels:
+        app: spp-be-hermes
+    spec:
+      containers:
+        - name: spp-be-hermes
+          image: gcr.io/PROJECT_ID/IMAGE:TAG
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: PORT
+            value: "3000"
+          envFrom:
+            - secretRef:
+                name: expressapp
+          ports:
+            - name: express
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: express
+            initialDelaySeconds: 20
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: express
+            initialDelaySeconds: 30
+            periodSeconds: 2

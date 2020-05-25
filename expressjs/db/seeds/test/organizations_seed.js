@@ -10,6 +10,8 @@ exports.seed = function (knex) {
           'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
         safe_path_json:
           'https://www.something.give/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3',
+        apiEndpoint:
+          'https://api.something.give/safe_path/',
       });
     });
 };

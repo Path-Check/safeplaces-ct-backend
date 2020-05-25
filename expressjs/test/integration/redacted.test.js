@@ -4,10 +4,10 @@ process.env.DATABASE_URL =
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const jwtSecret = require('../config/jwtConfig');
+const jwtSecret = require('../../config/jwtConfig');
 const jwt = require('jsonwebtoken');
-const server = require('../app');
-const trails = require('../db/models/trails');
+const server = require('../../app');
+const trails = require('../../db/models/trails');
 
 const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
 const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
@@ -69,7 +69,7 @@ describe('Redacted ', function () {
 
   describe('GET /redacted_trails with some values', function () {
     before(async function () {
-      await trails.deleteTable();
+      await trails.deleteAllRows();
       let trail = [
         {
           longitude: 12.34,
@@ -92,7 +92,7 @@ describe('Redacted ', function () {
     });
 
     after(async function () {
-      await trails.deleteTable();
+      await trails.deleteAllRows();
     });
 
     it('should return all redacted trails', function (done) {
@@ -151,7 +151,7 @@ describe('Redacted ', function () {
 
   describe('POST /redacted_trail', function () {
     afterEach(async function () {
-      await trails.deleteTable();
+      await trails.deleteAllRows();
     });
 
     it('should check for correct JWT token', function (done) {

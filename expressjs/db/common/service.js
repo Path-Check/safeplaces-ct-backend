@@ -5,13 +5,33 @@ class BaseService {
     this._name = name;
   }
 
-  async findOne(query) {
+  all() {
+    return knex(this._name).select();
+  }
+
+  find(query) {
+    if (!query) throw new Error('Filter was not provided');
+
+    return knex(this._name).where(query);
+  }
+
+  findOne(query) {
     if (!query) throw new Error('Filter was not provided');
 
     return knex(this._name).where(query).first();
   }
 
-  updateOne(id, params) {
+  async updateOne(id, params) {
+    if (!id) throw new Error('ID was not provided');
+    if (!params) throw new Error('Params were not provided');
+
+    let results = await knex(this._name).where({ id: id }).update(params).returning('*');
+    if (results) {
+      return results[0]
+    }
+  }
+
+  updateMany(id, params) {
     if (!id) throw new Error('ID was not provided');
     if (!params) throw new Error('Params were not provided');
 
@@ -25,6 +45,7 @@ class BaseService {
   }
 
   deleteAllRows() {
+    // console.log('Delete all rows: ', this._name)
     return knex(this._name).del();
   }
 
