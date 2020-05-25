@@ -5,7 +5,7 @@ process.env.DATABASE_URL =
 var chai = require('chai');
 var should = chai.should(); // eslint-disable-line
 var chaiHttp = require('chai-http');
-var server = require('../app');
+var server = require('../../app');
 
 chai.use(chaiHttp);
 

@@ -26,7 +26,7 @@ exports.fetchRedactedTrails = async (req, res) => {
 
   const { user } = req;
 
-  const redactedTrails = await trails.getAll();
+  const redactedTrails = await trails.all();
   if (redactedTrails) {
     let redactedTrailsList = [];
 
