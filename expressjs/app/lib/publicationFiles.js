@@ -28,8 +28,9 @@ class PublicationFiles {
     this._apiEndpointPage = `${endpoint}[PAGE].json`;
 
     const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds)
-
-    return trailsChunked.map((chunk, key) => {
+    // const pages = this._getPaginationInformation(organization, trailsChunked)
+    const cursor = this._getCursorInformation(organization, trailsChunked)
+    const files = trailsChunked.map(chunk => {
       return {
         authority_name: organization.authority_name,
         publish_date_utc: (record.publish_date.getTime() / 1000),
@@ -38,9 +39,11 @@ class PublicationFiles {
         notification_threshold_percent: organization.notificationThresholdPercent,
         notification_threshold_count: organization.notificationThresholdCount,
         concern_point_hashes: this._getPointHashes(chunk),
-        pages: this._getPaginationInformation(organization, trailsChunked, (key + 1))
+        page_name: this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
       };
-    });
+    })
+
+    return { files, cursor };
   }
 
   /**
@@ -59,9 +62,14 @@ class PublicationFiles {
     if (pages) {
       const zip = new AdmZip();
   
+      let filename;
       zip.addFile("instructions.txt", "Place all files in the `trails` folder onto your web server.");
       zip.addFile('trails/', Buffer.from(''));
-      pages.forEach((page, key) => zip.addFile(`trails/${record.id}_${(key + 1)}.json`, Buffer.from(JSON.stringify(page))));
+      zip.addFile(`trails/cursor.json`, Buffer.from(JSON.stringify(pages.cursor)));
+      pages.files.forEach(page => {
+        filename = page.page_name.split('/').pop();
+        zip.addFile(`trails/${filename}`, Buffer.from(JSON.stringify(page)));
+      });
 
       return zip.toBuffer();
     }
@@ -87,6 +95,27 @@ class PublicationFiles {
       currentPage,
       endpoints: Array.from(Array(trails.length).keys()).map(page => this._apiEndpointPage.replace('[PAGE]', (page + 1)))
     }
+  }
+
+  /**
+   * Get all information related to paginating.
+   *
+   * @private
+   * @method _getPaginationInformation
+   * @param {Object} organization
+   * @param {Array} trails
+   * @param {Number} currentPage
+   * @return {Object}
+   */
+ _getCursorInformation(organization, trails) {
+    return trails.map(chunk => {
+      return {
+        id: `${chunk.startTimestamp}_${chunk.endTimestamp}`,
+        startTimestamp: chunk.startTimestamp,
+        endTimestamp: chunk.endTimestamp,
+        filename: this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
+      }
+    })
   }
 
   /**

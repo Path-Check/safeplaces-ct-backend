@@ -79,9 +79,9 @@ describe('Safe Path ', function () {
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
-          res.body.should.be.a('array');
+          res.body.should.be.a('object');
 
-          const firstChunk = res.body.shift()
+          const firstChunk = res.body.files.shift()
           firstChunk.should.have.property('authority_name');
           firstChunk.authority_name.should.equal('Test Organization');
           firstChunk.should.have.property('concern_point_hashes');
@@ -182,9 +182,10 @@ describe('Safe Path ', function () {
 
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
-        res.body.should.be.a('array');
+        res.body.should.be.a('object');
+        res.body.files.should.be.a('array');
 
-        const firstChunk = res.body.shift()
+        const firstChunk = res.body.files.shift()
         firstChunk.should.be.a('object');
 
         firstChunk.should.have.property('authority_name');
@@ -201,19 +202,21 @@ describe('Safe Path ', function () {
         firstChunk.concern_point_hashes.forEach(point => {
           point.should.be.a('string');
         })
-        firstChunk.should.have.property('pages');
-        firstChunk.pages.should.be.a('object');
-        firstChunk.pages.should.have.property('chunkingInSeconds');
-        firstChunk.pages.chunkingInSeconds.should.be.a('number');
-        firstChunk.pages.chunkingInSeconds.should.equal(currentOrg.chunkingInSeconds);
-        firstChunk.pages.totalPages.should.be.a('number');
-        firstChunk.pages.totalPages.should.equal(1);
-        firstChunk.pages.currentPage.should.be.a('number');
-        firstChunk.pages.currentPage.should.equal(1);
-        firstChunk.pages.endpoints.should.be.a('array');
-        firstChunk.pages.endpoints.length.should.equal(1);
-        firstChunk.pages.endpoints[0].should.be.a('string');
-        firstChunk.pages.endpoints[0].should.equal(pageEndpoint.replace('[PAGE]', 1));
+
+        const cursor = res.body.cursor
+        cursor.should.be.a('array');
+
+        const firstCursor = res.body.cursor.shift()
+        firstCursor.should.be.a('object');
+        firstCursor.should.have.property('id');
+        firstCursor.id.should.be.a('string');
+        firstCursor.should.have.property('startTimestamp');
+        firstCursor.startTimestamp.should.be.a('number');
+        firstCursor.should.have.property('endTimestamp');
+        firstCursor.endTimestamp.should.be.a('number');
+        firstCursor.should.have.property('filename');
+        firstCursor.filename.should.be.a('string');
+        firstCursor.filename.should.equal(pageEndpoint.replace('[PAGE]', `${firstCursor.startTimestamp}_${firstCursor.endTimestamp}`));
       }
     });
 
@@ -267,11 +270,15 @@ describe('Safe Path ', function () {
         let pageEndpoint = `${currentOrg.apiEndpoint}[PAGE].json`
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
-        res.body.should.be.a('array');
-        const firstChunk = res.body.shift()
-        firstChunk.pages.endpoints.length.should.equal(5);
-        firstChunk.pages.endpoints[0].should.equal(pageEndpoint.replace('[PAGE]', 1));
-        firstChunk.pages.endpoints[4].should.equal(pageEndpoint.replace('[PAGE]', 5));
+        res.body.should.be.a('object');
+        res.body.files.length.should.equal(5);
+        res.body.cursor.length.should.equal(5);
+        
+        const testCursorOne = res.body.cursor[0]
+        testCursorOne.filename.should.equal(pageEndpoint.replace('[PAGE]', `${testCursorOne.startTimestamp}_${testCursorOne.endTimestamp}`));
+
+        const testCursorFive = res.body.cursor[4]
+        testCursorFive.filename.should.equal(pageEndpoint.replace('[PAGE]', `${testCursorFive.startTimestamp}_${testCursorFive.endTimestamp}`));
       }
     });
 
@@ -328,9 +335,12 @@ describe('Safe Path ', function () {
         res.should.have.status(200);
         res.headers['content-type'].should.equal('application/octet-stream')
         res.headers['content-disposition'].should.equal(`attachment; filename="${currentPublication.id}.zip"`)
-        zipEntries.length.should.equal(7)
-        zipEntries[0].entryName.should.equal('instructions.txt')
-        zipEntries[2].entryName.should.equal(`trails/${currentPublication.id}_1.json`)        
+        zipEntries.length.should.equal(8)
+        const doesCursorExist = zipEntries.find(itm => itm.entryName.indexOf('cursor.json') >= 0)
+        doesCursorExist.entryName.should.equal('trails/cursor.json')
+
+        const cursorData = JSON.parse(doesCursorExist.getData().toString())
+        cursorData.length.should.equal(5)
       }
     });
 
@@ -413,9 +423,9 @@ describe('Safe Path ', function () {
           res.body.should.have.property('user_id');
           res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
           res.body.should.have.property('safe_path');
-          res.body.safe_path.should.be.a('array');
+          res.body.safe_path.should.be.a('object');
 
-          const firstChunk = res.body.safe_path.shift()
+          const firstChunk = res.body.safe_path.files.shift()
           firstChunk.should.be.a('object');
 
           firstChunk.should.have.property('authority_name');
@@ -508,7 +518,7 @@ describe('Safe Path ', function () {
           res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
           res.body.should.have.property('safe_path');
 
-          const firstChunk = res.body.safe_path.shift()
+          const firstChunk = res.body.safe_path.files.shift()
           firstChunk.should.be.a('object');
 
           firstChunk.should.have.property('authority_name');
