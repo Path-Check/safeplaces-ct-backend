@@ -7,6 +7,8 @@ const usersService = require('../../db/models/users');
 const organizationService = require('../../db/models/organizations');
 const trailsService = require('../../db/models/trails');
 const publicationService = require('../../db/models/publications');
+const casesService = require('../../db/models/cases');
+
 
 class MockData {
 
@@ -71,9 +73,9 @@ class MockData {
 
   /**
    * Generate Mock Trails
-   * 
+   *
    * User primarily for testing volume of records.
-   * 
+   *
    * @method mockTrails
    * @param {Number} numberOfTrails
    * @param {Number} timeIncrementInSeconds
@@ -85,7 +87,7 @@ class MockData {
     if (!options.redactedTrailId) throw new Error('Redacted Trail ID must be provided');
     if (!options.organizationId) throw new Error('Organization ID must be provided');
     if (!options.userId) throw new Error('User ID must be provided');
-    
+
     let trails = this._generateTrailsData(numberOfTrails, timeIncrementInSeconds)
 
     let results = await trailsService.insertRedactedTrailSet(
@@ -126,15 +128,30 @@ class MockData {
 
   _generateTrailsData(numberOfTrails, timeIncrementInSeconds) {
     let coordTime = Math.floor(new Date().getTime() / 1000);
-    return Array(numberOfTrails).fill("").map(() => { 
+    return Array(numberOfTrails).fill("").map(() => {
       coordTime = coordTime - timeIncrementInSeconds;
-      const coords = randomCoordinates({ fixed: 5 }).split(',');
-      return { 
+      const coords = randomCoordinates({fixed: 5}).split(',');
+      return {
         longitude: parseFloat(coords[1]),
         latitude: parseFloat(coords[0]),
         time: coordTime
       };
     })
+  }
+
+  async mockCase(options = {}) {
+    if (!options.state) throw new Error('State must be provided.');
+
+    const params = {
+      id: uuidv4(),
+      state: options.state,
+    };
+
+    const results = await casesService.create(params);
+    if (results) {
+      return results[0];
+    }
+    throw new Error('Problem adding the case.');
   }
 }
 
