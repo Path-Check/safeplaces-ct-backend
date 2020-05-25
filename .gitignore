@@ -67,3 +67,7 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# remove newman results
+tests/tests/newman/*.html
+newman-results.json
