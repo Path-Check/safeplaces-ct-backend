@@ -62,9 +62,8 @@ exports.fetchRedactedTrails = async (req, res) => {
       redactedTrailsResponse = {
         organization: {
           organization_id: organization.id,
-          authority_name: organization.authority_name,
-          info_website: organization.info_website,
-          safe_path_json: organization.safe_path_json,
+          name: organization.authority_name,
+          info_website_url: organization.info_website,
         },
         data: redactedTrailsList,
       };

@@ -1,7 +1,8 @@
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
+process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
+const { v4: uuidv4 } = require('uuid');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const jwt = require('jsonwebtoken');
@@ -11,30 +12,58 @@ const mockData = require('../lib/mockData');
 
 const jwtSecret = require('../../config/jwtConfig');
 const server = require('../../app');
+const users = require('../../db/models/users');
+const organizations = require('../../db/models/organizations');
 const trails = require('../../db/models/trails');
 const publications = require('../../db/models/publications');
+const cases = require('../../db/models/cases');
 
-const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
-const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
-const USERNAME = 'admin';
-const ADMIN_JWT_TOKEN = jwt.sign(
-  {
-    sub: USERNAME,
-    iat: ~~(Date.now() / 1000),
-    exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-  },
-  jwtSecret.secret,
-);
+// const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
+// const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
+// const USERNAME = 'admin';
+// const 
 
 chai.use(chaiHttp);
 
-let currentOrg, currentTrails, currentPublication;
+let currentOrg, currentUser, currentTrails, currentPublication, token, start_date, end_date;
+
+before(async () => {
+  let orgParams = {
+    id: uuidv4(),
+    name: 'My Example Organization',
+    info_website_url: 'http://sample.com',
+  };
+  currentOrg = await mockData.mockOrganization(orgParams);
+
+  let newUserParams = {
+    username: 'myAwesomeUser',
+    password: 'myAwesomePassword',
+    email: 'myAwesomeUser@yomanbob.com',
+    organization_id: currentOrg.id,
+  };
+  currentUser = await mockData.mockUser(newUserParams);
+
+  token = jwt.sign(
+    {
+      sub: newUserParams.username,
+      iat: ~~(Date.now() / 1000),
+      exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
+    },
+    jwtSecret.secret,
+  );
+});
 
 describe('Safe Path ', function () {
 
   describe('GET /safe_path without redacted_trails and with publication', function () {
     before(async () => {
-      await trails.deleteAllRows();
+
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'unpublished'
+      };
+
+      const mockCase = await mockData.mockCase(caseParams)
 
       let trail = [
         {
@@ -48,88 +77,80 @@ describe('Safe Path ', function () {
           time: 123456789,
         },
       ];
-      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
-      await trails.insertRedactedTrailSet(
-        trail,
-        identifier,
-        ORGANISATION_ID,
-        USER_ID,
-      );
+      
+      await trails.insertRedactedTrailSet(trail, mockCase.id);
 
-      await publications.deleteAllRows();
-
-      let publication = {
-        organization_id: ORGANISATION_ID,
-        user_id: USER_ID,
+      const  publicationParams = {
+        organization_id: currentOrg.id,
         start_date: 158494125,
         end_date: 1584924583,
         publish_date: 1584924583,
       };
-      await publications.insert(publication);
+      currentPublication = await mockData.mockPublication(publicationParams)
     });
 
     after(async function () {
+      await cases.deleteAllRows();
+      await trails.deleteAllRows();
       await publications.deleteAllRows();
     });
 
     it('returns an organization`s safe paths as empty', function (done) {
       chai
         .request(server.app)
-        .get('/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3')
+        .get(`/safe_path/${currentOrg.id}`)
         .end(function (err, res) {
+          // console.log(res.text)
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
           res.body.should.be.a('object');
 
           const firstChunk = res.body.files.shift()
-          firstChunk.should.have.property('authority_name');
-          firstChunk.authority_name.should.equal('Test Organization');
+          firstChunk.should.have.property('name');
+          firstChunk.name.should.equal(currentOrg.name);
           firstChunk.should.have.property('concern_point_hashes');
           firstChunk.concern_point_hashes.should.be.a('array');
           firstChunk.concern_point_hashes.should.be.empty;
-          firstChunk.should.have.property('info_website');
-          firstChunk.info_website.should.equal(
-            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-          );
+          firstChunk.should.have.property('info_website_url');
+          firstChunk.info_website_url.should.equal(currentOrg.info_website_url);
           firstChunk.should.have.property('publish_date_utc');
-          firstChunk.publish_date_utc.should.equal(1584924583);
           done();
         });
     });
   });
 
   describe('GET /safe_path with redacted_trails and without publication', function () {
-    const trailIdentifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
     before(async function () {
-      await trails.deleteAllRows();
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'unpublished'
+      };
+      const mockCase = await mockData.mockCase(caseParams)
+
       let trail = [
         {
           longitude: 12.34,
           latitude: 12.34,
-          time: 1584924123,
+          time: 123456789,
         },
         {
           longitude: 12.34,
           latitude: 12.34,
-          time: 1584924456,
+          time: 123456789,
         },
       ];
-      await trails.insertRedactedTrailSet(
-        trail,
-        trailIdentifier,
-        ORGANISATION_ID,
-        USER_ID,
-      );
+      await trails.insertRedactedTrailSet(trail, mockCase.id);
     });
 
     after(async function () {
+      await cases.deleteAllRows();
       await trails.deleteAllRows();
     });
 
     it('return an organization`s safe paths as empty', function (done) {
       chai
         .request(server.app)
-        .get('/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3')
+        .get(`/safe_path/${currentOrg.id}`)
         .end(function (err, res) {
           res.should.have.status(204);
           res.body.should.be.empty;
@@ -141,23 +162,15 @@ describe('Safe Path ', function () {
   describe('GET /safe_path with redacted_trails and publication with 1 file', function () {
 
     before(async function () {
-      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
-      
-      await trails.deleteAllRows();
-      await publications.deleteAllRows();
-
-      // Add Org
-      let orgParams = {
-        authority_name: 'My Example Organization',
-        info_website: 'http://sample.com',
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'published'
       };
-      currentOrg = await mockData.mockOrganization(orgParams);
+      const mockCase = await mockData.mockCase(caseParams)
 
       // Add Trails
       let trailsParams = {
-        redactedTrailId: identifier,
-        organizationId: currentOrg.id,
-        userId: USER_ID
+        caseId: mockCase.id
       }
       currentTrails = await mockData.mockTrails(5, 3600, trailsParams) // Generate 5 trails 1 hour apart
 
@@ -167,7 +180,6 @@ describe('Safe Path ', function () {
       // Add Publication
       let publication = {
         organization_id: currentOrg.id,
-        user_id: USER_ID,
         start_date,
         end_date
       };
@@ -177,8 +189,7 @@ describe('Safe Path ', function () {
     it('return an organization`s chunked safe paths', async function() {
       const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}`)
       if (res) {
-        // console.log(res)
-        let pageEndpoint = `${currentOrg.apiEndpoint}[PAGE].json`
+        let pageEndpoint = `${currentOrg.api_endpoint_url}[PAGE].json`
 
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
@@ -188,14 +199,14 @@ describe('Safe Path ', function () {
         const firstChunk = res.body.files.shift()
         firstChunk.should.be.a('object');
 
-        firstChunk.should.have.property('authority_name');
-        firstChunk.authority_name.should.equal(currentOrg.authority_name);
+        firstChunk.should.have.property('name');
+        firstChunk.name.should.equal(currentOrg.name);
         firstChunk.should.have.property('notification_threshold_percent');
         firstChunk.should.have.property('notification_threshold_count');
         firstChunk.should.have.property('concern_point_hashes');
         firstChunk.concern_point_hashes.should.be.a('array');
-        firstChunk.should.have.property('info_website');
-        firstChunk.info_website.should.equal(currentOrg.info_website);
+        firstChunk.should.have.property('info_website_url');
+        firstChunk.info_website_url.should.equal(currentOrg.info_website_url);
         firstChunk.should.have.property('publish_date_utc');
         firstChunk.publish_date_utc.should.equal((currentPublication.publish_date.getTime() / 1000));
         firstChunk.concern_point_hashes.length.should.equal(5);
@@ -221,6 +232,7 @@ describe('Safe Path ', function () {
     });
 
     after(async function () {
+      await cases.deleteAllRows();
       await trails.deleteAllRows();
       await publications.deleteAllRows();
     });
@@ -230,24 +242,26 @@ describe('Safe Path ', function () {
   describe('GET /safe_path with redacted_trails and publication with 5 file', function () {
 
     before(async function () {
-      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
-      
-      await trails.deleteAllRows();
-      await publications.deleteAllRows();
+      await organizations.deleteAllRows()
 
       // Add Org
       let orgParams = {
-        authority_name: 'My Example Organization',
-        info_website: 'http://sample.com',
-        chunkingInSeconds: 3600
+        id: uuidv4(),
+        name: 'My Example Organization',
+        info_website_url: 'http://sample.com',
+        chunking_in_seconds: 3600
       };
       currentOrg = await mockData.mockOrganization(orgParams);
 
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'published'
+      };
+      const mockCase = await mockData.mockCase(caseParams)
+
       // Add Trails
       let trailsParams = {
-        redactedTrailId: identifier,
-        organizationId: currentOrg.id,
-        userId: USER_ID
+        caseId: mockCase.id
       }
       currentTrails = await mockData.mockTrails(10, 1800, trailsParams) // Generate 10 trails 30 min apart
 
@@ -257,7 +271,6 @@ describe('Safe Path ', function () {
       // Add Publication
       let publication = {
         organization_id: currentOrg.id,
-        user_id: USER_ID,
         start_date,
         end_date
       };
@@ -267,7 +280,7 @@ describe('Safe Path ', function () {
     it('return an organization`s safe paths with 5 files', async function() {
       const res = await chai.request(server.app).get(`/safe_path/${currentOrg.id}`)
       if (res) {
-        let pageEndpoint = `${currentOrg.apiEndpoint}[PAGE].json`
+        let pageEndpoint = `${currentOrg.api_endpoint_url}[PAGE].json`
         res.should.have.status(200);
         res.should.be.json; // jshint ignore:line
         res.body.should.be.a('object');
@@ -283,6 +296,7 @@ describe('Safe Path ', function () {
     });
 
     after(async function () {
+      await cases.deleteAllRows();
       await trails.deleteAllRows();
       await publications.deleteAllRows();
     });
@@ -292,24 +306,26 @@ describe('Safe Path ', function () {
   describe('GET /safe_path as zip file', function () {
 
     before(async function () {
-      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
-      
-      await trails.deleteAllRows();
-      await publications.deleteAllRows();
+      await organizations.deleteAllRows()
 
       // Add Org
       let orgParams = {
-        authority_name: 'My Example Organization',
-        info_website: 'http://sample.com',
-        chunkingInSeconds: 3600
+        id: uuidv4(),
+        name: 'My Example Organization',
+        info_website_url: 'http://sample.com',
+        chunking_in_seconds: 3600
       };
       currentOrg = await mockData.mockOrganization(orgParams);
 
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'published'
+      };
+      const mockCase = await mockData.mockCase(caseParams)
+
       // Add Trails
       let trailsParams = {
-        redactedTrailId: identifier,
-        organizationId: currentOrg.id,
-        userId: USER_ID
+        caseId: mockCase.id
       }
       currentTrails = await mockData.mockTrails(10, 1800, trailsParams) // Generate 10 trails 30 min apart
 
@@ -319,7 +335,6 @@ describe('Safe Path ', function () {
       // Add Publication
       let publication = {
         organization_id: currentOrg.id,
-        user_id: USER_ID,
         start_date,
         end_date
       };
@@ -353,29 +368,48 @@ describe('Safe Path ', function () {
 
   describe('POST /safe_paths with redacted trails and start_date, end_date respects interval', function () {
     before(async function () {
-      await trails.deleteAllRows();
-      let trail = [
+      await users.deleteAllRows()
+      await organizations.deleteAllRows()
+      let orgParams = {
+        id: uuidv4(),
+        name: 'My Example Organization',
+        info_website_url: 'http://sample.com',
+      };
+      currentOrg = await mockData.mockOrganization(orgParams);
+    
+      let newUserParams = {
+        username: 'myAwesomeUser',
+        password: 'myAwesomePassword',
+        email: 'myAwesomeUser@yomanbob.com',
+        organization_id: currentOrg.id,
+      };
+      currentUser = await mockData.mockUser(newUserParams);
+    
+      token = jwt.sign(
         {
-          longitude: 12.34,
-          latitude: 12.34,
-          time: 1584924123,
+          sub: newUserParams.username,
+          iat: ~~(Date.now() / 1000),
+          exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
         },
-        {
-          longitude: 12.34,
-          latitude: 12.34,
-          time: 1584924456,
-        },
-      ];
-      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
-      await trails.insertRedactedTrailSet(
-        trail,
-        identifier,
-        ORGANISATION_ID,
-        USER_ID,
+        jwtSecret.secret,
       );
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'unpublished'
+      };
+      const mockCase = await mockData.mockCase(caseParams)
+
+      let trailsParams = {
+        caseId: mockCase.id
+      }
+      currentTrails = await mockData.mockTrails(10, 1800, trailsParams) // Generate 10 trails 30 min apart
+
+      start_date = (new Date(currentTrails[(currentTrails.length - 1)].time).getTime() / 1000)
+      end_date = (new Date(currentTrails[0].time).getTime() / 1000)
     });
 
     after(async function () {
+      await cases.deleteAllRows();
       await trails.deleteAllRows();
       await publications.deleteAllRows();
     });
@@ -385,28 +419,11 @@ describe('Safe Path ', function () {
         .request(server.app)
         .post('/safe_paths')
         .send({
-          authority_name: 'Test Organization',
           publish_date: 1584924583,
-          info_website:
-            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-          safe_path_json:
-            'https://www.something.give/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3',
-          start_date: 158494125,
-          end_date: 1584924300,
-          concern_points: [
-            {
-              time: 1584924123,
-              latitude: 12.34,
-              longitude: 12.34,
-            },
-            {
-              time: 1584924456,
-              latitude: 12.34,
-              longitude: 12.34,
-            },
-          ],
+          start_date,
+          end_date
         })
-        .set('Authorization', `${ADMIN_JWT_TOKEN}`)
+        .set('Authorization', `${token}`)
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
@@ -417,120 +434,20 @@ describe('Safe Path ', function () {
             true,
           );
           res.body.should.have.property('organization_id');
-          res.body.organization_id.should.equal(
-            'a88309c2-26cd-4d2b-8923-af0779e423a3',
-          );
-          res.body.should.have.property('user_id');
-          res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
           res.body.should.have.property('safe_path');
           res.body.safe_path.should.be.a('object');
 
           const firstChunk = res.body.safe_path.files.shift()
           firstChunk.should.be.a('object');
 
-          firstChunk.should.have.property('authority_name');
-          firstChunk.authority_name.should.equal('Test Organization');
+          firstChunk.should.have.property('name');
+          firstChunk.name.should.equal(currentOrg.name);
           firstChunk.should.have.property('concern_point_hashes');
           firstChunk.concern_point_hashes.should.be.a('array');
-          firstChunk.concern_point_hashes.length.should.equal(1);
+          firstChunk.concern_point_hashes.length.should.equal(10);
           firstChunk.concern_point_hashes[0].should.be.a('string');
-          firstChunk.should.have.property('info_website');
-          firstChunk.info_website.should.equal(
-            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-          );
-          firstChunk.should.have.property('publish_date_utc');
-          firstChunk.publish_date_utc.should.equal(1584924583);
-          done();
-        });
-    });
-  });
-
-  describe('POST /safe_paths with redacted trails', function () {
-    before(async function () {
-      await trails.deleteAllRows();
-      let trail = [
-        {
-          longitude: 12.34,
-          latitude: 12.34,
-          time: 1584924123,
-        },
-        {
-          longitude: 12.34,
-          latitude: 12.34,
-          time: 1584924456,
-        },
-      ];
-      let identifier = 'a88309c1-26cd-4d2b-8923-af0779e423a3';
-      await trails.insertRedactedTrailSet(
-        trail,
-        identifier,
-        ORGANISATION_ID,
-        USER_ID,
-      );
-    });
-
-    after(async function () {
-      await trails.deleteAllRows();
-      await publications.deleteAllRows();
-    });
-
-    it('should accept safe path being submitted', function (done) {
-      chai
-        .request(server.app)
-        .post('/safe_paths')
-        .send({
-          authority_name: 'Test Organization',
-          publish_date: 1584924583,
-          info_website:
-            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-          safe_path_json:
-            'https://www.something.give/safe_path/a88309c2-26cd-4d2b-8923-af0779e423a3',
-          start_date: 158494125,
-          end_date: 1584924583,
-          concern_points: [
-            {
-              time: 1584924123,
-              latitude: 12.34,
-              longitude: 12.34,
-            },
-            {
-              time: 1584924456,
-              latitude: 12.34,
-              longitude: 12.34,
-            },
-          ],
-        })
-        .set('Authorization', `${ADMIN_JWT_TOKEN}`)
-        .end(function (err, res) {
-          res.should.have.status(200);
-          res.should.be.json; // jshint ignore:line
-          res.body.should.be.a('object');
-          res.body.should.have.property('datetime_created');
-          chai.assert.equal(
-            new Date(res.body.datetime_created) instanceof Date,
-            true,
-          );
-          res.body.should.have.property('organization_id');
-          res.body.organization_id.should.equal(
-            'a88309c2-26cd-4d2b-8923-af0779e423a3',
-          );
-          res.body.should.have.property('user_id');
-          res.body.user_id.should.equal('a88309ca-26cd-4d2b-8923-af0779e423a3');
-          res.body.should.have.property('safe_path');
-
-          const firstChunk = res.body.safe_path.files.shift()
-          firstChunk.should.be.a('object');
-
-          firstChunk.should.have.property('authority_name');
-          firstChunk.authority_name.should.equal('Test Organization');
-          firstChunk.should.have.property('concern_point_hashes');
-          firstChunk.concern_point_hashes.should.be.a('array');
-          firstChunk.concern_point_hashes.length.should.equal(2);
-          firstChunk.concern_point_hashes[0].should.be.a('string');
-          firstChunk.should.have.property('info_website');
-          firstChunk.info_website.should.equal(
-            'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-          );
+          firstChunk.should.have.property('info_website_url');
+          firstChunk.info_website_url.should.equal(currentOrg.info_website_url);
           firstChunk.should.have.property('publish_date_utc');
           firstChunk.publish_date_utc.should.equal(1584924583);
           done();

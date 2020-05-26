@@ -9,15 +9,31 @@ const st = knexPostgis(knex);
 
 class Service extends BaseService {
 
-  findInterval(timeSlice) {
-    if (!timeSlice.start_date) throw new Error('Start date is invalid');
-    if (!timeSlice.end_date) throw new Error('Start date is invalid');
-    
+  findInterval(publication) {
+    if (!publication.id) throw new Error('Publication ID is invalid');
+    if (!publication.start_date) throw new Error('Start date is invalid');
+    if (!publication.end_date) throw new Error('Start date is invalid');
+
     return knex(this._name)
-      .where('time', '>=', new Date(timeSlice.start_date * 1000))
-      .where('time', '<=', new Date(timeSlice.end_date * 1000));
+      .whereIn('case_id', publication.cases)
+      .where('time', '>=', new Date(publication.start_date))
+      .where('time', '<=', new Date(publication.end_date));
   }
-  
+
+  async findIntervalCases(publication) {
+    if (!publication.start_date) throw new Error('Start date is invalid');
+    if (!publication.end_date) throw new Error('Start date is invalid');
+
+    let cases = await knex(this._name)
+                  .select('case_id')
+                  .where('time', '>=', new Date(publication.start_date))
+                  .where('time', '<=', new Date(publication.end_date))
+                  .groupBy('case_id');
+    if (cases) {
+      return cases.map(c => c.case_id)
+    }
+    return []
+  }
   
   getRedactedTrailFromRecord(trails) {
     let redactedTrail = [];
@@ -36,7 +52,7 @@ class Service extends BaseService {
     return redactedTrail;
   }
   
-  async insertRedactedTrailSet(trails, redactedTrailId, organizationId, userId) {
+  async insertRedactedTrailSet(trails, caseId) {
     let trailRecords = [];
 
     let trail, record, hash;
@@ -48,9 +64,7 @@ class Service extends BaseService {
         record.coordinates = st.setSRID(
           st.makePoint(trail.longitude, trail.latitude), 4326);
         record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
-        record.redacted_trail_id = redactedTrailId;
-        record.organization_id = organizationId;
-        record.user_id = userId;
+        record.case_id = caseId;
         trailRecords.push(record);
       }
     }

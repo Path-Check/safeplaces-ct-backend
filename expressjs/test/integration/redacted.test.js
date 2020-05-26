@@ -47,8 +47,8 @@ describe('Redacted ', function () {
           res.body.organization.organization_id.should.equal(
             'a88309c2-26cd-4d2b-8923-af0779e423a3',
           );
-          res.body.organization.should.have.property('authority_name');
-          res.body.organization.authority_name.should.equal(
+          res.body.organization.should.have.property('name');
+          res.body.organization.name.should.equal(
             'Test Organization',
           );
           res.body.organization.should.have.property('info_website');
@@ -108,8 +108,8 @@ describe('Redacted ', function () {
           res.body.organization.organization_id.should.equal(
             'a88309c2-26cd-4d2b-8923-af0779e423a3',
           );
-          res.body.organization.should.have.property('authority_name');
-          res.body.organization.authority_name.should.equal(
+          res.body.organization.should.have.property('name');
+          res.body.organization.name.should.equal(
             'Test Organization',
           );
           res.body.organization.should.have.property('info_website');
