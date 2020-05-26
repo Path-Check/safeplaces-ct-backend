@@ -15,7 +15,7 @@ function dropTables(knex) {
 function buildOrganization(knex) {
   return knex.schema.createTable('organizations', function (table) {
     table.uuid('id').notNull().primary();
-    table.string('authority_name')
+    table.string('name')
     table.timestamp('updated_at').defaultTo(knex.fn.now())
     table.timestamp('created_at').defaultTo(knex.fn.now())
   }).then(() => knex.raw(onUpdateTrigger('organizations')));
@@ -32,6 +32,7 @@ function buildSettings(knex) {
     table.integer('notification_threshold_percent').defaultTo(66);
     table.integer('notification_threshold_count').defaultTo(6);
     table.integer('chunking_in_seconds').defaultTo(43200);
+    table.integer('days_to_retain_records').defaultTo(30);
     table.timestamp('updated_at').defaultTo(knex.fn.now())
     table.timestamp('created_at').defaultTo(knex.fn.now())
   }).then(() => knex.raw(onUpdateTrigger('settings')));
