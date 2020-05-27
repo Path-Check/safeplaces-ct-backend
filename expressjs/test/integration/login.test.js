@@ -12,8 +12,6 @@ const mockData = require('../lib/mockData');
 
 chai.use(chaiHttp);
 
-chai.use(chaiHttp);
-
 function parseJwt(token) {
   var base64Url = token.split('.')[1];
   var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -30,7 +28,6 @@ function parseJwt(token) {
 }
 
 let newUserParams;
-let currentUser;
 let currentOrg;
 
 before(async () => {
@@ -47,7 +44,7 @@ before(async () => {
     email: 'myAwesomeUser@yomanbob.com',
     organization_id: currentOrg.id,
   };
-  currentUser = await mockData.mockUser(newUserParams);
+  await mockData.mockUser(newUserParams);
 });
 
 describe('POST /login', function () {

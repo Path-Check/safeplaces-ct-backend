@@ -16,41 +16,43 @@ const jwtSecret = require('../../config/jwtConfig');
 
 chai.use(chaiHttp);
 
-let currentUser;
 let currentOrg;
 let token;
 
-before(async () => {
-  let orgParams = {
-    id: uuidv4(),
-    name: 'My Example Organization',
-    info_website_url: 'http://sample.com',
-  };
-  currentOrg = await mockData.mockOrganization(orgParams);
-
-  let newUserParams = {
-    username: 'myAwesomeUser',
-    password: 'myAwesomePassword',
-    email: 'myAwesomeUser@yomanbob.com',
-    organization_id: currentOrg.id,
-  };
-  currentUser = await mockData.mockUser(newUserParams);
-
-  token = jwt.sign(
-    {
-      sub: currentUser.username,
-      iat: ~~(Date.now() / 1000),
-      exp:
-        ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-    },
-    jwtSecret.secret,
-  );
-});
-
 describe('Organization ', () => {
-  describe('GET /organization when DB is empty', () => {
+
+  before(async () => {
+    await mockData.clearMockData()
+    
+    let orgParams = {
+      id: uuidv4(),
+      name: 'My Example Organization',
+      info_website_url: 'http://sample.com',
+    };
+    currentOrg = await mockData.mockOrganization(orgParams);
+  
+    let newUserParams = {
+      username: 'myAwesomeUser',
+      password: 'myAwesomePassword',
+      email: 'myAwesomeUser@yomanbob.com',
+      organization_id: currentOrg.id,
+    };
+    await mockData.mockUser(newUserParams);
+  
+    token = jwt.sign(
+      {
+        sub: newUserParams.username,
+        iat: ~~(Date.now() / 1000),
+        exp:
+          ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
+      },
+      jwtSecret.secret,
+    );
+  });
+
+  describe('GET /organization by id', () => {
     it('find the record just inserted using database', async () => {
-      const results = await organizations.findOne({ id: currentOrg.id });
+      const results = await organizations.fetchById(currentOrg.id);
       results.id.should.equal(currentOrg.id);
     });
 

@@ -1,16 +1,22 @@
 const _ = require('lodash')
-const trails = require('../../../db/models/trails');
-const organizations = require('../../../db/models/organizations');
+const trailService = require('../../../db/models/trails');
+const organizationService = require('../../../db/models/organizations');
 
-function formatRedactedTrailData(redactedTrailRecords) {
+const groupBy = (arr, key) => {
+  return arr.reduce((rv, x) => {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+};
+
+function formatRedactedTrailData(redactedTrailRecords, organization) {
   let redactedTrailData = {};
   if (Array.isArray(redactedTrailRecords)) {
-    let redactedTrail = trails.getRedactedTrailFromRecord(redactedTrailRecords);
+    let redactedTrail = trailService.getRedactedTrailFromRecord(redactedTrailRecords);
     redactedTrailData = {
-      identifier: redactedTrailRecords[0].redacted_trail_id,
-      organization_id: redactedTrailRecords[0].organization_id,
-      trail: redactedTrail,
-      user_id: redactedTrailRecords[0].user_id,
+      case_id: redactedTrailRecords[0].case_id,
+      organization_id: organization.id,
+      trail: redactedTrail
     };
   }
   return redactedTrailData;
@@ -25,20 +31,13 @@ function formatRedactedTrailData(redactedTrailRecords) {
 exports.fetchRedactedTrails = async (req, res) => {
   const { user: { organization_id } } = req;
 
-  const redactedTrails = await trails.all();
-  if (redactedTrails) {
-
-    let redactedTrailsMap = redactedTrails.reduce((r, a) => {
-      r[a.redacted_trail_id] = r[a.redacted_trail_id] || [];
-      r[a.redacted_trail_id].push(a);
-      return r;
-    }, Object.create(null));
-
-    const redactedTrailsList = Object.keys(redactedTrailsMap).map(key => formatRedactedTrailData(redactedTrailsMap[key]));
-
-    // Populate organization information in response
-    const organization = await organizations.fetchById(organization_id);
-    if (organization) {
+  // Populate organization information in response
+  const organization = await organizationService.fetchById(organization_id);
+  if (organization) {
+    const redactedTrails = await trailService.all();
+    if (redactedTrails) {
+      let redactedTrailsMap = groupBy(redactedTrails, 'case_id')
+      const redactedTrailsList = Object.keys(redactedTrailsMap).map(key => formatRedactedTrailData(redactedTrailsMap[key], organization));
       const response = {
         organization: _.extend({ organization_id }, _.pick(organization, ['name','info_website_url'])),
         data: redactedTrailsList,
@@ -59,35 +58,29 @@ exports.fetchRedactedTrails = async (req, res) => {
  *
  */
 exports.createRedactedTrail = async (req, res) => {
-  let redactedTrailReturnData = {};
+  const { user, body: { trails, case_id } } = req;
 
-  const { trail } = req.body;
-
-  // if (Array.isArray(trail) && trail.length) {
-  //   trails
-  //     .insertRedactedTrailSet(
-  //       req.body.trail,
-  //       req.body.identifier,
-  //       req.user.organization_id,
-  //       req.user.id,
-  //     )
-  //     .then(redactedTrailRecords => {
-  //       if (Array.isArray(redactedTrailRecords)) {
-  //         redactedTrailReturnData = {
-  //           data: formatRedactedTrailData(redactedTrailRecords),
-  //           success: true,
-  //         };
-  //       } else {
-  //         res.status(500).json({ message: 'Internal Server Error' });
-  //       }
-  //       res.status(200).json(redactedTrailReturnData);
-  //     })
-  //     .catch(err => {
-  //       //TODO: introduce logger
-  //       console.log(err);
-  //       res.status(500).json({ message: 'Internal Server Error' });
-  //     });
-  // } else {
-  //   res.status(400).json({ message: 'Trail can not be empty.' });
-  // }
+  if (Array.isArray(trails) && trails.length) {
+    const organization = await organizationService.fetchById(user.organization_id);
+    if (organization) {
+      let redactedTrailRecords = await trailService.insertRedactedTrailSet(trails, case_id);
+      if (redactedTrailRecords) {
+        if (Array.isArray(redactedTrailRecords)) {
+          const response = {
+            data: formatRedactedTrailData(redactedTrailRecords, organization),
+            success: true,
+          };
+          res.status(200).json(response);
+        } else {
+          res.status(500).json({ message: 'Internal Server Error' });
+        }
+      } else {
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
+    } else {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  } else {
+    res.status(400).json({ message: 'Trail can not be empty.' });
+  }
 };

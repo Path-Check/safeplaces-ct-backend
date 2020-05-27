@@ -25,35 +25,35 @@ const cases = require('../../db/models/cases');
 
 chai.use(chaiHttp);
 
-let currentOrg, currentUser, currentTrails, currentPublication, token, start_date, end_date;
-
-before(async () => {
-  let orgParams = {
-    id: uuidv4(),
-    name: 'My Example Organization',
-    info_website_url: 'http://sample.com',
-  };
-  currentOrg = await mockData.mockOrganization(orgParams);
-
-  let newUserParams = {
-    username: 'myAwesomeUser',
-    password: 'myAwesomePassword',
-    email: 'myAwesomeUser@yomanbob.com',
-    organization_id: currentOrg.id,
-  };
-  currentUser = await mockData.mockUser(newUserParams);
-
-  token = jwt.sign(
-    {
-      sub: newUserParams.username,
-      iat: ~~(Date.now() / 1000),
-      exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-    },
-    jwtSecret.secret,
-  );
-});
+let currentOrg, currentTrails, currentPublication, token, start_date, end_date;
 
 describe('Safe Path ', function () {
+
+  before(async () => {
+    let orgParams = {
+      id: uuidv4(),
+      name: 'My Example Organization',
+      info_website_url: 'http://sample.com',
+    };
+    currentOrg = await mockData.mockOrganization(orgParams);
+  
+    let newUserParams = {
+      username: 'myAwesomeUser',
+      password: 'myAwesomePassword',
+      email: 'myAwesomeUser@yomanbob.com',
+      organization_id: currentOrg.id,
+    };
+    await mockData.mockUser(newUserParams);
+  
+    token = jwt.sign(
+      {
+        sub: newUserParams.username,
+        iat: ~~(Date.now() / 1000),
+        exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
+      },
+      jwtSecret.secret,
+    );
+  });
 
   describe('GET /safe_path without redacted_trails and with publication', function () {
     before(async () => {
@@ -383,7 +383,7 @@ describe('Safe Path ', function () {
         email: 'myAwesomeUser@yomanbob.com',
         organization_id: currentOrg.id,
       };
-      currentUser = await mockData.mockUser(newUserParams);
+      await mockData.mockUser(newUserParams);
     
       token = jwt.sign(
         {

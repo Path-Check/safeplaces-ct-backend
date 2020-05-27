@@ -10,62 +10,52 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = require('../../config/jwtConfig');
 const server = require('../../app');
 const trails = require('../../db/models/trails');
+const cases = require('../../db/models/cases');
 
 const mockData = require('../lib/mockData');
 
-// const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
-// const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
-// const USERNAME = 'admin';
-// const ADMIN_JWT_TOKEN = jwt.sign(
-//   {
-//     sub: USERNAME,
-//     iat: ~~(Date.now() / 1000),
-//     exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-//   },
-//   jwtSecret.secret,
-// );
-
-// const ADMIN_JWT_TOKEN_EXPIRED = jwt.sign(
-//   {
-//     sub: USERNAME,
-//     iat: ~~(Date.now() / 1000),
-//     exp: ~~(Date.now() / 1000) - 1,
-//   },
-//   jwtSecret.secret,
-// );
-
 chai.use(chaiHttp);
 
-let currentOrg, token;
+let currentOrg, currentCase, token, tokenExpired;
 
-before(async () => {
-  await mockData.clearMockData()
-  let orgParams = {
-    id: uuidv4(),
-    name: 'My Example Organization',
-    info_website_url: 'http://sample.com',
-  };
-  currentOrg = await mockData.mockOrganization(orgParams);
+describe('Redacted ', function () {
 
-  let newUserParams = {
-    username: 'myAwesomeUser',
-    password: 'myAwesomePassword',
-    email: 'myAwesomeUser@yomanbob.com',
-    organization_id: currentOrg.id,
-  };
-  await mockData.mockUser(newUserParams);
-
-  token = jwt.sign(
-    {
-      sub: newUserParams.username,
-      iat: ~~(Date.now() / 1000),
-      exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-    },
-    jwtSecret.secret,
-  );
-});
-
-describe.only('Redacted ', function () {
+  before(async () => {
+    await mockData.clearMockData()
+    let orgParams = {
+      id: uuidv4(),
+      name: 'My Example Organization',
+      info_website_url: 'http://sample.com',
+    };
+    currentOrg = await mockData.mockOrganization(orgParams);
+  
+    let newUserParams = {
+      username: 'myAwesomeUser',
+      password: 'myAwesomePassword',
+      email: 'myAwesomeUser@yomanbob.com',
+      organization_id: currentOrg.id,
+    };
+    await mockData.mockUser(newUserParams);
+  
+    token = jwt.sign(
+      {
+        sub: newUserParams.username,
+        iat: ~~(Date.now() / 1000),
+        exp: ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
+      },
+      jwtSecret.secret,
+    );
+  
+    tokenExpired = jwt.sign(
+      {
+        sub: newUserParams.username,
+        iat: ~~(Date.now() / 1000),
+        exp: ~~(Date.now() / 1000) - 1,
+      },
+      jwtSecret.secret
+    );
+  });
+  
   describe('GET /redacted_trails when DB is empty', function () {
     it('should return empty array for redacted trail', function (done) {
       chai
@@ -90,7 +80,7 @@ describe.only('Redacted ', function () {
     });
   });
 
-  describe.only('GET /redacted_trails with some values', function () {
+  describe('GET /redacted_trails with some values', function () {
     before(async function () {
       await trails.deleteAllRows()
 
@@ -98,13 +88,13 @@ describe.only('Redacted ', function () {
         organization_id: currentOrg.id,
         state: 'published'
       };
-      const mockCase = await mockData.mockCase(caseParams)
+      currentCase = await mockData.mockCase(caseParams)
 
       // Add Trails
       let trailsParams = {
-        caseId: mockCase.id
+        caseId: currentCase.id
       }
-      currentTrails = await mockData.mockTrails(5, 3600, trailsParams) // Generate 5 trails 1 hour apart
+      await mockData.mockTrails(10, 1800, trailsParams) // Generate 5 trails 1 hour apart
     });
 
     after(async function () {
@@ -117,7 +107,6 @@ describe.only('Redacted ', function () {
         .get('/redacted_trails')
         .set('Authorization', `${token}`)
         .end(function (err, res) {
-          console.log(res.body.data[0])
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
           res.body.should.have.property('organization');
@@ -129,28 +118,16 @@ describe.only('Redacted ', function () {
           res.body.organization.info_website_url.should.equal(currentOrg.info_website_url);
           res.body.should.have.property('data');
           res.body.data.should.be.a('array');
-          res.body.data[0].should.have.property('identifier');
-          res.body.data[0].identifier.should.equal(
-            'a88309c1-26cd-4d2b-8923-af0779e423a3',
-          );
+          res.body.data[0].should.have.property('case_id');
+          res.body.data[0].case_id.should.equal(currentCase.id);
           res.body.data[0].should.have.property('organization_id');
-          res.body.data[0].organization_id.should.equal(
-            'a88309c2-26cd-4d2b-8923-af0779e423a3',
-          );
+          res.body.data[0].organization_id.should.equal(currentOrg.id);
           res.body.data[0].trail.should.be.a('array');
-          res.body.data[0].trail[0].should.have.property('latitude');
-          res.body.data[0].trail[0].latitude.should.equal(12.34);
+          res.body.data[0].trail[0].should.be.a('object');
           res.body.data[0].trail[0].should.have.property('longitude');
-          res.body.data[0].trail[0].longitude.should.equal(12.34);
+          res.body.data[0].trail[0].should.have.property('latitude');
+          res.body.data[0].trail[0].should.have.property('hash');
           res.body.data[0].trail[0].should.have.property('time');
-          res.body.data[0].trail[0].time.should.equal(123456789);
-          res.body.data[0].trail[1].should.have.property('latitude');
-          res.body.data[0].trail[1].latitude.should.equal(12.34);
-          res.body.data[0].trail[1].should.have.property('longitude');
-          res.body.data[0].trail[1].longitude.should.equal(12.34);
-          res.body.data[0].trail[1].should.have.property('time');
-          res.body.data[0].trail[1].time.should.equal(123456789);
-          res.body.data[0].should.have.property('user_id');
           done();
         });
     });
@@ -158,7 +135,22 @@ describe.only('Redacted ', function () {
 
   describe('POST /redacted_trail', function () {
     afterEach(async function () {
+      await cases.deleteAllRows();
       await trails.deleteAllRows();
+    });
+
+    beforeEach(async function () {
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'published'
+      };
+      currentCase = await mockData.mockCase(caseParams)
+  
+      // Add Trails
+      let trailsParams = {
+        caseId: currentCase.id
+      }
+      await mockData.mockTrails(10, 1800, trailsParams) // Generate 5 trails 1 hour apart
     });
 
     it('should check for correct JWT token', function (done) {
@@ -197,7 +189,7 @@ describe.only('Redacted ', function () {
             },
           ],
         })
-        .set('Authorization', `${ADMIN_JWT_TOKEN_EXPIRED}`)
+        .set('Authorization', `${tokenExpired}`)
         .end(function (err, res) {
           res.should.have.status(401);
           res.text.should.equal('Unauthorized');
@@ -213,7 +205,7 @@ describe.only('Redacted ', function () {
           identifier: 'a88309c4-26cd-4d2b-8923-af0779e423a3',
           trail: [],
         })
-        .set('Authorization', `${ADMIN_JWT_TOKEN}`)
+        .set('Authorization', `${token}`)
         .end(function (err, res) {
           res.should.have.status(400);
           res.should.be.json; // jshint ignore:line
@@ -228,8 +220,8 @@ describe.only('Redacted ', function () {
         .request(server.app)
         .post('/redacted_trail')
         .send({
-          identifier: 'a88309c4-26cd-4d2b-8923-af0779e423a3',
-          trail: [
+          case_id: currentCase.id,
+          trails: [
             {
               time: 123456789,
               latitude: 12.34,
@@ -237,33 +229,24 @@ describe.only('Redacted ', function () {
             },
           ],
         })
-        .set('Authorization', `${ADMIN_JWT_TOKEN}`)
+        .set('Authorization', `${token}`)
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
           res.body.should.have.property('data');
           res.body.data.should.be.a('object');
-          res.body.data.should.have.property('identifier');
-          res.body.data.identifier.should.equal(
-            'a88309c4-26cd-4d2b-8923-af0779e423a3',
-          );
+          res.body.data.should.have.property('case_id');
+          res.body.data.case_id.should.equal(currentCase.id);
           res.body.data.should.have.property('organization_id');
-          res.body.data.organization_id.should.equal(
-            'a88309c2-26cd-4d2b-8923-af0779e423a3',
-          );
+          res.body.data.organization_id.should.equal(currentOrg.id);
           res.body.data.should.have.property('trail');
           res.body.data.trail.should.be.a('array');
+          res.body.data.trail.length.should.equal(1);
           res.body.data.trail[0].should.be.a('object');
-          res.body.data.trail[0].should.have.property('latitude');
-          res.body.data.trail[0].latitude.should.equal(12.34);
           res.body.data.trail[0].should.have.property('longitude');
-          res.body.data.trail[0].longitude.should.equal(12.34);
+          res.body.data.trail[0].should.have.property('latitude');
+          res.body.data.trail[0].should.have.property('hash');
           res.body.data.trail[0].should.have.property('time');
-          res.body.data.trail[0].time.should.equal(123456789);
-          res.body.data.should.have.property('user_id');
-          res.body.data.user_id.should.equal(
-            'a88309ca-26cd-4d2b-8923-af0779e423a3',
-          );
           res.body.should.have.property('success');
           res.body.success.should.equal(true);
           done();
@@ -275,8 +258,8 @@ describe.only('Redacted ', function () {
         .request(server.app)
         .post('/redacted_trail')
         .send({
-          identifier: 'a88309c4-26cd-4d2b-8923-af0779e423a3',
-          trail: [
+          case_id: currentCase.id,
+          trails: [
             {
               time: 123456789,
               latitude: 12.34,
@@ -289,40 +272,24 @@ describe.only('Redacted ', function () {
             },
           ],
         })
-        .set('Authorization', `${ADMIN_JWT_TOKEN}`)
+        .set('Authorization', `${token}`)
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
           res.body.should.have.property('data');
           res.body.data.should.be.a('object');
-          res.body.data.should.have.property('identifier');
-          res.body.data.identifier.should.equal(
-            'a88309c4-26cd-4d2b-8923-af0779e423a3',
-          );
+          res.body.data.should.have.property('case_id');
+          res.body.data.case_id.should.equal(currentCase.id);
           res.body.data.should.have.property('organization_id');
-          res.body.data.organization_id.should.equal(
-            'a88309c2-26cd-4d2b-8923-af0779e423a3',
-          );
+          res.body.data.organization_id.should.equal(currentOrg.id);
           res.body.data.should.have.property('trail');
           res.body.data.trail.should.be.a('array');
+          res.body.data.trail.length.should.equal(2);
           res.body.data.trail[0].should.be.a('object');
-          res.body.data.trail[0].should.have.property('latitude');
-          res.body.data.trail[0].latitude.should.equal(12.34);
           res.body.data.trail[0].should.have.property('longitude');
-          res.body.data.trail[0].longitude.should.equal(12.34);
+          res.body.data.trail[0].should.have.property('latitude');
+          res.body.data.trail[0].should.have.property('hash');
           res.body.data.trail[0].should.have.property('time');
-          res.body.data.trail[0].time.should.equal(123456789);
-          res.body.data.trail[1].should.be.a('object');
-          res.body.data.trail[1].should.have.property('latitude');
-          res.body.data.trail[1].latitude.should.equal(12.34);
-          res.body.data.trail[1].should.have.property('longitude');
-          res.body.data.trail[1].longitude.should.equal(12.34);
-          res.body.data.trail[1].should.have.property('time');
-          res.body.data.trail[1].time.should.equal(123456790);
-          res.body.data.should.have.property('user_id');
-          res.body.data.user_id.should.equal(
-            'a88309ca-26cd-4d2b-8923-af0779e423a3',
-          );
           res.body.should.have.property('success');
           res.body.success.should.equal(true);
           done();

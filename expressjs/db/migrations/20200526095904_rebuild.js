@@ -107,7 +107,7 @@ exports.up = function (knex) {
     .then(() => buildTrails(knex))
 };
 
-exports.down = function (knex) {
+exports.down = function () {
   // Nothing to really do...
 };
 
