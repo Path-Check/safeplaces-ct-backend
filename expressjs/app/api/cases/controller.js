@@ -7,20 +7,24 @@ const cases = require('../../../db/models/cases');
  *
  */
 exports.publish = async (req, res) => {
-  const { query } = req;
-  const { ids } = query;
+  const { query: { ids } } = req;
+  
   if (!ids) {
     res.status(400).send('Bad request');
   }
+
   const idArr = ids.split(',');
   if (idArr.length === 0) {
     res.status(400).send('Bad request');
   }
+
+  let id;
   let results = [];
-  for (const id of idArr) {
+  for (id of idArr) {
     const result = await cases.updateState(id, 'published');
-    console.log(result);
-    results.push(result[0]);
+    if (result) {
+      results.push(result);
+    }
   }
   res.status(200).json({ result: results });
 };

@@ -6,6 +6,7 @@ class Service extends BaseService {
     if (['unpublished', 'staging', 'published'].indexOf(state) === -1) {
       throw new Error('Invalid state ' + state);
     }
+
     return this.updateOne(id, {
       state,
     });

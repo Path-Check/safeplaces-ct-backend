@@ -16,39 +16,39 @@ function buildOrganization(knex) {
   return knex.schema.createTable('organizations', function (table) {
     table.uuid('id').notNull().primary();
     table.string('name')
-    table.timestamp('updated_at').defaultTo(knex.fn.now())
-    table.timestamp('created_at').defaultTo(knex.fn.now())
+    table.timestamp('updated_at').defaultTo(knex.fn.now());
+    table.timestamp('created_at').defaultTo(knex.fn.now());
   }).then(() => knex.raw(onUpdateTrigger('organizations')));
 }
 
 function buildSettings(knex) {
   return knex.schema.createTable('settings', function (table) {
-    table.uuid('id').notNull().primary()
+    table.uuid('id').notNull().primary();
     table.uuid('organization_id').notNull().references('organizations.id').onDelete('CASCADE');
-    table.string('info_website_url')
-    table.string('reference_website_url')
-    table.string('api_endpoint_url')
-    table.json('region_coordinates')
+    table.string('info_website_url');
+    table.string('reference_website_url');
+    table.string('api_endpoint_url');
+    table.json('region_coordinates');
     table.integer('notification_threshold_percent').defaultTo(66);
     table.integer('notification_threshold_count').defaultTo(6);
     table.integer('chunking_in_seconds').defaultTo(43200);
     table.integer('days_to_retain_records').defaultTo(30);
-    table.timestamp('updated_at').defaultTo(knex.fn.now())
-    table.timestamp('created_at').defaultTo(knex.fn.now())
+    table.timestamp('updated_at').defaultTo(knex.fn.now());
+    table.timestamp('created_at').defaultTo(knex.fn.now());
   }).then(() => knex.raw(onUpdateTrigger('settings')));
 }
 
 function buildUsers(knex) {
   return knex.schema.createTable('users', function (table) {
-    table.uuid('id').notNull().primary()
+    table.uuid('id').notNull().primary();
     table.uuid('organization_id').notNull().references('organizations.id').onDelete('CASCADE');
-    table.string('username', 64)
-    table.string('email', 128)
-    table.string('password', 60)
-    table.string('maps_api_key')
-    table.boolean('is_admin')
-    table.timestamp('updated_at').defaultTo(knex.fn.now())
-    table.timestamp('created_at').defaultTo(knex.fn.now())
+    table.string('username', 64);
+    table.string('email', 128);
+    table.string('password', 60);
+    table.string('maps_api_key');
+    table.boolean('is_admin');
+    table.timestamp('updated_at').defaultTo(knex.fn.now());
+    table.timestamp('created_at').defaultTo(knex.fn.now());
   }).then(() => knex.raw(onUpdateTrigger('users')));
   
 }
@@ -92,8 +92,9 @@ function buildTrails(knex) {
     table.uuid('case_id').notNull().references('cases.id').onDelete('CASCADE');
     table.specificType('coordinates', 'geometry(point, 4326)');
     table.timestamp('time');
-    table.string('hash')
-    table.timestamps(true, true);
+    table.string('hash');
+    table.timestamp('updated_at').defaultTo(knex.fn.now())
+    table.timestamp('created_at').defaultTo(knex.fn.now())
   }).then(() => knex.raw(onUpdateTrigger('trails')));
 }
 
