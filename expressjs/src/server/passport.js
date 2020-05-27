@@ -1,53 +1,15 @@
-const bcrypt = require('bcrypt');
 const passport = require('passport');
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwtSecret = require('../../config/jwtConfig');
 const users = require('../../db/models/users');
-
-const LocalStrategy = require('passport-local').Strategy;
+const ldap = require('ldapjs');
+const CustomStrategy = require('passport-custom').Strategy;
 
 const opts = {
   jwtFromRequest: ExtractJWT.fromHeader('authorization'),
   secretOrKey: jwtSecret.secret,
 };
-
-const localStrategy = new LocalStrategy(
-  {
-    passReqToCallback: true,
-    session: false,
-  },
-  async (req, username, password, done) => {
-    let user;
-    try {
-      user = await users.findOne({ username: username });
-      if (!user) {
-        return done(null, false, {
-          status: 401,
-          message: 'Invalid credentials.',
-        });
-      } else {
-        bcrypt.compare(password, user.password, (err, check) => {
-          if (err) {
-            //TODO: log error
-            return done();
-          } else if (check) {
-            return done(null, [{ username: user.username }]); // TODO: Why are we passing just the username back and not the user.
-          } else {
-            return done(null, false, {
-              status: 401,
-              message: 'Invalid credentials.',
-            });
-          }
-        });
-      }
-    } catch (e) {
-      return done(e);
-    }
-  },
-);
-
-passport.use('local', localStrategy);
 
 const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
   try {
@@ -71,11 +33,35 @@ const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
 
 passport.use('jwt', jwtStrategy);
 
-passport.serializeUser(function (user, done) {
+const ldapClient = ldap.createClient({
+  url: 'ldap://127.0.0.1:1389',
+});
+
+ldapClient.bind('cn=root', process.env.DB_PASS, err => {
+  if (err) console.log(err);
+});
+
+passport.use('ldap', new CustomStrategy(
+  function(req, done) {
+    ldapClient.search('o=safeplaces', {
+      filter: `(&(cn=${req.body.username})(password=${req.body.password}))`
+    }, (err, res) => {
+      res.on('searchEntry', function(entry) {
+        return done(err, entry.object);
+      });
+      res.on('error', function(err) {
+        console.log(err.message);
+        return done(null, {});
+      });
+    });
+  },
+));
+
+passport.serializeUser(function(user, done) {
   done(null, user);
 });
 
-passport.deserializeUser(function (user, done) {
+passport.deserializeUser(function(user, done) {
   done(null, user);
 });
 
