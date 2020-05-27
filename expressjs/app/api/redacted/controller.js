@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const trails = require('../../../db/models/trails');
 const organizations = require('../../../db/models/organizations');
 
@@ -22,60 +23,31 @@ function formatRedactedTrailData(redactedTrailRecords) {
  *
  */
 exports.fetchRedactedTrails = async (req, res) => {
-  let redactedTrailsResponse = {};
-
-  const { user } = req;
+  const { user: { organization_id } } = req;
 
   const redactedTrails = await trails.all();
   if (redactedTrails) {
-    let redactedTrailsList = [];
 
-    // Map all redactedTrails by redacted trail 'identifier'
-    // i.e., Groups all trail points belonging to one 'identifier'
-    // into a trail array.
-    let redactedTrailsMap = redactedTrails.reduce(function (r, a) {
+    let redactedTrailsMap = redactedTrails.reduce((r, a) => {
       r[a.redacted_trail_id] = r[a.redacted_trail_id] || [];
       r[a.redacted_trail_id].push(a);
       return r;
     }, Object.create(null));
 
-    // Make the Map with 'identifier' as key into the final
-    // list format with:
-    // [
-    //   {
-    //     identifier: '',
-    //     organization_id: '',
-    //     trail: [],
-    //     user_id: ''
-    //   }, ...
-    // ]
-    Object.keys(redactedTrailsMap).forEach(key => {
-      let element = redactedTrailsMap[key];
-      redactedTrailsList.push(formatRedactedTrailData(element));
-    });
+    const redactedTrailsList = Object.keys(redactedTrailsMap).map(key => formatRedactedTrailData(redactedTrailsMap[key]));
 
     // Populate organization information in response
-    const organization = await organizations.findOne({
-      id: user.organization_id,
-    });
+    const organization = await organizations.fetchById(organization_id);
     if (organization) {
-      redactedTrailsResponse = {
-        organization: {
-          organization_id: organization.id,
-          name: organization.authority_name,
-          info_website_url: organization.info_website,
-        },
+      const response = {
+        organization: _.extend({ organization_id }, _.pick(organization, ['name','info_website_url'])),
         data: redactedTrailsList,
       };
-      res.status(200).json(redactedTrailsResponse);
+      res.status(200).json(response);
     } else {
-      //TODO: introduce logger
-      console.log(organization);
       res.status(500).json({ message: 'Internal Server Error' });
     }
   } else {
-    //TODO: introduce logger
-    console.log(redactedTrails);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -91,31 +63,31 @@ exports.createRedactedTrail = async (req, res) => {
 
   const { trail } = req.body;
 
-  if (Array.isArray(trail) && trail.length) {
-    trails
-      .insertRedactedTrailSet(
-        req.body.trail,
-        req.body.identifier,
-        req.user.organization_id,
-        req.user.id,
-      )
-      .then(redactedTrailRecords => {
-        if (Array.isArray(redactedTrailRecords)) {
-          redactedTrailReturnData = {
-            data: formatRedactedTrailData(redactedTrailRecords),
-            success: true,
-          };
-        } else {
-          res.status(500).json({ message: 'Internal Server Error' });
-        }
-        res.status(200).json(redactedTrailReturnData);
-      })
-      .catch(err => {
-        //TODO: introduce logger
-        console.log(err);
-        res.status(500).json({ message: 'Internal Server Error' });
-      });
-  } else {
-    res.status(400).json({ message: 'Trail can not be empty.' });
-  }
+  // if (Array.isArray(trail) && trail.length) {
+  //   trails
+  //     .insertRedactedTrailSet(
+  //       req.body.trail,
+  //       req.body.identifier,
+  //       req.user.organization_id,
+  //       req.user.id,
+  //     )
+  //     .then(redactedTrailRecords => {
+  //       if (Array.isArray(redactedTrailRecords)) {
+  //         redactedTrailReturnData = {
+  //           data: formatRedactedTrailData(redactedTrailRecords),
+  //           success: true,
+  //         };
+  //       } else {
+  //         res.status(500).json({ message: 'Internal Server Error' });
+  //       }
+  //       res.status(200).json(redactedTrailReturnData);
+  //     })
+  //     .catch(err => {
+  //       //TODO: introduce logger
+  //       console.log(err);
+  //       res.status(500).json({ message: 'Internal Server Error' });
+  //     });
+  // } else {
+  //   res.status(400).json({ message: 'Trail can not be empty.' });
+  // }
 };

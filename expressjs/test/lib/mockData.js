@@ -14,6 +14,20 @@ const casesService = require('../../db/models/cases');
 class MockData {
 
   /**
+   * @method clearMockData
+   *
+   * Clear out Mock Data
+   */
+  async clearMockData() {
+    await organizationService.deleteAllRows()
+    await settingsService.deleteAllRows()
+    await usersService.deleteAllRows()
+    await trailsService.deleteAllRows()
+    await publicationService.deleteAllRows()
+    await casesService.deleteAllRows()
+  }
+
+  /**
    * @method mockUser
    *
    * Generate Mock User
