@@ -74,16 +74,12 @@ components:
       schema:
         $ref: '#/components/schemas/pointId'
   schemas:
+    apiEndpoint:
+      type: string
+      example: https://s3.aws.com/bucket_name/safepaths.json
     authCode:
       type: string
       example: bluebird
-    authCodeExpiration:
-      type: object
-      properties:
-        code:
-          $ref: '#/components/schemas/authCode'
-        expiresAt:
-          $ref : '#/components/schemas/timeString'
     caseId:
       type: number
       example: 23432461
@@ -106,6 +102,20 @@ components:
           $ref: '#/components/schemas/caseState'
         expiresAt:
           $ref : '#/components/schemas/timeString'
+    caseCreation:
+      type : object
+      properties:
+        caseId:
+          type: integer
+          example: 14
+        updatedAt:
+          $ref : '#/components/schemas/timeString'
+        status:
+          $ref: '#/components/schemas/caseState'
+        expiresAt:
+          $ref : '#/components/schemas/timeString'
+        authCode:
+          $ref: '#/components/schemas/authCode'
     cases:
       type: array
       items:
@@ -124,7 +134,7 @@ components:
     concernPointDb:
       type: object
       properties:
-        id:
+        pointId:
           type: number
           example: 12
         longitude: 
@@ -163,11 +173,70 @@ components:
           example: true
         accessCode:
           $ref : '#/components/schemas/authCode'
+    coordinates:
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+    informationWebsiteUrl:
+      type: string
+      example: "http://cdc.gov"
     orgId:
       type: number
       example: 32424552
+    orgName:
+      type: string
+      example: "Same Health Authority"
+    orgConfiguration:
+      type: object
+      properties:
+        organizationId:
+          $ref: '#/components/schemas/orgId'
+        name:
+          $ref: '#/components/schemas/orgName'
+        notificationThresholdPercent:
+          $ref: '#/components/schemas/notificationThreshold'
+        notificationThresholdCount:
+          $ref: '#/components/schemas/notificationCount'
+        numberofDaysToRetainRecords:
+          $ref: '#/components/schemas/numberOfDaysToRetainRecords'
+        regionCoordinates:
+          $ref: '#/components/schemas/regionCoordinates'
+        apiEndpoint:
+          $ref: '#/components/schemas/apiEndpoint'
+        referenceWebsiteUrl:
+          $ref: '#/components/schemas/referenceWebsiteUrl'
+        informationWebsiteUrl:
+          $ref: '#/components/schemas/informationWebsiteUrl'
+    notificationCount:
+      type: number
+      example: 6
+    notificationThreshold:
+      type: number
+      example: 66
+    numberOfDaysToRetainRecords:
+      type: number
+      example: 14
     pointId:
       type: integer
+      example: 212
+    referenceWebsiteUrl:
+      type: string
+      example: "http://cdc.gov"
+    regionCoordinates:
+      type: object
+      properties:
+        ne:
+          $ref: '#/components/schemas/coordinates'
+        sw:
+          $ref: '#/components/schemas/coordinates'
+      example:
+        value:
+          { "ne": { "latitude": 20.312764055951195, "longitude": -70.45445121262883}, 
+            "sw": { "latitude": 17.766025040122642, "longitude": -75.49442923997258}
+          }
     timeString:
       type: string
       example: "2020-05-30T18:25:43.511Z"
@@ -196,40 +265,105 @@ components:
     concernPoints:
       value: {  
                 "concernPoints" : 
-              [  {"id": 232, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10753902581515137,"latitude":51.55987524514395},
-                {"id": 233, "time":"2020-05-30T18:25:43.511Z","longitude":-0.06407687379643874,"latitude":51.53626227398831},
-                {"id": 234, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10383699531844902,"latitude":51.5687569927817},
-                {"id": 235, "time":"2020-05-30T18:25:43.511Z","longitude":-0.09565287120047716,"latitude":51.56663238135933},
-                {"id": 236, "time":"2020-05-30T18:25:43.511Z","longitude":-0.13367363946595986,"latitude":51.53989797636888},
-                {"id": 237, "time":"2020-05-30T18:25:43.511Z","longitude":-0.05729357699158614,"latitude":51.53321925729781},
-                {"id": 238, "time":"2020-05-30T18:25:43.511Z","longitude":-0.054365847106010994,"latitude":51.550572004199395},
-                {"id": 239, "time":"2020-05-30T18:25:43.511Z","longitude":-0.12014169804782877,"latitude":51.54859663929235}
+              [  {"pointId": 232, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10753902581515137,"latitude":51.55987524514395},
+                {"pointId": 233, "time":"2020-05-30T18:25:43.511Z","longitude":-0.06407687379643874,"latitude":51.53626227398831},
+                {"pointId": 234, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10383699531844902,"latitude":51.5687569927817},
+                {"pointId": 235, "time":"2020-05-30T18:25:43.511Z","longitude":-0.09565287120047716,"latitude":51.56663238135933},
+                {"pointId": 236, "time":"2020-05-30T18:25:43.511Z","longitude":-0.13367363946595986,"latitude":51.53989797636888},
+                {"pointId": 237, "time":"2020-05-30T18:25:43.511Z","longitude":-0.05729357699158614,"latitude":51.53321925729781},
+                {"pointId": 238, "time":"2020-05-30T18:25:43.511Z","longitude":-0.054365847106010994,"latitude":51.550572004199395},
+                {"pointId": 239, "time":"2020-05-30T18:25:43.511Z","longitude":-0.12014169804782877,"latitude":51.54859663929235}
               ]}
     casesList:
       value: 
         {
           "cases": [
                     {
-                      "id": 12,
+                      "caseId": 12,
                       "updatedAt": "2020-05-21T18:25:43.511Z",
-                      "status": "In Progress",
+                      "status": "unpublished",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     },
                     {
-                      "id": 13,
+                      "caseId": 13,
                       "updatedAt": "2020-05-21T18:25:43.511Z",
-                      "status": "Staged for Publishing",
+                      "status": "staging",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     },
                     {
-                      "id": 14,
+                      "caseId": 14,
                       "updatedAt": "2020-05-21T18:25:43.511Z",
-                      "status": "Published",
+                      "status": "published",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     }
                   ]
         }
 paths:
+  '/access-code/valid':
+    get:
+      summary: Determines whether an access code is valid and if it can be used to perform an `/upload` API call
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessCode : 
+                  $ref : '#/components/schemas/authCode'
+      responses:
+        '200':
+          description: Successful Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/valid'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError' 
+  /consent:
+    post:
+      summary: Logs user consent to health authority’s terms of service. Invalidates the accessCode that is passed in the payload if  consent  is false.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/consent'
+      responses:
+        '200':
+          description: Successful request
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError' 
+  /upload:
+    post:
+      summary: Accepts SAFE PATHS data upload from the user. Access code sent in body must match access code created in /case/access-code call.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessCode:
+                  $ref: '#/components/schemas/authCode'
+                concernPoints:
+                  $ref: '#/components/schemas/concernPoints'
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/AccessForbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /login:
     post:
       operationId: AuthController_login
@@ -251,10 +385,65 @@ paths:
           $ref: '#/components/responses/InvalidToken'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/organization/{orgId}/cases':
-    parameters:
-      - $ref: '#/components/parameters/orgIdParam'
+  /organization:
     get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organizationId:
+                    $ref : '#/components/schemas/orgId'
+                  name:
+                    $ref : '#/components/schemas/orgName'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  '/organization/configuration':
+    get:
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/orgConfiguration'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'      
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/orgConfiguration'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/orgConfiguration'
+        
+  '/organization/cases':
+    get:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organizationId: 
+                  $ref: '#/components/schemas/orgId'
       responses:
         '200':
           description: OK
@@ -274,28 +463,41 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/organization/{orgId}/case':
-    parameters:
-      - $ref: '#/components/parameters/orgIdParam'
+  '/organization/case':
     post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organizationId: 
+                  $ref: '#/components/schemas/orgId'
+
       responses:
         '200':
           description: Creates a new case and associates it with the organization
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/case'
+                $ref: '#/components/schemas/caseCreation'
         '400':
           $ref: '#/components/responses/InvalidRequest'
         '403':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/case/{caseId}':
+  '/case':
     delete:
       summary: Delete case record
-      parameters:
-        - $ref: '#/components/parameters/caseIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId: 
+                  $ref: '#/components/schemas/caseId'
       responses:
         '200':
           description: Case deleted
@@ -305,11 +507,17 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'        
-  '/case/{caseId}/points':
+  '/case/points':
     get:
       summary: Gets patient case record
-      parameters:
-        - $ref: '#/components/parameters/caseIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId: 
+                  $ref: '#/components/schemas/caseId'
       responses:
         '200':
           description: OK
@@ -332,16 +540,19 @@ paths:
       security:
         - contactTracer: []
         - admin: []
-  '/case/{caseId}/point':
+  '/case/point':
     post:
       summary: Creates a new point of concern to be asssociated with the case
-      parameters:
-        - $ref: '#/components/parameters/caseIdParam'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/concernPointDBAdd'
+              type: object
+              properties:
+                caseId:
+                  $ref: '#/components/schemas/caseId'
+                point:
+                  $ref: '#/components/schemas/concernPointDBAdd'
       responses:
         '200':
           description: Patient case updated
@@ -359,16 +570,14 @@ paths:
         - contactTracer: []
         - admin: []
         
-  '/point/{pointId}':
+  '/point':
     put:
       summary: Updates an existing point of concern
-      parameters: 
-        - $ref : '#/components/parameters/pointIdParam'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/concernPointDBAdd'
+              $ref: '#/components/schemas/concernPointDb'
       responses:
         '200': 
           description: 'OK'
@@ -384,8 +593,14 @@ paths:
           $ref: '#/components/responses/InternalServerError'
     delete:
       summary: Deletes an existing point of concern
-      parameters: 
-        - $ref: '#/components/parameters/pointIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pointId:
+                  $ref: '#/components/schemas/pointId'
       responses:
         '200':
           description: Point was deleted
@@ -393,83 +608,5 @@ paths:
           $ref: '#/components/responses/InvalidRequest'
         '403':
           $ref: '#/components/responses/UnauthorizedError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-  '/case/{caseId}/access-code':
-    post:
-      summary: Return an access code that needs to be passed in the payload of the `/upload` endpoint
-      parameters:
-        - $ref: '#/components/parameters/caseIdParam'
-      responses:
-        '201':
-          description: Created access code
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/authCodeExpiration'
-        '400': 
-          $ref : '#/components/responses/InvalidRequest'
-        '401': 
-          $ref : '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/AccessForbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      
-
-  '/access-code/valid/{code}':
-    get:
-      summary: Determines whether an access code is valid and if it can be used to perform an `/upload` API call
-      parameters: 
-        - $ref: '#/components/parameters/authCodeParam'
-      responses:
-        '200':
-          description: Successful REquest
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/valid'
-        '500': 
-          $ref: '#/components/responses/InternalServerError'
-
-  /consent:
-    post:
-      summary: Logs user consent to health authority’s terms of service. Invalidates the accessCode that is passed in the payload if  consent  is false.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/consent'
-      responses:
-        '200':
-          description: Successful request
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError' 
-  /upload:
-    post:
-      summary: Accepts SAFE PATHS data upload from user. Access code sent in body must match access code created in /case/{caseId}/auth_code call
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                authCode:
-                  $ref: '#/components/schemas/authCode'
-                concernPoints:
-                  $ref: '#/components/schemas/concernPoints'
-      responses:
-        '201':
-          description: Created
-        '400':
-          $ref: '#/components/responses/InvalidRequest'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/AccessForbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
