@@ -7,7 +7,7 @@ class Service extends BaseService {
     organizationRecord.info_website = organization.info_website;
     organizationRecord.safe_path_json = organization.safe_path_json;
 
-    this.updateMany(id, organization);
+    this.updateMany({ id }, organization);
   }
 }
 

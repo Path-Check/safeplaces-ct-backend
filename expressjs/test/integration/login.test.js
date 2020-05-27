@@ -1,11 +1,14 @@
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
+process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
+const { v4: uuidv4 } = require('uuid');
 const atob = require('atob');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../app');
+
+const mockData = require('../lib/mockData');
 
 chai.use(chaiHttp);
 
@@ -24,14 +27,34 @@ function parseJwt(token) {
   return JSON.parse(jsonPayload);
 }
 
+let newUserParams;
+let currentOrg;
+
+before(async () => {
+  let orgParams = {
+    id: uuidv4(),
+    name: 'My Example Organization',
+    info_website_url: 'http://sample.com',
+  };
+  currentOrg = await mockData.mockOrganization(orgParams);
+
+  newUserParams = {
+    username: 'myAwesomeUser',
+    password: 'myAwesomePassword',
+    email: 'myAwesomeUser@yomanbob.com',
+    organization_id: currentOrg.id,
+  };
+  await mockData.mockUser(newUserParams);
+});
+
 describe('POST /login', function () {
   it('should login on user creds and return map api key', function (done) {
     chai
       .request(server.app)
       .post('/login')
       .send({
-        username: 'admin',
-        password: 'admin',
+        username: newUserParams.username,
+        password: newUserParams.password,
       })
       .end(function (err, res) {
         res.should.have.status(200);
@@ -39,7 +62,7 @@ describe('POST /login', function () {
         res.body.should.have.property('token');
         let parsedJwt = parseJwt(res.body.token);
         parsedJwt.should.have.property('sub');
-        parsedJwt.sub.should.equal('admin');
+        parsedJwt.sub.should.equal(newUserParams.username);
         parsedJwt.should.have.property('iat');
         chai.assert.equal(new Date(parsedJwt.iat * 1000) instanceof Date, true);
         parsedJwt.should.have.property('exp');
@@ -55,7 +78,7 @@ describe('POST /login', function () {
       .request(server.app)
       .post('/login')
       .send({
-        username: 'admin',
+        username: newUserParams.username,
         password: 'wrongpassword',
       })
       .end(function (err, res) {
@@ -72,8 +95,8 @@ describe('POST /login', function () {
       .request(server.app)
       .post('/login')
       .send({
-        username: 'invaliduser',
-        password: 'somepassword',
+        username: 'wronguser',
+        password: newUserParams.password,
       })
       .end(function (err, res) {
         res.should.have.status(401);

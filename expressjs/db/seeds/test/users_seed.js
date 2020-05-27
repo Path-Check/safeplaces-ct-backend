@@ -15,6 +15,7 @@ exports.seed = function (knex) {
         username: 'admin',
         password: password,
         email: 'admin@org.com',
+        is_admin: true,
         maps_api_key: process.env.SEED_MAPS_API_KEY,
       });
     });

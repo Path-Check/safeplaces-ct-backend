@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
+process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const { v4: uuidv4 } = require('uuid');
 const chai = require('chai');
@@ -16,41 +16,43 @@ const jwtSecret = require('../../config/jwtConfig');
 
 chai.use(chaiHttp);
 
-let currentUser;
 let currentOrg;
 let token;
 
-before(async () => {
-  let orgParams = {
-    id: uuidv4(),
-    authority_name: 'My Example Organization',
-    info_website: 'http://sample.com',
-  };
-  currentOrg = await mockData.mockOrganization(orgParams);
-
-  let newUserParams = {
-    username: 'myAwesomeUser',
-    password: 'myAwesomePassword',
-    email: 'myAwesomeUser@yomanbob.com',
-    organization: currentOrg.id,
-  };
-  currentUser = await mockData.mockUser(newUserParams);
-
-  token = jwt.sign(
-    {
-      sub: currentUser.username,
-      iat: ~~(Date.now() / 1000),
-      exp:
-        ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-    },
-    jwtSecret.secret,
-  );
-});
-
 describe('Organization ', () => {
-  describe('GET /organization when DB is empty', () => {
+
+  before(async () => {
+    await mockData.clearMockData()
+    
+    let orgParams = {
+      id: uuidv4(),
+      name: 'My Example Organization',
+      info_website_url: 'http://sample.com',
+    };
+    currentOrg = await mockData.mockOrganization(orgParams);
+  
+    let newUserParams = {
+      username: 'myAwesomeUser',
+      password: 'myAwesomePassword',
+      email: 'myAwesomeUser@yomanbob.com',
+      organization_id: currentOrg.id,
+    };
+    await mockData.mockUser(newUserParams);
+  
+    token = jwt.sign(
+      {
+        sub: newUserParams.username,
+        iat: ~~(Date.now() / 1000),
+        exp:
+          ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
+      },
+      jwtSecret.secret,
+    );
+  });
+
+  describe('GET /organization by id', () => {
     it('find the record just inserted using database', async () => {
-      const results = await organizations.findOne({ id: currentOrg.id });
+      const results = await organizations.fetchById(currentOrg.id);
       results.id.should.equal(currentOrg.id);
     });
 
@@ -66,7 +68,7 @@ describe('Organization ', () => {
 
     it('update the record', async () => {
       const newParams = {
-        authority_name: 'My New Example Name',
+        name: 'My New Example Name',
       };
 
       const results = await chai
@@ -76,7 +78,7 @@ describe('Organization ', () => {
         .set('content-type', 'application/json')
         .send(newParams);
 
-      results.body.authority_name.should.equal(newParams.authority_name);
+      results.body.name.should.equal(newParams.name);
     });
   });
 });

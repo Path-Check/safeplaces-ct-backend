@@ -19,25 +19,23 @@ class PublicationFiles {
    * @return {Object}
    */
   build(organization, record, trails) {
-    if (!organization.apiEndpoint) throw new Error('Your API endpoint is invalid.') 
+    if (!organization.api_endpoint_url) throw new Error('Your API endpoint is invalid.') 
 
-    let endpoint = organization.apiEndpoint
+    let endpoint = organization.api_endpoint_url
     if (endpoint.substr((endpoint.length - 1), 1) !== '/') {
       endpoint = '/'
     }
     this._apiEndpointPage = `${endpoint}[PAGE].json`;
 
-    const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds)
-    // const pages = this._getPaginationInformation(organization, trailsChunked)
+    const trailsChunked = this._chunkTrails(trails, organization.chunking_in_seconds)
     const cursor = this._getCursorInformation(organization, trailsChunked)
     const files = trailsChunked.map(chunk => {
       return {
-        authority_name: organization.authority_name,
+        name: organization.name,
         publish_date_utc: (record.publish_date.getTime() / 1000),
-        info_website: organization.info_website,
-        safe_path_json: organization.safe_path_json,
-        notification_threshold_percent: organization.notificationThresholdPercent,
-        notification_threshold_count: organization.notificationThresholdCount,
+        info_website_url: organization.info_website_url,
+        notification_threshold_percent: organization.notification_threshold_percent,
+        notification_threshold_count: organization.notification_threshold_count,
         concern_point_hashes: this._getPointHashes(chunk),
         page_name: this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
       };
@@ -77,25 +75,6 @@ class PublicationFiles {
   }
 
   // private
-
-  /**
-   * Get all information related to paginating.
-   *
-   * @private
-   * @method _getPaginationInformation
-   * @param {Object} organization
-   * @param {Array} trails
-   * @param {Number} currentPage
-   * @return {Object}
-   */
-  _getPaginationInformation(organization, trails, currentPage) {
-    return {
-      chunkingInSeconds: organization.chunkingInSeconds,
-      totalPages: trails.length,
-      currentPage,
-      endpoints: Array.from(Array(trails.length).keys()).map(page => this._apiEndpointPage.replace('[PAGE]', (page + 1)))
-    }
-  }
 
   /**
    * Get all information related to paginating.

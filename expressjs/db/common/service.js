@@ -31,11 +31,11 @@ class BaseService {
     }
   }
 
-  updateMany(id, params) {
-    if (!id) throw new Error('ID was not provided');
+  updateMany(query, params) {
+    if (!query) throw new Error('Query was not provided');
     if (!params) throw new Error('Params were not provided');
 
-    return knex(this._name).where({ id: id }).update(params).returning('*');
+    return knex(this._name).where(query).update(params).returning('*');
   }
 
   create(params) {
