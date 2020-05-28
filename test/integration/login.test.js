@@ -8,7 +8,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../app');
 const expect = chai.expect;
-const ldapServer = require('../../../ldapjs/index');
+const ldapServer = require('../../ldapjs');
 
 const mockData = require('../lib/mockData');
 
@@ -35,6 +35,7 @@ before(() => {
 
 after(() => {
   ldapServer.close();
+  server.close();
 });
 
 describe('POST /login', function () {
@@ -68,7 +69,7 @@ describe('POST /login', function () {
       .request(server.app)
       .post('/login')
       .send({
-        username: newUserParams.username,
+        username: 'admin',
         password: 'wrongpassword',
       })
       .end(function (err, res) {
@@ -86,7 +87,7 @@ describe('POST /login', function () {
       .post('/login')
       .send({
         username: 'wronguser',
-        password: newUserParams.password,
+        password: 'password',
       })
       .end(function (err, res) {
         expect(res.status).to.equal(401);

@@ -89,6 +89,11 @@ class Server {
     return Promise.fromCallback(cb => this._server.listen(port, cb));
   }
 
+
+  close() {
+    this._server.close();
+  }
+
   /**
    * @method get
    */
