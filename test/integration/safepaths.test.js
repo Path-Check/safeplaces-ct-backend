@@ -2,7 +2,6 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
-const { v4: uuidv4 } = require('uuid');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const jwt = require('jsonwebtoken');
@@ -31,7 +30,6 @@ describe('Safe Path ', function () {
 
   before(async () => {
     let orgParams = {
-      id: uuidv4(),
       name: 'My Example Organization',
       info_website_url: 'http://sample.com',
     };
@@ -246,7 +244,6 @@ describe('Safe Path ', function () {
 
       // Add Org
       let orgParams = {
-        id: uuidv4(),
         name: 'My Example Organization',
         info_website_url: 'http://sample.com',
         chunking_in_seconds: 3600
@@ -310,7 +307,6 @@ describe('Safe Path ', function () {
 
       // Add Org
       let orgParams = {
-        id: uuidv4(),
         name: 'My Example Organization',
         info_website_url: 'http://sample.com',
         chunking_in_seconds: 3600
@@ -371,7 +367,6 @@ describe('Safe Path ', function () {
       await users.deleteAllRows()
       await organizations.deleteAllRows()
       let orgParams = {
-        id: uuidv4(),
         name: 'My Example Organization',
         info_website_url: 'http://sample.com',
       };

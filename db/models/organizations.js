@@ -3,8 +3,17 @@ const { v4: uuidv4 } = require('uuid');
 const knex = require('../knex.js');
 const BaseService = require('../common/service.js');
 const settingsService = require('./settings.js');
+const casesService = require('./cases.js');
 
 class Service extends BaseService {
+
+  /**
+   * Fetch By Organization ID
+   *
+   * @method fetchById
+   * @param {String} id
+   * @return {Object}
+   */
   fetchById(id) {
     if (!id) throw new Error('Filter was not provided');
 
@@ -26,8 +35,16 @@ class Service extends BaseService {
               .first();
   }
 
+  /**
+   * Create an Organization
+   *
+   * @method createOrganization
+   * @param {Object} organization
+   * @param {Object} organization.name
+   * @return {Array}
+   */
   async createOrganization(organization) {
-    if (!organization.name) throw new Error('Filter was not provided');
+    if (!organization.name) throw new Error('Organization Name was not valid');
 
     const validSettings = [
       'info_website_url',
@@ -50,16 +67,72 @@ class Service extends BaseService {
     }
   }
 
-  async update(id, organization) {
-    const orgUpdate = await this.updateOne(id, _.pick(organization, ['name']));
-    if (orgUpdate) {
-      const settingsUpdate = await this.updateOne(id, _.pick(organization, ['info_website_url','info_website_url']));
-      if (settingsUpdate) {
-        return this.fetchById(id)
-      }
+  /**
+   * Update an Organization
+   *
+   * @method updateOrganization
+   * @param {String} id
+   * @param {Object} params
+   * @return {Array}
+   */
+  async updateOrganization(id, params) {
+    if (!id) throw new Error('Organization ID was not valid');
+    if (!params) throw new Error('Params were not valid');
+
+    const results = await this.updateOne(id, params)
+    if (results) {
+      return  this._map(this.fetchById(id))
     }
     throw new Error('Internal server errror.')
   }
+
+  /**
+   * Update an Organization
+   *
+   * @method createOrganization
+   * @param {String} id
+   * @param {Object} organization
+   * @return {Array}
+   */
+  async getCases(id) {
+    const results = await casesService.fetchAll(id)
+    if (results) {
+      return results
+    }
+    throw new Error('Internal server errror.')
+  }
+
+  /**
+   * Delete Organization Case by ID
+   *
+   * @method deleteCase
+   * @param {String} organization_id
+   * @param {String} case_id
+   * @return {Object}
+   */
+  async deleteCase(organization_id, case_id) {
+    if (!organization_id) throw new Error('Organization ID is invalid')
+    if (!case_id) throw new Error('Case ID is invalid')
+    
+    return casesService.deleteOne({ organization_id, id: case_id });
+  }
+
+  /**
+   * Update an Organization
+   *
+   * @private
+   * @method createOrganization
+   * @param {String} id
+   * @param {Object} organization
+   * @return {Array}
+   */
+
+   _map(itm) {
+      delete itm.id
+      delete itm.updated_at
+      delete itm.created_at
+     return itm
+   }
 }
 
 module.exports = new Service('organizations');

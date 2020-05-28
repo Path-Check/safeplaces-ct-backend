@@ -67,13 +67,13 @@ class MockData {
    * Generate Mock Organization
    */
   async mockOrganization(options = {}) {
+    if (options.id) throw new Error('ID is not needed.');
     if (!options.name) throw new Error('Authority Name must be provided');
     if (!options.info_website_url) throw new Error('Info Website must be provided');
 
     const coords = randomCoordinates({ fixed: 5 }).split(',');
 
     let params = {
-      id: uuidv4(),
       info_website_url: 'https://www.wowza.com/',
       reference_website_url: 'https://reference.wowza.com/',
       api_endpoint_url: 'https://api.wowza.com/safe_paths/',
@@ -140,12 +140,11 @@ class MockData {
     if (!options.state) throw new Error('State must be provided.');
 
     const params = {
-      id: uuidv4(),
       state: options.state,
       organization_id: options.organization_id,
     };
 
-    const results = await casesService.create(params);
+    const results = await casesService.createCase(params);
     if (results) {
       return results[0];
     }
