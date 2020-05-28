@@ -13,14 +13,14 @@ name: Deploy SafePlaces ExpressJS to GKE
 on:
   pull_request:
     branches:
-      - dev-mvp
-    paths:
-      - 'expressjs/**/**'
+      - dev
+    # paths:
+    #   - 'expressjs/**/**'
   push:
     branches:
       - tests
-    paths:
-      - 'expressjs/**/**'
+    # paths:
+    #   - 'expressjs/**/**'
 
 # Environment variables available to all jobs and steps in this workflow
 env:
@@ -42,7 +42,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: expressjs
+        # working-directory: expressjs
     steps:
 
     - name: Checkout
