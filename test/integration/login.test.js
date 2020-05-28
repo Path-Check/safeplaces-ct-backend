@@ -7,6 +7,8 @@ const atob = require('atob');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../app');
+const expect = chai.expect;
+const ldapServer = require('../../../ldapjs/index');
 
 const mockData = require('../lib/mockData');
 
@@ -27,24 +29,12 @@ function parseJwt(token) {
   return JSON.parse(jsonPayload);
 }
 
-let newUserParams;
-let currentOrg;
+before(() => {
+  ldapServer.start();
+});
 
-before(async () => {
-  let orgParams = {
-    id: uuidv4(),
-    name: 'My Example Organization',
-    info_website_url: 'http://sample.com',
-  };
-  currentOrg = await mockData.mockOrganization(orgParams);
-
-  newUserParams = {
-    username: 'myAwesomeUser',
-    password: 'myAwesomePassword',
-    email: 'myAwesomeUser@yomanbob.com',
-    organization_id: currentOrg.id,
-  };
-  await mockData.mockUser(newUserParams);
+after(() => {
+  ldapServer.close();
 });
 
 describe('POST /login', function () {
@@ -53,23 +43,23 @@ describe('POST /login', function () {
       .request(server.app)
       .post('/login')
       .send({
-        username: newUserParams.username,
-        password: newUserParams.password,
+        username: 'admin',
+        password: 'password',
       })
       .end(function (err, res) {
-        res.should.have.status(200);
-        res.should.be.json; // jshint ignore:line
-        res.body.should.have.property('token');
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.haveOwnProperty('token');
         let parsedJwt = parseJwt(res.body.token);
-        parsedJwt.should.have.property('sub');
-        parsedJwt.sub.should.equal(newUserParams.username);
-        parsedJwt.should.have.property('iat');
+        expect(parsedJwt).to.haveOwnProperty('sub');
+        expect(parsedJwt.sub).to.equal('admin');
+        expect(parsedJwt).to.haveOwnProperty('iat');
         chai.assert.equal(new Date(parsedJwt.iat * 1000) instanceof Date, true);
-        parsedJwt.should.have.property('exp');
+        expect(parsedJwt).to.haveOwnProperty('exp');
         chai.assert.equal(new Date(parsedJwt.exp * 1000) instanceof Date, true);
-        res.body.should.have.property('maps_api_key');
-        res.body.maps_api_key.should.equal(process.env.SEED_MAPS_API_KEY);
-        done();
+        expect(res.body).to.haveOwnProperty('maps_api_key');
+        expect(res.body.maps_api_key).to.equal(process.env.SEED_MAPS_API_KEY);
+        return done();
       });
   });
 
@@ -82,11 +72,11 @@ describe('POST /login', function () {
         password: 'wrongpassword',
       })
       .end(function (err, res) {
-        res.should.have.status(401);
-        res.should.be.json; // jshint ignore:line
-        res.body.should.have.property('message');
-        res.body.message.should.equal('Invalid credentials.');
-        done();
+        expect(res.status).to.equal(401);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.haveOwnProperty('message');
+        expect(res.body.message).to.equal('Invalid credentials.');
+        return done();
       });
   });
 
@@ -99,11 +89,12 @@ describe('POST /login', function () {
         password: newUserParams.password,
       })
       .end(function (err, res) {
-        res.should.have.status(401);
-        res.should.be.json; // jshint ignore:line
-        res.body.should.have.property('message');
-        res.body.message.should.equal('Invalid credentials.');
-        done();
+        expect(res.status).to.equal(401);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.haveOwnProperty('message');
+        expect(res.body.message).to.equal('Invalid credentials.');
+        return done();
       });
   });
 });
+
