@@ -2,6 +2,8 @@
 const logErrors = () => {
   return (error, req, res) => {
 
+    console.log('SHITE: ', error)
+
     let errorCode = error.statusCode || 500
     let errorMessage = error.message || 'General error.'
   

@@ -3,18 +3,46 @@ const knex = require('../knex.js');
 
 class Service extends BaseService {
 
+  /**
+   * Mark Case Published
+   *
+   * @method publish
+   * @param {String} id
+   * @return {Array}
+   */
   publish(id) {
     return this.updateState(id, 'published');
   }
 
+  /**
+   * Mark Case Staging
+   *
+   * @method stage
+   * @param {String} id
+   * @return {Array}
+   */
   stage(id) {
     return this.updateState(id, 'staging');
   }
 
+  /**
+   * Mark Case Unpublished
+   *
+   * @method stage
+   * @param {String} id
+   * @return {Array}
+   */
   unpublish(id) {
-    return this.updateState(id, 'staging');
+    return this.updateState(id, 'unpublished');
   }
 
+  /**
+   * Create Case
+   *
+   * @method stage
+   * @param {String} id
+   * @return {Array}
+   */
   async createCase(options = null) {
     if (!options.organization_id) throw new Error('Organization ID is invalid')
 
