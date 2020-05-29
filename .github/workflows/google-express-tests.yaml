@@ -8,19 +8,19 @@
 #
 # 3. Change the values for the GKE_ZONE, GKE_CLUSTER, IMAGE, REGISTRY_HOSTNAME and DEPLOYMENT_NAME environment variables (below).
 
-name: Deploy SafePlaces ExpressJS to GKE
+name: Test SafePlaces ExpressJS Backend
 
 on:
   pull_request:
     branches:
-      - dev-mvp
-    paths:
-      - 'expressjs/**/**'
+      - dev
+    # paths:
+    #   - 'expressjs/**/**'
   push:
     branches:
       - tests
-    paths:
-      - 'expressjs/**/**'
+    # paths:
+    #   - 'expressjs/**/**'
 
 # Environment variables available to all jobs and steps in this workflow
 env:
@@ -37,12 +37,12 @@ env:
 
 jobs:
   build-push-artifact:
-    name: Setup, Build, Publish, and Deploy
+    name: Build/Publish Safeplaces Container to GCR
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-        working-directory: expressjs
+        # working-directory: expressjs
     steps:
 
     - name: Checkout

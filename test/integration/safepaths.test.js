@@ -1,9 +1,8 @@
-// Keeping this here as reference for now.
-
 // process.env.NODE_ENV = 'test';
 // process.env.DATABASE_URL =
 // process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
+// const { v4: uuidv4 } = require('uuid');
 // const chai = require('chai');
 // const chaiHttp = require('chai-http');
 // const jwt = require('jsonwebtoken');
@@ -15,7 +14,7 @@
 // const server = require('../../app');
 // const users = require('../../db/models/users');
 // const organizations = require('../../db/models/organizations');
-// const pointsService = require('../../db/models/points');
+// const trails = require('../../db/models/trails');
 // const publications = require('../../db/models/publications');
 // const cases = require('../../db/models/cases');
 
@@ -32,6 +31,7 @@
 
 //   before(async () => {
 //     let orgParams = {
+//       id: uuidv4(),
 //       name: 'My Example Organization',
 //       info_website_url: 'http://sample.com',
 //     };
@@ -78,7 +78,7 @@
 //         },
 //       ];
       
-//       await pointsService.insertRedactedTrailSet(trail, mockCase.id);
+//       await trails.insertRedactedTrailSet(trail, mockCase.id);
 
 //       const  publicationParams = {
 //         organization_id: currentOrg.id,
@@ -91,7 +91,7 @@
 
 //     after(async function () {
 //       await cases.deleteAllRows();
-//       await pointsService.deleteAllRows();
+//       await trails.deleteAllRows();
 //       await publications.deleteAllRows();
 //     });
 
@@ -100,6 +100,7 @@
 //         .request(server.app)
 //         .get(`/safe_path/${currentOrg.id}`)
 //         .end(function (err, res) {
+//           // console.log(res.text)
 //           res.should.have.status(200);
 //           res.should.be.json; // jshint ignore:line
 //           res.body.should.be.a('object');
@@ -138,12 +139,12 @@
 //           time: 123456789,
 //         },
 //       ];
-//       await pointsService.insertRedactedTrailSet(trail, mockCase.id);
+//       await trails.insertRedactedTrailSet(trail, mockCase.id);
 //     });
 
 //     after(async function () {
 //       await cases.deleteAllRows();
-//       await pointsService.deleteAllRows();
+//       await trails.deleteAllRows();
 //     });
 
 //     it('return an organization`s safe paths as empty', function (done) {
@@ -232,7 +233,7 @@
 
 //     after(async function () {
 //       await cases.deleteAllRows();
-//       await pointsService.deleteAllRows();
+//       await trails.deleteAllRows();
 //       await publications.deleteAllRows();
 //     });
 
@@ -245,6 +246,7 @@
 
 //       // Add Org
 //       let orgParams = {
+//         id: uuidv4(),
 //         name: 'My Example Organization',
 //         info_website_url: 'http://sample.com',
 //         chunking_in_seconds: 3600
@@ -295,7 +297,7 @@
 
 //     after(async function () {
 //       await cases.deleteAllRows();
-//       await pointsService.deleteAllRows();
+//       await trails.deleteAllRows();
 //       await publications.deleteAllRows();
 //     });
 
@@ -308,6 +310,7 @@
 
 //       // Add Org
 //       let orgParams = {
+//         id: uuidv4(),
 //         name: 'My Example Organization',
 //         info_website_url: 'http://sample.com',
 //         chunking_in_seconds: 3600
@@ -357,7 +360,7 @@
 //     });
 
 //     after(async function () {
-//       await pointsService.deleteAllRows();
+//       await trails.deleteAllRows();
 //       await publications.deleteAllRows();
 //     });
 
@@ -368,6 +371,7 @@
 //       await users.deleteAllRows()
 //       await organizations.deleteAllRows()
 //       let orgParams = {
+//         id: uuidv4(),
 //         name: 'My Example Organization',
 //         info_website_url: 'http://sample.com',
 //       };
@@ -406,7 +410,7 @@
 
 //     after(async function () {
 //       await cases.deleteAllRows();
-//       await pointsService.deleteAllRows();
+//       await trails.deleteAllRows();
 //       await publications.deleteAllRows();
 //     });
 

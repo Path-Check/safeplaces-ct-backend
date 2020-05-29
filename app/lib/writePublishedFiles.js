@@ -15,6 +15,7 @@ const fs = require('fs')
  */
 
 const writePublishedFiles = async (pages, baseLocation) => {
+  
   const mkdir = path => {
     return new Promise((resolve, reject) => {
       fs.mkdir(path, { recursive: true }, err => {
