@@ -72,8 +72,6 @@ exports.fetchOrganizationCases = async (req, res) => {
 
 /**
  * @method createOrganizationCase
- *
- * TODO: Build
  * 
  * Create cases associated with organization.
  * Organization is pulled from the user.
