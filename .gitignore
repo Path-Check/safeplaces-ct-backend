@@ -75,3 +75,5 @@ tests/tests/newman/*.html
 newman-results.json
 
 Makefile
+
+google_service_account.json

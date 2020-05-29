@@ -6,6 +6,7 @@ const publicationsService = require('../../../db/models/publications');
 const utils = require('../../lib/utils');
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
+const writeToGCSBucket = require('../../lib/writeToGCSBucket');
 
 /**
  * @method fetchCasePoints
@@ -98,6 +99,13 @@ exports.setCaseToStaging = async (req, res) => {
  * DONE  -Figure out start and end dates for trails.
  * DONE - Create Publication
  * DONE - Build Files
+ * 
+ * Many options when talking about response, and it's all triggered by passing in the type query param.
+ * By default, we will write to a GCS bucket.  Other options include, that do not work in production:
+ * 
+ * zip = Return a zip file
+ * json = Return a JSON payload of what goes into the files that are generated
+ * local = Save to local server environment
  *
  */
 exports.publishCases = async (req, res) => {
@@ -123,7 +131,7 @@ exports.publishCases = async (req, res) => {
       } 
       const publication = await publicationsService.insert(publicationParams);
       if (publication) {
-        if (type === 'zip') {
+        if (type === 'zip' && process.env.NODE_ENV !== 'production') {
           let data = await publicationFiles.buildAndZip(organization, publication, points)
           res.status(200)
             .set({
@@ -132,17 +140,28 @@ exports.publishCases = async (req, res) => {
               'Content-Length': data.length
             })
             .send(data)
-        } else if (type === 'json') {
-          let response = publicationFiles.build(organization, publication, points)
-          res.status(200).json(response);
-        }
-  
-        let pages = publicationFiles.build(organization, publication, points)
-        
-        const results = await writePublishedFiles(pages, '/tmp/trails')
-        if (results) {
-          let cases = publishResults.map(itm => casesService._mapCase(itm))
-          res.status(200).json({ cases });
+        } else {
+          let pages = publicationFiles.build(organization, publication, points)
+
+          if (process.env.NODE_ENV !== 'production') {
+            if (type === 'json') {
+              res.status(200).json(pages);
+            } else if (type === 'local') {
+              const results = await writePublishedFiles(pages, '/tmp/trails')
+              if (results) {
+                let cases = publishResults.map(itm => casesService._mapCase(itm))
+                res.status(200).json({ cases });
+              }
+              throw new Error('Files could not be written.');
+            }
+          }
+
+          // By default, write to GCS Bucket
+          const results = await writeToGCSBucket(pages)
+          if (results) {
+            let cases = publishResults.map(itm => casesService._mapCase(itm))
+            res.status(200).json({ cases });
+          }
         }
         throw new Error('Files could not be written.');
       }

@@ -14,7 +14,7 @@ const fs = require('fs')
  * @return {Boolean}
  */
 
-const writePublishedFiles = async (pages, baseLocation) => {
+module.exports = async (pages, baseLocation) => {
   
   const mkdir = path => {
     return new Promise((resolve, reject) => {
@@ -47,5 +47,3 @@ const writePublishedFiles = async (pages, baseLocation) => {
     throw new Error('Could not create directory.')
   }
 };
-
-module.exports = writePublishedFiles;
