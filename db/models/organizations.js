@@ -14,10 +14,10 @@ class Service extends BaseService {
    * @param {String} id
    * @return {Object}
    */
-  fetchById(id) {
+  async fetchById(id) {
     if (!id) throw new Error('Filter was not provided');
 
-    return knex(this._name)
+    const org = await knex(this._name)
               .select(
                 'organizations.id AS id',
                 'organizations.name',
@@ -28,11 +28,16 @@ class Service extends BaseService {
                 'settings.notification_threshold_percent',
                 'settings.notification_threshold_count',
                 'settings.chunking_in_seconds',
-                'settings.days_to_retain_records'
+                'settings.days_to_retain_records',
+                'settings.privacy_policy_url'
               )
               .join('settings', 'organizations.id', '=', 'settings.organization_id')
               .where({ 'organizations.id': id })
               .first();
+    if (org) {
+      return this._map(org);
+    }
+    throw new Error('Problem fetching the organization.');
   }
 
   /**
@@ -81,7 +86,7 @@ class Service extends BaseService {
 
     const results = await this.updateOne(id, params)
     if (results) {
-      return  this._map(this.fetchById(id))
+      return this.fetchById(id)
     }
     throw new Error('Internal server errror.')
   }
@@ -118,20 +123,29 @@ class Service extends BaseService {
   }
 
   /**
-   * Update an Organization
+   * Map Organization
    *
    * @private
-   * @method createOrganization
+   * @method _map
    * @param {String} id
    * @param {Object} organization
    * @return {Array}
    */
 
    _map(itm) {
-      delete itm.id
-      delete itm.updated_at
-      delete itm.created_at
-     return itm
+      return {
+        id: itm.id,
+        name: itm.name,
+        infoWebsiteUrl: itm.info_website_url || '',
+        referenceWebsiteUrl: itm.reference_website_url || '',
+        apiEndpointUrl: itm.api_endpoint_url || '',
+        privacyPolicyUrl: itm.privacy_policy_url || '',
+        regionCoordinates: itm.region_coordinates,
+        notificationThresholdPercent: itm.notification_threshold_percent,
+        notificationThresholdCount: itm.notification_threshold_count,
+        chunkingInSeconds: itm.chunking_in_seconds,
+        daysToRetainRecords: itm.days_to_retain_records
+      }
    }
 }
 

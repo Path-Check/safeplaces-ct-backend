@@ -227,7 +227,7 @@ describe('Case', () => {
         .set('Authorization', `${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
@@ -255,8 +255,8 @@ describe('Case', () => {
         .set('Authorization', `${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
-      let pageEndpoint = `${currentOrg.api_endpoint_url}[PAGE].json`
+
+      let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
       
       results.error.should.be.false;
       results.should.have.status(200);
@@ -274,7 +274,7 @@ describe('Case', () => {
       firstChunk.should.have.property('info_website_url');
       firstChunk.should.have.property('publish_date_utc');
       firstChunk.name.should.equal(currentOrg.name);
-      firstChunk.info_website_url.should.equal(currentOrg.info_website_url);
+      firstChunk.info_website_url.should.equal(currentOrg.infoWebsiteUrl);
 
       firstChunk.concern_point_hashes.should.be.a('array');
       firstChunk.concern_point_hashes.length.should.equal(30);

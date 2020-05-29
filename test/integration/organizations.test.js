@@ -88,12 +88,13 @@ describe('Organization ', () => {
       results.should.have.status(200);
       results.body.should.be.a('object');
       results.body.name.should.equal(newParams.name);
-      results.body.info_website_url.should.equal(currentOrg.info_website_url);
-      results.body.reference_website_url.should.equal(currentOrg.reference_website_url);
-      results.body.api_endpoint_url.should.equal(currentOrg.api_endpoint_url);
-      results.body.notification_threshold_percent.should.equal(currentOrg.notification_threshold_percent);
-      results.body.notification_threshold_count.should.equal(currentOrg.notification_threshold_count);
-      results.body.days_to_retain_records.should.equal(currentOrg.days_to_retain_records);
+      results.body.infoWebsiteUrl.should.equal(currentOrg.infoWebsiteUrl);
+      results.body.referenceWebsiteUrl.should.equal(currentOrg.referenceWebsiteUrl);
+      results.body.apiEndpointUrl.should.equal(currentOrg.apiEndpointUrl);
+      results.body.notificationThresholdPercent.should.equal(currentOrg.notificationThresholdPercent);
+      results.body.notificationThresholdCount.should.equal(currentOrg.notificationThresholdCount);
+      results.body.daysToRetainRecords.should.equal(currentOrg.daysToRetainRecords);
+      results.body.privacyPolicyUrl.should.equal(currentOrg.privacyPolicyUrl);
     });
 
     it('fetch the organizations cases', async () => {
@@ -117,29 +118,6 @@ describe('Organization ', () => {
       firstChunk.should.have.property('updated_at');
       firstChunk.updated_at.should.be.a('string')
     });
-
-    // it('create the record', async () => {
-    //   const newParams = {
-    //     name: 'My New Example Name',
-    //   };
-
-    //   const results = await chai
-    //     .request(server.app)
-    //     .put(`/organization/configuration`)
-    //     .set('Authorization', `${token}`)
-    //     .set('content-type', 'application/json')
-    //     .send(newParams);
-
-    //   results.should.have.status(200);
-    //   results.body.should.be.a('object');
-    //   results.body.name.should.equal(newParams.name);
-    //   results.body.info_website_url.should.equal(currentOrg.info_website_url);
-    //   results.body.reference_website_url.should.equal(currentOrg.reference_website_url);
-    //   results.body.api_endpoint_url.should.equal(currentOrg.api_endpoint_url);
-    //   results.body.notification_threshold_percent.should.equal(currentOrg.notification_threshold_percent);
-    //   results.body.notification_threshold_count.should.equal(currentOrg.notification_threshold_count);
-    //   results.body.days_to_retain_records.should.equal(currentOrg.days_to_retain_records);
-    // });
 
     it('delete the record', async () => {
       const newParams = {

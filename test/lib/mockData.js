@@ -147,7 +147,7 @@ class MockData {
 
     const organization = await organizationService.fetchById(options.organization_id)
     if (organization) {
-      if (!params.expires_at) params.expires_at = new Date().getTime() + ((organization.days_to_retain_records * (60 * 60 * 24)) * 1000);
+      if (!params.expires_at) params.expires_at = new Date().getTime() + ((organization.daysToRetainRecords * (60 * 60 * 24)) * 1000);
       const results = await casesService.createCase(params);
       if (results) {
         return results[0];
