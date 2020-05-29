@@ -42,6 +42,32 @@ class Service extends BaseService {
     }
     throw new Error('Could not create hash.')
   }
+
+  /**
+   * Format a given poiint to a stored redacted point.
+   *
+   * @method updateRedactedPoint
+   * @param {String} point_id
+   * @param {Float} point.longitude
+   * @param {Float} point.latitude
+   * @param {Timestamp} point.time
+   * @return {Object}
+   */
+  async updateRedactedPoint(point_id, point) {
+    let record = {};
+    let hash = await geoHash.encrypt(point)
+    if (hash) {
+      record.hash = hash.encodedString
+      record.coordinates = st.setSRID(
+        st.makePoint(point.longitude, point.latitude), 4326);
+      record.time = new Date(point.time);
+      const points = await this.updateOne(point_id, record);
+      if (points) {
+        return this._getRedactedPoints([points]).shift()
+      }
+    }
+    throw new Error('Could not create hash.')
+  }
   
   // private
 
@@ -72,16 +98,16 @@ class Service extends BaseService {
     return redactedTrail;
   }
 
-  findInterval(publication) {
-    if (!publication.id) throw new Error('Publication ID is invalid');
-    if (!publication.start_date) throw new Error('Start date is invalid');
-    if (!publication.end_date) throw new Error('Start date is invalid');
+  // findInterval(publication) {
+  //   if (!publication.id) throw new Error('Publication ID is invalid');
+  //   if (!publication.start_date) throw new Error('Start date is invalid');
+  //   if (!publication.end_date) throw new Error('Start date is invalid');
 
-    return knex(this._name)
-      .whereIn('case_id', publication.cases)
-      .where('time', '>=', new Date(publication.start_date))
-      .where('time', '<=', new Date(publication.end_date));
-  }
+  //   return knex(this._name)
+  //     .whereIn('case_id', publication.cases)
+  //     .where('time', '>=', new Date(publication.start_date))
+  //     .where('time', '<=', new Date(publication.end_date));
+  // }
 
   async findIntervalCases(publication) {
     if (!publication.start_date) throw new Error('Start date is invalid');

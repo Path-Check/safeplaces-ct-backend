@@ -169,13 +169,16 @@ class MockData {
       expires_at: options.expires_at
     };
     let newCase = await this.mockCase(caseParams)
+    newCase.points = [];
 
     // Add Points
     let trailsParams = {
       caseId: newCase.id
     }
-    await this.mockTrails(options.number_of_trails, options.seconds_apart, trailsParams)
-
+    const points = await this.mockTrails(options.number_of_trails, options.seconds_apart, trailsParams)
+    if (points) {
+      newCase.points = newCase.points.concat(points);
+    }
     return newCase
   }
 

@@ -214,7 +214,7 @@ describe('Case', () => {
       caseThree = await mockData.mockCaseAndTrails(params)
     });
       
-    it.only('returns multiple published cases', async () => {
+    it('returns multiple published cases', async () => {
       const newParams = {
         caseIds: [caseOne.id, caseTwo.id, caseThree.id],
       };
@@ -225,7 +225,7 @@ describe('Case', () => {
         .set('Authorization', `${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        console.log(results.error)
+        
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
