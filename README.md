@@ -14,6 +14,16 @@ Safeplaces is a toolkit for public health, built on top of data shared by users 
 The project is still under development and will reach a Minimum Viable Product (MVP) stage soon.  
 *Note*: There can be breaking changes to the developing code until the MVP is released.
 
+## Google Cloud Storage (GCS)
+
+To get tests to fully run you will need to add GCS credentials.  These credentials go into the environment variables. If these environment variables are not set, then it will simply write to disc so that the tests pass.
+
+```
+GOOGLE_APPLICATION_CREDENTIALS='google_service_account.json'
+GOOGLE_CLOUD_PROJECT=something
+GCLOUD_STORAGE_BUCKET=somethingOrOther
+```
+
 ## Deployment
 
   

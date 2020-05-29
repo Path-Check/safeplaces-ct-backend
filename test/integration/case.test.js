@@ -15,6 +15,8 @@ const pointsService = require('../../db/models/points');
 
 const jwtSecret = require('../../config/jwtConfig');
 
+const type = (process.env.GOOGLE_APPLICATION_CREDENTIALS) ? 'default' : 'local';
+
 chai.use(chaiHttp);
 
 let currentOrg, currentCase, token;
@@ -214,14 +216,14 @@ describe('Case', () => {
       caseThree = await mockData.mockCaseAndTrails(params)
     });
       
-    it('returns multiple published cases', async () => {
+    it(`returns multiple published cases (${type})`, async () => {
       const newParams = {
         caseIds: [caseOne.id, caseTwo.id, caseThree.id],
       };
 
       const results = await chai
         .request(server.app)
-        .post(`/cases/publish`)
+        .post(`/cases/publish?type=${type}`)
         .set('Authorization', `${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
@@ -315,14 +317,14 @@ describe('Case', () => {
       caseThree = await mockData.mockCaseAndTrails(_.extend(params, { state: 'staging', expires_at: null }))
     });
       
-    it('returns only 2 of the 3 cases entered', async () => {
+    it(`returns only 2 of the 3 cases entered (${type})`, async () => {
       const newParams = {
         caseIds: [caseTwo.id, caseThree.id],
       };
 
       const results = await chai
         .request(server.app)
-        .post(`/cases/publish`)
+        .post(`/cases/publish?type=${type}`)
         .set('Authorization', `${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
