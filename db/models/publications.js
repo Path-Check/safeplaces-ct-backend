@@ -2,7 +2,7 @@ const _ = require('lodash');
 const knex = require('../knex.js');
 const BaseService = require('../common/service.js');
 const casesService = require('./cases');
-const trailsService = require('./trails');
+const pointsService = require('./points');
 
 class Service extends BaseService {
 
@@ -34,7 +34,7 @@ class Service extends BaseService {
     const results = await knex(this._name).insert(publication).returning('*');
     if (results) {
       
-      let intervalCheck = await trailsService.findIntervalCases(results[0])
+      let intervalCheck = await pointsService.findIntervalCases(results[0])
       if (intervalCheck.length > 0) {
         const casesUpdateResults = await casesService.updateCasePublicationId(intervalCheck, results[0].id)
         if (!casesUpdateResults) {

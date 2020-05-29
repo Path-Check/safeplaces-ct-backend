@@ -6,7 +6,7 @@ const randomCoordinates = require('random-coordinates');
 const organizationService = require('../../db/models/organizations');
 const settingsService = require('../../db/models/settings');
 const usersService = require('../../db/models/users');
-const trailsService = require('../../db/models/trails');
+const pointsService = require('../../db/models/points');
 const publicationService = require('../../db/models/publications');
 const casesService = require('../../db/models/cases');
 
@@ -22,7 +22,7 @@ class MockData {
     await organizationService.deleteAllRows()
     await settingsService.deleteAllRows()
     await usersService.deleteAllRows()
-    await trailsService.deleteAllRows()
+    await pointsService.deleteAllRows()
     await publicationService.deleteAllRows()
     await casesService.deleteAllRows()
   }
@@ -103,8 +103,8 @@ class MockData {
     if (!options.caseId) throw new Error('Case ID must be provided');
 
     let trails = this._generateTrailsData(numberOfTrails, timeIncrementInSeconds)
-
-    let results = await trailsService.insertRedactedTrailSet(
+    
+    let results = await pointsService.insertRedactedTrailSet(
       trails,
       options.caseId
     );
@@ -142,19 +142,47 @@ class MockData {
     const params = {
       state: options.state,
       organization_id: options.organization_id,
+      expires_at: options.expires_at
     };
 
-    const results = await casesService.createCase(params);
-    if (results) {
-      return results[0];
+    const organization = await organizationService.fetchById(options.organization_id)
+    if (organization) {
+      if (!params.expires_at) params.expires_at = new Date().getTime() + ((organization.days_to_retain_records * (60 * 60 * 24)) * 1000);
+      const results = await casesService.createCase(params);
+      if (results) {
+        return results[0];
+      }
     }
+
     throw new Error('Problem adding the case.');
+  }
+
+  async mockCaseAndTrails(options = {}) {
+    if (!options.organization_id) throw new Error('Organization ID must be provided.');
+    if (!options.number_of_trails) throw new Error('Number of trails is invalid.');
+    if (!options.seconds_apart) throw new Error('Seconds Apart is invalid.');
+    if (!options.state) throw new Error('State is invalid.');
+    
+    let caseParams = {
+      organization_id: options.organization_id,
+      state: options.state,
+      expires_at: options.expires_at
+    };
+    let newCase = await this.mockCase(caseParams)
+
+    // Add Points
+    let trailsParams = {
+      caseId: newCase.id
+    }
+    await this.mockTrails(options.number_of_trails, options.seconds_apart, trailsParams)
+
+    return newCase
   }
 
   // private
 
-  _generateTrailsData(numberOfTrails, timeIncrementInSeconds) {
-    let coordTime = Math.floor(new Date().getTime() / 1000);
+  _generateTrailsData(numberOfTrails, timeIncrementInSeconds, startAt = new Date().getTime()) {
+    let coordTime = Math.floor(startAt / 1000);
     return Array(numberOfTrails).fill("").map(() => {
       coordTime = coordTime - timeIncrementInSeconds;
       const coords = randomCoordinates({fixed: 5}).split(',');

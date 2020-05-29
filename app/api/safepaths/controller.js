@@ -1,5 +1,5 @@
 const _ = require('lodash')
-const trails = require('../../../db/models/trails');
+const pointsService = require('../../../db/models/points');
 const organizations = require('../../../db/models/organizations');
 const publications = require('../../../db/models/publications');
 const publicationFiles = require('../../lib/publicationFiles');
@@ -24,9 +24,9 @@ exports.fetchSafePaths = async (req, res) => {
       return res.status(204).send('');
     }
 
-    const trailsRecords = await trails.findInterval(publication);
+    const trailsRecords = await pointsService.findInterval(publication);
     if (trailsRecords) {
-      const intervalTrails = trails.getRedactedTrailFromRecord(trailsRecords);
+      const intervalTrails = pointsService.getRedactedTrailFromRecord(trailsRecords);
       
       if (type === 'zip') {
         let data = await publicationFiles.buildAndZip(organization, publication, intervalTrails)
@@ -79,9 +79,9 @@ exports.createSafePath = async (req, res) => {
     const publication = await publications.insert(publicationParams);
     if (publication) {
       response.datetime_created = publication.created_at;
-      const trailsRecords = await trails.findInterval(publication);
+      const trailsRecords = await pointsService.findInterval(publication);
       if (trailsRecords) {
-        const intervalTrails = trails.getRedactedTrailFromRecord(trailsRecords);
+        const intervalTrails = pointsService.getRedactedTrailFromRecord(trailsRecords);
         response.safe_path = publicationFiles.build(organization, publication, intervalTrails)
         res.status(200).json(response);
       } else {
@@ -94,6 +94,5 @@ exports.createSafePath = async (req, res) => {
   } else {
     res.status(500).json({ message: 'Internal Server Error (2)' });
   }
-
   
 };
