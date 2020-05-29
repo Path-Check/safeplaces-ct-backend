@@ -5,10 +5,10 @@ const controller = require('./controller');
 
 server.put(
   '/point',
-  server.wrapAsync(async (req, res) => await controller.updatePoint(req, res)),
+  server.wrapAsync(async (req, res) => await controller.updatePoint(req, res), true),
 );
 
 server.delete(
   '/point',
-  server.wrapAsync(async (req, res) => await controller.deletePoint(req, res)),
+  server.wrapAsync(async (req, res) => await controller.deletePoint(req, res), true),
 );
