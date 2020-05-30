@@ -6,6 +6,8 @@ const users = require('../../db/models/users');
 const ldap = require('ldapjs');
 const CustomStrategy = require('passport-custom').Strategy;
 
+const ldapServerUrl = `ldap://${process.env.LDAP_HOST}:${process.env.LDAP_PORT}`;
+
 const opts = {
   jwtFromRequest: ExtractJWT.fromHeader('authorization'),
   secretOrKey: jwtSecret.secret,
@@ -34,7 +36,15 @@ const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
 passport.use('jwt', jwtStrategy);
 
 const ldapClient = ldap.createClient({
-  url: 'ldap://127.0.0.1:1389',
+  url: ldapServerUrl,
+});
+
+ldapClient.on('error', err => {
+  if (err.message.startsWith('connect ECONNREFUSED')) {
+    throw new Error(`LDAP server not found at ${ldapServerUrl}. Please start the server to enable authentication. For more information, see /ldapjs/README.`);
+  } else {
+    console.error(err);
+  }
 });
 
 ldapClient.bind('cn=root', process.env.DB_PASS, err => {

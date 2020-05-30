@@ -65,13 +65,6 @@ server.search('o=safeplaces', pre, function(req, res, next) {
   return next(new Error('Not found'));
 });
 
-module.exports = {
-  start: () => {
-    server.listen(1389, function() {
-      console.log('ldapjs listening at ' + server.url);
-    });
-  },
-  close: () => {
-    server.close();
-  },
-};
+server.listen(1389, function() {
+  console.log('ldapjs listening at ' + server.url);
+});
