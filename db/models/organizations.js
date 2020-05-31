@@ -29,7 +29,8 @@ class Service extends BaseService {
                 'settings.notification_threshold_count',
                 'settings.chunking_in_seconds',
                 'settings.days_to_retain_records',
-                'settings.privacy_policy_url'
+                'settings.privacy_policy_url',
+                'settings.completed_onboarding'
               )
               .join('settings', 'organizations.id', '=', 'settings.organization_id')
               .where({ 'organizations.id': id })
@@ -144,7 +145,8 @@ class Service extends BaseService {
         notificationThresholdPercent: itm.notification_threshold_percent,
         notificationThresholdCount: itm.notification_threshold_count,
         chunkingInSeconds: itm.chunking_in_seconds,
-        daysToRetainRecords: itm.days_to_retain_records
+        daysToRetainRecords: itm.days_to_retain_records,
+        completedOnboarding: itm.completed_onboarding
       }
    }
 }

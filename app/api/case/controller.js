@@ -50,6 +50,9 @@ exports.createCasePoint = async (req, res) => {
 /**
  * @method consentToPublish
  *
+ * TODO: Currently in "Needs Confirmation" state in the API spec.
+ * Will handle once Confirmed.
+ * 
  * Captures user consent to having their data published in the 
  * aggregated anonymized JSON file that is available to public.
  *

@@ -95,6 +95,7 @@ describe('Organization ', () => {
       results.body.notificationThresholdCount.should.equal(currentOrg.notificationThresholdCount);
       results.body.daysToRetainRecords.should.equal(currentOrg.daysToRetainRecords);
       results.body.privacyPolicyUrl.should.equal(currentOrg.privacyPolicyUrl);
+      results.body.completedOnboarding.should.equal(false);
     });
 
     it('fetch the organizations cases', async () => {
