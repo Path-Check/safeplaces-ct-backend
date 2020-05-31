@@ -21,6 +21,7 @@ class Service extends BaseService {
               .select(
                 'organizations.id AS id',
                 'organizations.name',
+                'organizations.completed_onboarding',
                 'settings.info_website_url',
                 'settings.reference_website_url',
                 'settings.api_endpoint_url',
@@ -29,8 +30,7 @@ class Service extends BaseService {
                 'settings.notification_threshold_count',
                 'settings.chunking_in_seconds',
                 'settings.days_to_retain_records',
-                'settings.privacy_policy_url',
-                'settings.completed_onboarding'
+                'settings.privacy_policy_url'
               )
               .join('settings', 'organizations.id', '=', 'settings.organization_id')
               .where({ 'organizations.id': id })
