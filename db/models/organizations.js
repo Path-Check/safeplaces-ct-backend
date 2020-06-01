@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const { v4: uuidv4 } = require('uuid');
-const knex = require('../knex.js');
 const BaseService = require('../common/service.js');
 const settingsService = require('./settings.js');
 const casesService = require('./cases.js');
@@ -17,7 +16,7 @@ class Service extends BaseService {
   async fetchById(id) {
     if (!id) throw new Error('Filter was not provided');
 
-    const org = await knex(this._name)
+    const org = await this.table
               .select(
                 'organizations.id AS id',
                 'organizations.name',
@@ -119,7 +118,7 @@ class Service extends BaseService {
   async deleteCase(organization_id, case_id) {
     if (!organization_id) throw new Error('Organization ID is invalid')
     if (!case_id) throw new Error('Case ID is invalid')
-    
+
     return casesService.deleteOne({ organization_id, id: case_id });
   }
 

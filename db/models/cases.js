@@ -1,5 +1,4 @@
 const BaseService = require('../common/service.js');
-const knex = require('../knex.js');
 
 const pointsService = require('./points');
 
@@ -18,17 +17,17 @@ class Service extends BaseService {
     if (!case_ids.length) throw new Error('Case IDs length is zero')
     if (!organization_id) throw new Error('Organization ID is not valid')
 
-    const results = await knex(this._name)
+    const results = await this.table
       .whereIn('id', case_ids)
       .where('organization_id', organization_id)
       .where('state', 'staging');
     if (results.length === case_ids.length) {
-      const updateResults = await knex(this._name)
+      const updateResults = await this.table
               .whereIn('id', case_ids)
               .update({ state: 'published' })
               .returning('*');
       if (updateResults) {
-        return knex(this._name)
+        return this.table
                 .where('state', 'published')
                 .where('expires_at', '>', new Date())
                 .returning('*');
@@ -99,7 +98,7 @@ class Service extends BaseService {
    * @return {Array}
    */
   fetchAll(organization_id) {
-    return knex(this._name).where({ organization_id }).orderBy('created_at', 'desc').returning('*');
+    return this.table.where({ organization_id }).orderBy('created_at', 'desc').returning('*');
   }
 
   /**
@@ -114,7 +113,7 @@ class Service extends BaseService {
     if (!ids.length === 0) throw new Error('IDs have an invalid length')
     if (!publication_id) throw new Error('Publication ID is invalid')
 
-    return knex(this._name).whereIn('id', ids).update({ publication_id })
+    return this.table.whereIn('id', ids).update({ publication_id })
   }
 
   /**
@@ -162,7 +161,7 @@ class Service extends BaseService {
    * @return {Object}
    */
   async fetchAllPublishedPoints() {
-    const points = await knex(this._name)
+    const points = await this.table
               .select(
                 'cases.id AS caseId',
                 'publications.publish_date',
@@ -211,7 +210,7 @@ class Service extends BaseService {
    * @return {Array}
    */
   async getNextId(organization_id) {
-    const caseResults = await knex(this._name).where({ organization_id }).orderBy('created_at', 'desc').first();
+    const caseResults = await this.table.where({ organization_id }).orderBy('created_at', 'desc').first();
     if (caseResults) {
       return (caseResults.id + 1);
     }

@@ -1,31 +1,33 @@
 const knex = require('../knex.js');
 
 class BaseService {
-  constructor(name) {
+  constructor(name, scope /* private or public */) {
     this._name = name;
+    this._scope = (scope || 'private');
   }
 
   all() {
-    return knex(this._name).select();
+    return this.table.select();
   }
 
   find(query) {
     if (!query) throw new Error('Filter was not provided');
 
-    return knex(this._name).where(query);
+    return this.table.where(query);
   }
 
   findOne(query) {
     if (!query) throw new Error('Filter was not provided');
 
-    return knex(this._name).where(query).first();
+    return this.table.where(query).first();
   }
 
   async updateOne(id, params) {
     if (!id) throw new Error('ID was not provided');
     if (!params) throw new Error('Params were not provided');
 
-    let results = await knex(this._name).where({ id: id }).update(params).returning('*');
+    const results = await this.table.where({ id: id }).update(params).returning('*');
+
     if (results) {
       return results[0]
     }
@@ -35,27 +37,31 @@ class BaseService {
     if (!query) throw new Error('Query was not provided');
     if (!params) throw new Error('Params were not provided');
 
-    return knex(this._name).where(query).update(params).returning('*');
+    return this.table.where(query).update(params).returning('*');
   }
 
   create(params) {
     if (!params) throw new Error('Params were not provided');
 
-    return knex(this._name).insert(params).returning('*');
+    return this.table.insert(params).returning('*');
   }
 
   deleteOne(query) {
     if (!query) throw new Error('Query was not provided');
-    
-    return knex(this._name).where(query).del();
+
+    return this.table.where(query).del();
   }
 
   deleteAllRows() {
-    return knex(this._name).del();
+    return this.table.del();
+  }
+
+  get database() {
+    return knex[this._scope];
   }
 
   get table() {
-    return knex(this._name);
+    return this.database(this._name);
   }
 }
 

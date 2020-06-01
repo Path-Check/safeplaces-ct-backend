@@ -1,7 +1,6 @@
 const BaseService = require('../common/service.js');
 const Random = require('../../app/lib/random');
 
-const knex = require('../knex.js');
 const rand = new Random();
 
 const ELEMENTS = [...'0123456789'];
@@ -35,8 +34,8 @@ class Service extends BaseService {
       // in which case we'll try again.
       if (value.length == LENGTH) {
         try {
-          const code = await super.create({ value: value });
-          return await this.find({ id: code.id });
+          await super.create({ value: value });
+          return this.find({ value: value });
         } catch (error) {
           value = '';
           attempts -= 1;
@@ -49,14 +48,14 @@ class Service extends BaseService {
     return null;
   }
 
-  async find(query) {
+  find(query) {
     if (!query) throw new Error('Query is invalid');
 
     return super.find(query).first(
       'id',
       'value',
       'upload_consent',
-      knex.raw('COALESCE(invalidated_at, NOW()) >= NOW() AS valid'),
+      this.database.raw('COALESCE(invalidated_at, NOW()) >= NOW() AS valid'),
     );
   }
 
@@ -64,7 +63,7 @@ class Service extends BaseService {
     if (!code || !code.id) throw new Error('Query is invalid');
 
     await this.updateOne(code.id, {
-      invalidated_at: knex.fn.now(),
+      invalidated_at: this.database.fn.now(),
     });
 
     code.valid = false;
@@ -72,4 +71,4 @@ class Service extends BaseService {
 
 }
 
-module.exports = new Service('access_codes');
+module.exports = new Service('access_codes', 'public');

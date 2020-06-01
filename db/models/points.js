@@ -1,8 +1,9 @@
 const BaseService = require('../common/service.js');
-const knex = require('../knex.js');
+const Buffer = require('buffer').Buffer;
+
+const knex = require('../knex.js').private;
 const knexPostgis = require("knex-postgis");
 const wkx = require('wkx');
-const Buffer = require('buffer').Buffer;
 const geoHash = require('../../app/lib/geoHash');
 
 const st = knexPostgis(knex);
@@ -68,7 +69,7 @@ class Service extends BaseService {
     }
     throw new Error('Could not create hash.')
   }
-  
+
   // private
 
   /**
@@ -105,7 +106,7 @@ class Service extends BaseService {
   //   if (!publication.start_date) throw new Error('Start date is invalid');
   //   if (!publication.end_date) throw new Error('Start date is invalid');
 
-  //   return knex(this._name)
+  //   return this.table
   //     .whereIn('case_id', publication.cases)
   //     .where('time', '>=', new Date(publication.start_date))
   //     .where('time', '<=', new Date(publication.end_date));
@@ -115,7 +116,7 @@ class Service extends BaseService {
     if (!publication.start_date) throw new Error('Start date is invalid');
     if (!publication.end_date) throw new Error('Start date is invalid');
 
-    let cases = await knex(this._name)
+    let cases = await this.table
                   .select('case_id')
                   .where('time', '>=', new Date(publication.start_date))
                   .where('time', '<=', new Date(publication.end_date))
@@ -125,7 +126,7 @@ class Service extends BaseService {
     }
     return []
   }
-  
+
   async insertRedactedTrailSet(trails, caseId) {
     let trailRecords = [];
 
@@ -142,8 +143,8 @@ class Service extends BaseService {
         trailRecords.push(record);
       }
     }
-    
-    return knex(this._name).insert(trailRecords).returning('*');
+
+    return this.create(trailRecords);
   }
 
 }
