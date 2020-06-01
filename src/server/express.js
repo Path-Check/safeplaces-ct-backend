@@ -17,15 +17,10 @@ class Server {
   constructor() {
     this._app = express();
 
-    // TODO: Are we really using views here?
-    // view engine setup
-    // this._app.set('views', path.join(__dirname, 'views'));
-    // this._app.set('view engine', 'jade');
-    // app.use(express.static(path.join(__dirname, 'public')));
-
     if (process.env.NODE_ENV !== 'test') {
       this._app.use(logger('dev'));
     }
+    
     this._app.use(cors());
     this._app.use(express.json());
     this._app.use(express.urlencoded({ extended: false }));

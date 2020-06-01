@@ -14,7 +14,7 @@ function dropTables(knex) {
 
 function buildOrganization(knex) {
   return knex.schema.createTable('organizations', function (table) {
-    table.uuid('id').notNull().primary();
+    table.increments('id').notNull().primary();
     table.string('name')
     table.timestamp('updated_at').defaultTo(knex.fn.now());
     table.timestamp('created_at').defaultTo(knex.fn.now());
@@ -24,7 +24,7 @@ function buildOrganization(knex) {
 function buildSettings(knex) {
   return knex.schema.createTable('settings', function (table) {
     table.uuid('id').notNull().primary();
-    table.uuid('organization_id').notNull().references('organizations.id').onDelete('CASCADE');
+    table.integer('organization_id').notNull().references('organizations.id').onDelete('CASCADE');
     table.string('info_website_url');
     table.string('reference_website_url');
     table.string('api_endpoint_url');
@@ -41,7 +41,7 @@ function buildSettings(knex) {
 function buildUsers(knex) {
   return knex.schema.createTable('users', function (table) {
     table.uuid('id').notNull().primary();
-    table.uuid('organization_id').notNull().references('organizations.id').onDelete('CASCADE');
+    table.integer('organization_id').notNull().references('organizations.id').onDelete('CASCADE');
     table.string('username', 64);
     table.string('email', 128);
     table.string('password', 60);
@@ -56,7 +56,7 @@ function buildUsers(knex) {
 function buildPublications(knex) {
   return knex.schema.createTable('publications', function (table) {
     table.increments('id').notNull().primary();
-    table.uuid('organization_id').notNull().references('organizations.id').onDelete('CASCADE');
+    table.integer('organization_id').notNull().references('organizations.id').onDelete('CASCADE');
     table.timestamp('start_date').notNullable();
     table.timestamp('end_date').notNullable();
     table.timestamp('publish_date').notNullable();
@@ -74,8 +74,8 @@ function buildCases(knex) {
     END $$;
     
     CREATE TABLE cases(
-      id UUID PRIMARY KEY,
-      organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+      id INT PRIMARY KEY,
+      organization_id INT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
       publication_id INT REFERENCES publications(id) ON DELETE CASCADE,
       state state_type NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -89,7 +89,7 @@ function buildCases(knex) {
 function buildTrails(knex) {
   return knex.schema.createTable('trails', function (table) {
     table.increments('id').notNull().primary();
-    table.uuid('case_id').notNull().references('cases.id').onDelete('CASCADE');
+    table.integer('case_id').notNull().references('cases.id').onDelete('CASCADE');
     table.specificType('coordinates', 'geometry(point, 4326)');
     table.timestamp('time');
     table.string('hash');

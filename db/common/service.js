@@ -44,8 +44,13 @@ class BaseService {
     return knex(this._name).insert(params).returning('*');
   }
 
+  deleteOne(query) {
+    if (!query) throw new Error('Query was not provided');
+    
+    return knex(this._name).where(query).del();
+  }
+
   deleteAllRows() {
-    // console.log('Delete all rows: ', this._name)
     return knex(this._name).del();
   }
 

@@ -2,7 +2,6 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
-const { v4: uuidv4 } = require('uuid');
 const atob = require('atob');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -32,7 +31,6 @@ let currentOrg;
 
 before(async () => {
   let orgParams = {
-    id: uuidv4(),
     name: 'My Example Organization',
     info_website_url: 'http://sample.com',
   };
