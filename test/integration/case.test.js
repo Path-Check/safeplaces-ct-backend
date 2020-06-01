@@ -427,6 +427,7 @@ describe('Case', () => {
     it('return a 200', async () => {
       const caseParams = {
         organization_id: currentOrg.id,
+        external_id: 'sdfasdfasdfasdf',
         state: 'unpublished'
       }
 
@@ -445,6 +446,8 @@ describe('Case', () => {
         .send(updateParams);
 
       results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body['external_id'].should.eq('an_external_id')
     });
   });
 

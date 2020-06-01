@@ -4,12 +4,12 @@ function enableUUIDExtension(knex) {
 
 function buildExternalId(knex) {
     return knex.schema.table('cases', table => {
-        table.string('external_id').defaultTo(knex.raw("uuid_generate_v4()"));
+        table.string('external_id').unique().defaultTo(knex.raw("uuid_generate_v4()"));
     });
 }
 
 exports.up = function(knex) {
-  enableUUIDExtension(knex)
+  return enableUUIDExtension(knex)
     .then(() => buildExternalId(knex))
 };
 

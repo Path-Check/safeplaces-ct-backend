@@ -216,7 +216,7 @@ class Service extends BaseService {
     itm.caseId = itm.id
     itm.updatedAt = itm.updated_at
     itm.expiresAt = itm.expires_at
-    itm.externalID = itm.external_id
+    itm.externalId = itm.external_id
     delete itm.organization_id
     delete itm.publication_id
     delete itm.updated_at
