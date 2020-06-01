@@ -32,3 +32,8 @@ server.delete(
   '/case',
   server.wrapAsync(async (req, res) => await controller.deleteCase(req, res), true),
 );
+
+server.put(
+  '/case',
+  server.wrapAsync(async (req, res) => await controller.updateOrganizationCase(req, res), true),
+);

@@ -52,8 +52,8 @@ exports.createCasePoint = async (req, res) => {
  *
  * TODO: Currently in "Needs Confirmation" state in the API spec.
  * Will handle once Confirmed.
- * 
- * Captures user consent to having their data published in the 
+ *
+ * Captures user consent to having their data published in the
  * aggregated anonymized JSON file that is available to public.
  *
  */
@@ -90,22 +90,22 @@ exports.setCaseToStaging = async (req, res) => {
 /**
  * @method publishCases
  *
- * Moves the state of the cases from staging to published and 
- * generates JSON file containing aggregated anonymized points 
- * of concern data. JSON file is then pushed to the endpoint 
- * responsible for hosting the published data (this functionality 
+ * Moves the state of the cases from staging to published and
+ * generates JSON file containing aggregated anonymized points
+ * of concern data. JSON file is then pushed to the endpoint
+ * responsible for hosting the published data (this functionality
  * is implemented by HA).
- * 
+ *
  * DONE - Fetch Orgnization
  * DONE - Publish case ids passed in.
  * DONE - Fetch Points for Cases that are published and have not exipired along with all points.
  * DONE  -Figure out start and end dates for trails.
  * DONE - Create Publication
  * DONE - Build Files
- * 
+ *
  * Many options when talking about response, and it's all triggered by passing in the type query param.
  * By default, we will write to a GCS bucket.  Other options include, that do not work in production:
- * 
+ *
  * zip = Return a zip file
  * json = Return a JSON payload of what goes into the files that are generated
  * local = Save to local server environment
@@ -131,7 +131,7 @@ exports.publishCases = async (req, res) => {
         start_date: utils.getMin(points, 'time'),
         end_date: utils.getMax(points, 'time'),
         publish_date: Math.floor(new Date().getTime() / 1000)
-      } 
+      }
       const publication = await publicationsService.insert(publicationParams);
       if (publication) {
         if (type === 'zip' && process.env.NODE_ENV !== 'production') {
@@ -191,4 +191,25 @@ exports.deleteCase = async (req, res) => {
     res.sendStatus(200);
   }
   throw new Error('Internal server error.');
+};
+
+/**
+ * @method updateOrganizationCase
+ *
+ * Updates an existing case.
+ *
+ *
+ */
+exports.updateOrganizationCase = async (req, res) => {
+  const { caseId, externalId } = req.body;
+
+  if (!caseId) throw new Error('Case ID is missing.');
+
+  const results = await casesService.updateCaseExternalId(caseId, externalId)
+
+  if (results) {
+    res.status(200).json(results)
+  } else {
+    res.status(500).json({ message: 'Internal Server Error'})
+  }
 };
