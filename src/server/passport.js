@@ -9,7 +9,7 @@ const CustomStrategy = require('passport-custom').Strategy;
 const ldapServerUrl = `ldap://${process.env.LDAP_HOST}:${process.env.LDAP_PORT}`;
 
 const opts = {
-  jwtFromRequest: ExtractJWT.fromHeader('authorization'),
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
   secretOrKey: jwtSecret.secret,
 };
 

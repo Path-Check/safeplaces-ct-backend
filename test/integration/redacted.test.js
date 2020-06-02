@@ -61,7 +61,7 @@ describe('Redacted ', function () {
       chai
         .request(server.app)
         .get('/redacted_trails')
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
@@ -105,7 +105,7 @@ describe('Redacted ', function () {
       chai
         .request(server.app)
         .get('/redacted_trails')
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
@@ -167,7 +167,7 @@ describe('Redacted ', function () {
             },
           ],
         })
-        .set('Authorization', `somebadtoken`)
+        .set('Authorization', `Bearer somebadtoken`)
         .end(function (err, res) {
           res.should.have.status(401);
           res.text.should.equal('Unauthorized');
@@ -189,7 +189,7 @@ describe('Redacted ', function () {
             },
           ],
         })
-        .set('Authorization', `${tokenExpired}`)
+        .set('Authorization', `Bearer ${tokenExpired}`)
         .end(function (err, res) {
           res.should.have.status(401);
           res.text.should.equal('Unauthorized');
@@ -205,7 +205,7 @@ describe('Redacted ', function () {
           identifier: 'a88309c4-26cd-4d2b-8923-af0779e423a3',
           trail: [],
         })
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .end(function (err, res) {
           res.should.have.status(400);
           res.should.be.json; // jshint ignore:line
@@ -229,7 +229,7 @@ describe('Redacted ', function () {
             },
           ],
         })
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line
@@ -272,7 +272,7 @@ describe('Redacted ', function () {
             },
           ],
         })
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line

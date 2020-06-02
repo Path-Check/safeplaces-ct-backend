@@ -9,3 +9,7 @@ To run the server:
 ```
 npm start
 ```
+
+The users are stored in the file `passwd`. In production,
+the LDAP server should connect to a database or use a
+more secure form of identity management.

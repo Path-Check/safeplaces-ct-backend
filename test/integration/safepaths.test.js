@@ -423,7 +423,7 @@ describe('Safe Path ', function () {
           start_date,
           end_date
         })
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .end(function (err, res) {
           res.should.have.status(200);
           res.should.be.json; // jshint ignore:line

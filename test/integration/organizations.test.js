@@ -60,7 +60,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .get(`/organization/${currentOrg.id}`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json');
       // console.log(results)
       results.body.id.should.equal(currentOrg.id);
@@ -74,7 +74,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .put(`/organization/${currentOrg.id}`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
