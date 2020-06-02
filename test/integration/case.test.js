@@ -12,7 +12,6 @@ const mockData = require('../lib/mockData');
 const server = require('../../app');
 const casesService = require('../../db/models/cases');
 const pointsService = require('../../db/models/points');
-const settingsService = require('../../db/models/settings');
 
 const jwtSecret = require('../../config/jwtConfig');
 
@@ -258,7 +257,7 @@ describe('Case', () => {
         .send(newParams);
 
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
-      
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
@@ -283,7 +282,7 @@ describe('Case', () => {
         point.should.be.a('string');
       })
 
-      const firstCursor = results.body.cursor.shift()
+      const firstCursor = results.body.cursor.pages.shift()
       firstCursor.should.be.a('object');
       firstCursor.should.have.property('id');
       firstCursor.id.should.be.a('string');
@@ -297,23 +296,21 @@ describe('Case', () => {
     });
   });
 
-  describe.only('publishes cases that generate multiple files', () => {
+  describe('publishes cases that generate multiple files', () => {
 
-    let caseOne, caseTwo, caseThree
+    let newCase
 
     before(async () => {
       // For test, update organization to have chunking every 2 hours
-      await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 7200 })
+      // await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 7200 })
     });
     
     beforeEach(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-
-      console.log(currentOrg)
       
       // For test, update organization to have chunking every 2 hours
-      await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 7200 })
+      // await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 7200 })
 
       let params = {
         organization_id: currentOrg.id,
@@ -321,20 +318,23 @@ describe('Case', () => {
         seconds_apart: 1800,
         state: 'staging'
       };
-  
-      caseOne = await mockData.mockCaseAndTrails(params)
-      caseTwo = await mockData.mockCaseAndTrails(params)
-      caseThree = await mockData.mockCaseAndTrails(params)
+      
+      // Create two cases that have been published.
+      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 5 * 1000)) })) // Published 5 days ago
+      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 2 * 1000)) })) // Published 2 days ago
+
+      // Create third case that will be published on call.
+      newCase = await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: null }))
     });
 
     after(async () => {
       // Revert before action.
-      await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 43200 })
+      // await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 43200 })
     });
 
     it('returns test json to validate contents of file', async () => {
       const newParams = {
-        caseIds: [caseOne.id, caseTwo.id, caseThree.id],
+        caseIds: [newCase.id],
       };
 
       const results = await chai
@@ -343,12 +343,6 @@ describe('Case', () => {
         .set('Authorization', `${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-
-      // let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
-
-      if (results.error) {
-        console.log('Error: ', results.error)
-      }
 
       results.error.should.be.false;
       results.should.have.status(200);

@@ -3,7 +3,6 @@
 const casesService = require('../../../db/models/cases');
 const organizationsService = require('../../../db/models/organizations');
 const publicationsService = require('../../../db/models/publications');
-const utils = require('../../lib/utils');
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
 const writeToGCSBucket = require('../../lib/writeToGCSBucket');
@@ -98,9 +97,9 @@ exports.setCaseToStaging = async (req, res) => {
  * 
  * DONE - Fetch Orgnization
  * DONE - Publish case ids passed in.
- * DONE - Fetch Points for Cases that are published and have not exipired along with all points.
- * DONE  -Figure out start and end dates for trails.
  * DONE - Create Publication
+ * DONE - Updated new cases with Publication ID
+ * DONE - Fetch Points for Cases that are published and have not exipired along with all points.
  * DONE - Build Files
  * 
  * Many options when talking about response, and it's all triggered by passing in the type query param.
@@ -115,25 +114,31 @@ exports.publishCases = async (req, res) => {
   const { body: { caseIds }, user: { organization_id } } = req;
   let { query: { type } } = req;
 
-  type = type || 'file'
+  type = type || 'file';
 
   if (!caseIds) throw new Error('Case IDs are invalid.')
   if (!organization_id) throw new Error('Organization ID is not valid.')
 
   const organization = await organizationsService.fetchById(organization_id);
   if (organization) {
-    const publishResults = await casesService.publishCases(caseIds, organization.id)
+    const publishResults = await casesService.publishCases(caseIds, organization.id);
 
-    const points = await casesService.fetchAllPublishedPoints()
-    if (points && points.length > 0) {
-      const publicationParams = {
-        organization_id: organization.id,
-        start_date: utils.getMin(points, 'time'),
-        end_date: utils.getMax(points, 'time'),
-        publish_date: Math.floor(new Date().getTime() / 1000)
-      } 
-      const publication = await publicationsService.insert(publicationParams);
-      if (publication) {
+    const publicationParams = {
+      organization_id: organization.id,
+      publish_date: Math.floor(new Date().getTime() / 1000)
+    } 
+    const publication = await publicationsService.insert(publicationParams);
+    if (publication) {
+
+      const casesUpdateResults = await casesService.updateCasePublicationId(caseIds, publication.id);
+      if (!casesUpdateResults) {
+        throw new Error('Internal server error.');
+      }
+
+      // Everything has been published and assigned...pull all published points.
+      const points = await casesService.fetchAllPublishedPoints();
+
+      if (points && points.length > 0) {
         if (type === 'zip' && process.env.NODE_ENV !== 'production') {
           let data = await publicationFiles.buildAndZip(organization, publication, points)
           res.status(200)
@@ -145,8 +150,6 @@ exports.publishCases = async (req, res) => {
             .send(data)
         } else {
           let pages = publicationFiles.build(organization, publication, points)
-
-          console.log(pages)
 
           if (process.env.NODE_ENV !== 'production') {
             if (type === 'json') {
@@ -170,9 +173,9 @@ exports.publishCases = async (req, res) => {
         }
         throw new Error('Files could not be written.');
       }
-      throw new Error('Publication could not be generated.');
+      throw new Error('No points returned after cases were published.');
     }
-    throw new Error('No points returned after cases were published.');
+    throw new Error('Publication could not be generated.');
   }
   throw new Error('Internal server error');
 };

@@ -120,7 +120,9 @@ class PublicationFiles {
 
 
   /**
-   * Get all hashes related to this page.
+   * Build pages based on chunking time.
+   * Remember, the time we are looking at is the Published time for the case, not the time 
+   * of the point.
    *
    * @private
    * @method _chunkTrails
@@ -129,7 +131,6 @@ class PublicationFiles {
    * @return {Array}
    */
   _chunkTrails(trails, seconds) {
-    const sortedTrails = trails.sort((a,b) => (a.time > b.time) ? 1 : ((b.time > a.time) ? -1 : 0)); // Assure they are sorted properly.
 
     if (trails.length === 0) {
       return [
@@ -139,27 +140,55 @@ class PublicationFiles {
           endTimestamp: null,
           trails: []
         }
-      ]
+      ];
     }
 
-    let i = 0
-    let groups = []
-    let timeGroup = sortedTrails[0].time
-    while(timeGroup <= sortedTrails[(sortedTrails.length - 1)].time) {
+    // Get Publication dates, and sort them.
+    let publicationDates = [...new Set(trails.map(trail => new Date(trail.publish_date).getTime()))];
+    publicationDates = publicationDates.sort((a,b) => (a.time > b.time) ? 1 : ((b.time > a.time) ? -1 : 0)).reverse(); // Assure they are sorted properly.
+
+    // Goto 1 second before Midnight of the most recent publication
+    let startTime = (new Date(publicationDates[0]).setHours(0,0,0,0) + 86400000 - 1000);
+    let lastPublicationTimestamp = publicationDates[(publicationDates.length - 1)];
+
+    // Work backwards baseed on the chunking time.
+    let endTimestamp;
+    let i = 0;
+    let groups = [];
+    let timeGroup = startTime;
+    while(startTime) {
+      endTimestamp = ((timeGroup - (seconds * 1000)) + 1000)
       groups.push({
         page: (i + 1),
         startTimestamp: timeGroup,
-        endTimestamp: (timeGroup + (seconds - 1)),
+        endTimestamp: endTimestamp,
         trails: []
-      })
-      timeGroup += seconds
-      i++
+      });
+      timeGroup = (timeGroup - (seconds * 1000))
+      i++;
+
+      if (lastPublicationTimestamp >= endTimestamp) break;
     }
 
+    // Find Trails. We are checking the publish time of the publication that is associated with the 
+    // case and therefore the trail.
+    // Remove any empty groups that don't have any trails associated with them.
+    groups = groups.map(group => {
+      group.trails = trails.filter(trail => {
+        const publishDateTs = new Date(trail.publish_date).getTime();
+        if (publishDateTs <= group.startTimestamp && publishDateTs >= group.endTimestamp) {
+          return true;
+        }
+        return false;
+      });
+      return group;
+    }).filter(group => group.trails.length > 0);
+
+    // Sort all trails by time for privacy.
     return groups.map(group => {
-      group.trails = sortedTrails.filter(trail => (trail.time >= group.startTimestamp && trail.time <= group.endTimestamp))
+      group.trails = group.trails.sort((a,b) => (a.time > b.time) ? 1 : ((b.time > a.time) ? -1 : 0));
       return group
-    }).filter(group => group.trails.length > 0)
+    })
   }
 
 }
