@@ -85,7 +85,7 @@ describe('Point', () => {
       const results = await chai
         .request(server.app)
         .put(`/point`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -130,7 +130,7 @@ describe('Point', () => {
       const results = await chai
         .request(server.app)
         .delete(`/point`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
         

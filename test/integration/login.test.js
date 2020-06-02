@@ -1,13 +1,10 @@
 process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL =
-process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const atob = require('atob');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const expect = chai.expect;
 const server = require('../../app');
-
-const mockData = require('../lib/mockData');
 
 chai.use(chaiHttp);
 
@@ -17,7 +14,7 @@ function parseJwt(token) {
   var jsonPayload = decodeURIComponent(
     atob(base64)
       .split('')
-      .map(function (c) {
+      .map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       })
       .join(''),
@@ -26,82 +23,63 @@ function parseJwt(token) {
   return JSON.parse(jsonPayload);
 }
 
-let newUserParams;
-let currentOrg;
-
-before(async () => {
-  let orgParams = {
-    name: 'My Example Organization',
-    info_website_url: 'http://sample.com',
-  };
-  currentOrg = await mockData.mockOrganization(orgParams);
-
-  newUserParams = {
-    username: 'myAwesomeUser',
-    password: 'myAwesomePassword',
-    email: 'myAwesomeUser@yomanbob.com',
-    organization_id: currentOrg.id,
-  };
-  await mockData.mockUser(newUserParams);
-});
-
-describe('POST /login', function () {
-  it('should login on user creds and return map api key', function (done) {
+describe('POST /login', function() {
+  it('should login on user creds and return map api key', function(done) {
     chai
       .request(server.app)
       .post('/login')
       .send({
-        username: newUserParams.username,
-        password: newUserParams.password,
+        username: 'admin',
+        password: 'password',
       })
-      .end(function (err, res) {
-        res.should.have.status(200);
-        res.should.be.json; // jshint ignore:line
-        res.body.should.have.property('token');
+      .end(function(err, res) {
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.haveOwnProperty('token');
         let parsedJwt = parseJwt(res.body.token);
-        parsedJwt.should.have.property('sub');
-        parsedJwt.sub.should.equal(newUserParams.username);
-        parsedJwt.should.have.property('iat');
+        expect(parsedJwt).to.haveOwnProperty('sub');
+        expect(parsedJwt.sub).to.equal('admin');
+        expect(parsedJwt).to.haveOwnProperty('iat');
         chai.assert.equal(new Date(parsedJwt.iat * 1000) instanceof Date, true);
-        parsedJwt.should.have.property('exp');
+        expect(parsedJwt).to.haveOwnProperty('exp');
         chai.assert.equal(new Date(parsedJwt.exp * 1000) instanceof Date, true);
-        res.body.should.have.property('maps_api_key');
-        res.body.maps_api_key.should.equal(process.env.SEED_MAPS_API_KEY);
-        done();
+        expect(res.body).to.haveOwnProperty('maps_api_key');
+        expect(res.body.maps_api_key).to.equal(process.env.SEED_MAPS_API_KEY);
+        return done();
       });
   });
 
-  it('should fail when wrong password is given saying creds are invalid', function (done) {
+  it('should fail when wrong password is given saying creds are invalid', function(done) {
     chai
       .request(server.app)
       .post('/login')
       .send({
-        username: newUserParams.username,
+        username: 'admin',
         password: 'wrongpassword',
       })
-      .end(function (err, res) {
-        res.should.have.status(401);
-        res.should.be.json; // jshint ignore:line
-        res.body.should.have.property('message');
-        res.body.message.should.equal('Invalid credentials.');
-        done();
+      .end(function(err, res) {
+        expect(res.status).to.equal(401);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.haveOwnProperty('message');
+        expect(res.body.message).to.equal('Invalid credentials.');
+        return done();
       });
   });
 
-  it('should fail with invalid username saying creds are invalid', function (done) {
+  it('should fail with invalid username saying creds are invalid', function(done) {
     chai
       .request(server.app)
       .post('/login')
       .send({
         username: 'wronguser',
-        password: newUserParams.password,
+        password: 'password',
       })
-      .end(function (err, res) {
-        res.should.have.status(401);
-        res.should.be.json; // jshint ignore:line
-        res.body.should.have.property('message');
-        res.body.message.should.equal('Invalid credentials.');
-        done();
+      .end(function(err, res) {
+        expect(res.status).to.equal(401);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.haveOwnProperty('message');
+        expect(res.body.message).to.equal('Invalid credentials.');
+        return done();
       });
   });
 });

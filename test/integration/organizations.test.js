@@ -44,7 +44,7 @@ describe('Organization ', () => {
     await mockData.mockCase(caseParams)
     await mockData.mockCase(caseParams)
     caseToDelete = await mockData.mockCase(caseParams)
-  
+
     token = jwt.sign(
       {
         sub: newUserParams.username,
@@ -66,9 +66,9 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .get(`/organization`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json');
-        
+
       results.should.have.status(200);
       results.body.name.should.equal(currentOrg.name);
     });
@@ -81,7 +81,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .put(`/organization/configuration`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -102,7 +102,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .get(`/organization/cases`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -128,10 +128,10 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .delete(`/organization/case`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.should.have.status(200);
     });
   });
