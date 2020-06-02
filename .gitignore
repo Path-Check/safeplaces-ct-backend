@@ -3,6 +3,8 @@
 .idea/
 .vscode/
 
+.DS_Store
+
 # Logs
 logs
 *.log

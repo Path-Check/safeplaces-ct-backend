@@ -5,7 +5,7 @@ ADD . $WORKDIR
 RUN npm install
 
 FROM node:13.13.0
-COPY --from=build-env /app /app 
+COPY --from=build-env /app /app
 WORKDIR /app
 ADD wait-for.sh /wait-for.sh
 RUN npm install -g knex
