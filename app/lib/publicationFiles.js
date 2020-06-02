@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const AdmZip = require('adm-zip');
 
 /**
@@ -27,21 +28,27 @@ class PublicationFiles {
     }
     this._apiEndpointPage = `${endpoint}[PAGE].json`;
 
-    const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds)
-    const cursor = this._getCursorInformation(organization, trailsChunked)
+    const header = this._getHeader(organization, record);
+    const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds);
+    const cursor = this._getCursorInformation(organization, trailsChunked, _.clone(header));
     const files = trailsChunked.map(chunk => {
-      return {
-        name: organization.name,
-        publish_date_utc: (record.publish_date.getTime() / 1000),
-        info_website_url: organization.infoWebsiteUrl,
-        notification_threshold_percent: organization.notificationThresholdPercent,
-        notification_threshold_count: organization.notificationThresholdCount,
-        concern_point_hashes: this._getPointHashes(chunk),
-        page_name: this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
-      };
+      const newHeader = _.clone(header)
+      newHeader.concern_point_hashes = this._getPointHashes(chunk)
+      newHeader.page_name = this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
+      return newHeader;
     })
 
     return { files, cursor };
+  }
+
+  _getHeader(organization, record) {
+    return {
+      name: organization.name,
+      publish_date_utc: (record.publish_date.getTime() / 1000),
+      info_website_url: organization.infoWebsiteUrl,
+      notification_threshold_percent: organization.notificationThresholdPercent,
+      notification_threshold_count: organization.notificationThresholdCount
+    }
   }
 
   /**
@@ -86,8 +93,8 @@ class PublicationFiles {
    * @param {Number} currentPage
    * @return {Object}
    */
- _getCursorInformation(organization, trails) {
-    return trails.map(chunk => {
+ _getCursorInformation(organization, trails, header) {
+    const pages = trails.map(chunk => {
       return {
         id: `${chunk.startTimestamp}_${chunk.endTimestamp}`,
         startTimestamp: chunk.startTimestamp,
@@ -95,6 +102,8 @@ class PublicationFiles {
         filename: this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
       }
     })
+    header.pages = pages;
+    return header;
   }
 
   /**

@@ -12,6 +12,7 @@ const mockData = require('../lib/mockData');
 const server = require('../../app');
 const casesService = require('../../db/models/cases');
 const pointsService = require('../../db/models/points');
+const settingsService = require('../../db/models/settings');
 
 const jwtSecret = require('../../config/jwtConfig');
 
@@ -293,6 +294,71 @@ describe('Case', () => {
       firstCursor.should.have.property('filename');
       firstCursor.filename.should.be.a('string');
       firstCursor.filename.should.equal(pageEndpoint.replace('[PAGE]', `${firstCursor.startTimestamp}_${firstCursor.endTimestamp}`));
+    });
+  });
+
+  describe.only('publishes cases that generate multiple files', () => {
+
+    let caseOne, caseTwo, caseThree
+
+    before(async () => {
+      // For test, update organization to have chunking every 2 hours
+      await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 7200 })
+    });
+    
+    beforeEach(async () => {
+      await casesService.deleteAllRows()
+      await pointsService.deleteAllRows()
+
+      console.log(currentOrg)
+      
+      // For test, update organization to have chunking every 2 hours
+      await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 7200 })
+
+      let params = {
+        organization_id: currentOrg.id,
+        number_of_trails: 10,
+        seconds_apart: 1800,
+        state: 'staging'
+      };
+  
+      caseOne = await mockData.mockCaseAndTrails(params)
+      caseTwo = await mockData.mockCaseAndTrails(params)
+      caseThree = await mockData.mockCaseAndTrails(params)
+    });
+
+    after(async () => {
+      // Revert before action.
+      await settingsService.updateMany({ organization_id: currentOrg.id }, { chunking_in_seconds: 43200 })
+    });
+
+    it('returns test json to validate contents of file', async () => {
+      const newParams = {
+        caseIds: [caseOne.id, caseTwo.id, caseThree.id],
+      };
+
+      const results = await chai
+        .request(server.app)
+        .post(`/cases/publish?type=json`)
+        .set('Authorization', `${token}`)
+        .set('content-type', 'application/json')
+        .send(newParams);
+
+      // let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
+
+      if (results.error) {
+        console.log('Error: ', results.error)
+      }
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+
+      results.body.cursor.should.be.a('object');
+      results.body.cursor.pages.should.be.a('array');
+      results.body.cursor.pages.length.should.equal(3);
+      results.body.files.should.be.a('array');
+      results.body.files.length.should.equal(3);
     });
   });
 

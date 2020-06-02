@@ -146,6 +146,8 @@ exports.publishCases = async (req, res) => {
         } else {
           let pages = publicationFiles.build(organization, publication, points)
 
+          console.log(pages)
+
           if (process.env.NODE_ENV !== 'production') {
             if (type === 'json') {
               res.status(200).json(pages);
