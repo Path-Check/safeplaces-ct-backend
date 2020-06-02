@@ -81,8 +81,10 @@ class Service extends BaseService {
     const caseId = await this.getNextId(options.organization_id)
     if (caseId) {
       options.id = caseId;
-      options.expires_at = new Date(options.expires_at)
-      return this.create(options);
+      options.expires_at = new Date(options.expires_at);
+      const newCase = await this.create(options);
+
+      return this._mapCase(newCase);
     }
     throw new Error('Could not create the case.')
   }
