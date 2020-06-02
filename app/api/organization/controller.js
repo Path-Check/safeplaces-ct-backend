@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const moment = require('moment')
+const moment = require('moment');
 const organizations = require('../../../db/models/organizations');
 const cases = require('../../../db/models/cases');
 
@@ -87,13 +87,13 @@ exports.createOrganizationCase = async (req, res) => {
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
-  if (!organziation) throw new Error('Organizatoin could not be found.')
+  if (!organization) throw new Error('Organization could not be found.')
 
-  const expiresAt = moment().startOf('day').fromNow().add(organization.numberOfDaysToRetainRecords, 'days').calendar();
-  const newCase = await organizations.createCase({ organization_id, expiresAt });
+  const expires_at = moment().startOf('day').add(organization.daysToRetainRecords, 'days').calendar();
+  const newCase = await cases.createCase({ organization_id, expires_at, state: 'unpublished' });
 
   if (newCase) {
-    res.status(200).json({ newCase });
+    res.status(200).json(newCase);
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
   }

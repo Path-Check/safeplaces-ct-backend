@@ -21,13 +21,13 @@ describe('Organization ', () => {
 
   before(async () => {
     await mockData.clearMockData()
-    
+
     let orgParams = {
       name: 'My Example Organization',
       info_website_url: 'http://sample.com',
     };
     currentOrg = await mockData.mockOrganization(orgParams);
-  
+
     let newUserParams = {
       username: 'myAwesomeUser',
       password: 'myAwesomePassword',
@@ -122,7 +122,7 @@ describe('Organization ', () => {
 
     it('delete the record', async () => {
       const newParams = {
-        case_id: caseToDelete.id,
+        case_id: caseToDelete.caseId,
       };
 
       const results = await chai
@@ -133,6 +133,28 @@ describe('Organization ', () => {
         .send(newParams);
 
       results.should.have.status(200);
+    });
+  });
+
+  describe('create a case', () => {
+
+    it('returns a 200', async () => {
+      const results = await chai
+        .request(server.app)
+        .post(`/organization/case`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send();
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body.should.have.property('caseId');
+      results.body.should.have.property('state');
+      results.body.should.have.property('updatedAt');
+      results.body.should.have.property('expiresAt');
+      results.body.state.should.equal('unpublished');
+
     });
   });
 });

@@ -72,7 +72,7 @@ class Service extends BaseService {
    * @param {Object} options
    * @param {Number} options.organization_id
    * @param {Timestamp} options.expires_at
-   * @return {Array}
+   * @return {Object}
    */
   async createCase(options = null) {
     if (!options.organization_id) throw new Error('Organization ID is invalid')
@@ -81,11 +81,13 @@ class Service extends BaseService {
     const caseId = await this.getNextId(options.organization_id)
     if (caseId) {
       options.id = caseId;
-      options.expires_at = new Date(options.expires_at);
-      const newCase = await this.create(options);
+      const cases = await this.create(options);
 
-      return this._mapCase(newCase);
+      if (cases) {
+        return this._mapCase(cases.shift());
+      }
     }
+
     throw new Error('Could not create the case.')
   }
 
