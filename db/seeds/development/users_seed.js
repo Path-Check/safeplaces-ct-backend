@@ -11,7 +11,7 @@ exports.seed = function (knex) {
       let password = await bcrypt.hash('admin', 5);
       return knex('users').insert({
         id: 'a88309ca-26cd-4d2b-8923-af0779e423a3',
-        organization_id: 'a88309c2-26cd-4d2b-8923-af0779e423a3',
+        organization_id: 1,
         username: 'admin',
         password: password,
         email: 'admin@org.com',

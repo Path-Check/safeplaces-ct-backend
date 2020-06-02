@@ -5,6 +5,8 @@
   "scripts": {
     "migrate:up": "knex migrate:latest",
     "migrate:down": "knex migrate:rollback",
+    "seed": "knex seed:run --env development",
+    "seed:test": "knex seed:run --env test",
     "start": "node ./bin/www",
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
