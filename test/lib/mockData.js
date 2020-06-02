@@ -10,6 +10,7 @@ const usersService = require('../../db/models/users');
 const pointsService = require('../../db/models/points');
 const publicationService = require('../../db/models/publications');
 const casesService = require('../../db/models/cases');
+const uploadService = require('../../db/models/upload');
 
 class MockData {
 
@@ -19,12 +20,13 @@ class MockData {
    * Clear out Mock Data
    */
   async clearMockData() {
-    await organizationService.deleteAllRows()
-    await settingsService.deleteAllRows()
-    await usersService.deleteAllRows()
-    await pointsService.deleteAllRows()
-    await publicationService.deleteAllRows()
-    await casesService.deleteAllRows()
+    await organizationService.deleteAllRows();
+    await settingsService.deleteAllRows();
+    await usersService.deleteAllRows();
+    await pointsService.deleteAllRows();
+    await publicationService.deleteAllRows();
+    await casesService.deleteAllRows();
+    await uploadService.deleteAllRows();
   }
 
   /**
@@ -195,6 +197,28 @@ class MockData {
     return newCase
   }
 
+  /**
+   * Generate Mock Upload Points
+   *
+   * @method mockUploadPoints
+   * @param {Number} num
+   * @param {Number} timeIncrementInSeconds
+   * @param {Object} options
+   */
+  async mockUploadPoints(accessCode, num) {
+    if (!accessCode) throw new Error('Access code must be provided');
+    if (!num) throw new Error('Number of points must be provided');
+
+    const points = this._generateUploadedPoints(accessCode, num)
+    const results = await uploadService.create(points);
+
+    if (results) {
+      return results;
+    }
+
+    throw new Error('Problem creating mock upload points.');
+  }
+
   // private
 
   _generateTrailsData(numberOfTrails, timeIncrementInSeconds, startAt = new Date().getTime()) {
@@ -208,6 +232,20 @@ class MockData {
         time: coordTime
       };
     })
+  }
+
+  _generateUploadedPoints(accessCode, num) {
+    const uploadId = uuidv4();
+    return Array(num).fill("").map(() => {
+      const coords = randomCoordinates({fixed: 5}).split(',');
+      return {
+        access_code_id: accessCode.id,
+        upload_id: uploadId,
+        coordinates: pointsService.makeCoordinate(parseFloat(coords[1]), parseFloat(coords[0])),
+        time: uploadService.database.fn.now(),
+        hash: "test",
+      };
+    });
   }
 }
 

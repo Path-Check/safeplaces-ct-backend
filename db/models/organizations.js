@@ -119,7 +119,7 @@ class Service extends BaseService {
     if (!organization_id) throw new Error('Organization ID is invalid')
     if (!case_id) throw new Error('Case ID is invalid')
 
-    return casesService.deleteOne({ organization_id, id: case_id });
+    return casesService.deleteWhere({ organization_id, id: case_id });
   }
 
   /**

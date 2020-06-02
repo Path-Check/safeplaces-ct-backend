@@ -19,7 +19,7 @@ describe('POST /access-code', () => {
   let token;
 
   before(async () => {
-    await mockData.clearMockData()
+    await mockData.clearMockData();
 
     const orgParams = {
       name: 'Test Organization',
@@ -60,7 +60,7 @@ describe('POST /access-code', () => {
     let result = await chai
       .request(server.app)
       .post('/access-code')
-      .set('Authorization', `${token}`)
+      .set('Authorization', `Bearer ${token}`)
       .send();
     result.should.have.status(201);
 

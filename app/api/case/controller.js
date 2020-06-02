@@ -3,6 +3,11 @@
 const casesService = require('../../../db/models/cases');
 const organizationsService = require('../../../db/models/organizations');
 const publicationsService = require('../../../db/models/publications');
+const accessCodesService = require('../../../db/models/accessCodes');
+const uploadService = require('../../../db/models/upload');
+const pointsService = require('../../../db/models/points');
+
+const utils = require('../../lib/utils');
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
 const writeToGCSBucket = require('../../lib/writeToGCSBucket');
@@ -23,6 +28,51 @@ exports.fetchCasePoints = async (req, res) => {
     res.status(200).json({ concernPoints });
   }
   throw new Error('Internal server error.');
+};
+
+/**
+ * @method ingestUploadedPoints
+ *
+ * Attempts to associate previously uploaded points with a case.
+ * Returns the points of concern that were uploaded for the case with the given access code.
+ *
+ */
+exports.ingestUploadedPoints = async (req, res) => {
+  const { caseId, accessCode: codeValue } = req.body;
+
+  if (caseId == null || codeValue == null) {
+    res.status(400).send();
+    return;
+  }
+
+  const accessCode = await accessCodesService.find({ value: codeValue });
+
+  // Check access code validity
+  if (!accessCode || !accessCode.valid) {
+    res.status(403).send();
+    return;
+  }
+
+  // Check whether user has declined upload acccess
+  if (!accessCode.upload_consent) {
+    res.status(451).send();
+    return;
+  }
+
+  const uploadedPoints = await uploadService.fetchPoints(accessCode);
+
+  // If the access code is valid but there aren't any points yet,
+  // then the upload is still in progress
+  if (!uploadedPoints || uploadedPoints.length == 0) {
+    res.status(202).send();
+    return;
+  }
+
+  const points = await pointsService.createPointsFromUpload(caseId, uploadedPoints);
+
+  await uploadService.deletePoints(accessCode);
+
+  res.status(200).json({ concernPoints: points });
 };
 
 /**
@@ -191,7 +241,7 @@ exports.deleteCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.')
 
-  let caseResults = await casesService.deleteOne({ id: caseId })
+  let caseResults = await casesService.deleteWhere({ id: caseId })
   if (caseResults) {
     res.sendStatus(200);
   }

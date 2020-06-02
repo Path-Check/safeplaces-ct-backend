@@ -145,7 +145,7 @@ class Service extends BaseService {
     if (!case_id) throw new Error('Case ID is invalid')
     if (!point) throw new Error('Point is invalid')
 
-    const points = await pointsService.createRedactdPoint(case_id, point)
+    const points = await pointsService.createRedactedPoint(case_id, point)
     if (points) {
       return points
     }

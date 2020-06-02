@@ -46,7 +46,7 @@ class BaseService {
     return this.table.insert(params).returning('*');
   }
 
-  deleteOne(query) {
+  deleteWhere(query) {
     if (!query) throw new Error('Query was not provided');
 
     return this.table.where(query).del();

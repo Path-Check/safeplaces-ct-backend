@@ -37,7 +37,7 @@ exports.deletePoint = async (req, res) => {
 
   if (!pointId) throw new Error('Case ID is not valid.')
 
-  let caseResults = await pointsService.deleteOne({ id: pointId })
+  let caseResults = await pointsService.deleteWhere({ id: pointId })
   if (caseResults) {
     res.sendStatus(200);
   }

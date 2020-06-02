@@ -27,13 +27,12 @@ class Service extends BaseService {
     throw new Error('Could not find redacted points.')
   }
 
-  async createRedactdPoint(caseId, point) {
+  async createRedactedPoint(caseId, point) {
     let record = {};
     let hash = await geoHash.encrypt(point)
     if (hash) {
       record.hash = hash.encodedString
-      record.coordinates = st.setSRID(
-        st.makePoint(point.longitude, point.latitude), 4326);
+      record.coordinates = this.makeCoordinate(point.longitude, point.latitude);
       record.time = new Date(point.time); // Assumes time in epoch seconds
       record.case_id = caseId;
       const points = await this.create(record);
@@ -42,6 +41,24 @@ class Service extends BaseService {
       }
     }
     throw new Error('Could not create hash.')
+  }
+
+  async createPointsFromUpload(caseId, uploadedPoints) {
+    if (!caseId) throw new Error('Case ID is invalid');
+    if (!uploadedPoints) throw new Error('Uploaded points are invalid');
+
+    uploadedPoints.forEach(point => {
+      delete point.id;
+      point.case_id = caseId;
+    });
+
+    const points = await this.create(uploadedPoints);
+
+    if (!points) {
+      throw new Error('Could not create points.');
+    }
+
+    return this._getRedactedPoints(points);
   }
 
   /**
@@ -59,8 +76,7 @@ class Service extends BaseService {
     let hash = await geoHash.encrypt(point)
     if (hash) {
       record.hash = hash.encodedString
-      record.coordinates = st.setSRID(
-        st.makePoint(point.longitude, point.latitude), 4326);
+      record.coordinates = this.makeCoordinate(point.longitude, point.latitude);
       record.time = new Date(point.time);
       const points = await this.updateOne(point_id, record);
       if (points) {
@@ -68,6 +84,13 @@ class Service extends BaseService {
       }
     }
     throw new Error('Could not create hash.')
+  }
+
+  makeCoordinate(longitude, latitude) {
+    return st.setSRID(
+      st.makePoint(longitude, latitude),
+      4326
+    );
   }
 
   // private
@@ -136,8 +159,7 @@ class Service extends BaseService {
       hash = await geoHash.encrypt(trail)
       if (hash) {
         record.hash = hash.encodedString
-        record.coordinates = st.setSRID(
-          st.makePoint(trail.longitude, trail.latitude), 4326);
+        record.coordinates = this.makeCoordinate(trail.longitude, trail.latitude);
         record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
         record.case_id = caseId;
         trailRecords.push(record);
