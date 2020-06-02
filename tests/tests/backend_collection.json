@@ -184,7 +184,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -194,11 +194,6 @@
 					{
 						"key": "Content-Type",
 						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "{{token}}",
-						"type": "text"
 					}
 				],
 				"body": {
@@ -343,16 +338,16 @@
 			],
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
 				},
 				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "{{token}}"
-					}
-				],
 				"url": {
 					"raw": "{{baseUrl}}/redacted_trails",
 					"host": [
@@ -398,18 +393,20 @@
 			"name": "004 Sefe Places Publish",
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
 				},
 				"method": "POST",
 				"header": [
 					{
 						"key": "Content-Type",
 						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "{{token}}",
-						"type": "text"
 					}
 				],
 				"body": {
