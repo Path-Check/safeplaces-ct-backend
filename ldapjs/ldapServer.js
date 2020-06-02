@@ -65,7 +65,7 @@ server.search('o=safeplaces', pre, function (req, res, next) {
 module.exports = {
   start: () => {
     return new Promise(resolve => {
-      server.listen(1389, function () {
+      server.listen(process.env.LDAP_PORT, function () {
         console.log('LDAP server listening at ' + server.url);
         resolve();
       });
