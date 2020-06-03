@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const randomCoordinates = require('random-coordinates');
@@ -102,7 +103,6 @@ class MockData {
     if (!options.caseId) throw new Error('Case ID must be provided');
 
     let trails = this._generateTrailsData(numberOfTrails, timeIncrementInSeconds, options.startAt)
-    
     let results = await pointsService.insertRedactedTrailSet(
       trails,
       options.caseId
@@ -141,15 +141,16 @@ class MockData {
     const params = {
       state: options.state,
       organization_id: options.organization_id,
+      external_id: options.external_id,
       expires_at: options.expires_at
     };
 
     const organization = await organizationService.fetchById(options.organization_id)
     if (organization) {
-      if (!params.expires_at) params.expires_at = new Date().getTime() + ((organization.daysToRetainRecords * (60 * 60 * 24)) * 1000);
-      const results = await casesService.createCase(params);
-      if (results) {
-        return results[0];
+      if (!params.expires_at) params.expires_at = moment().startOf('day').add(organization.daysToRetainRecords, 'days').calendar();
+      const result = await casesService.createCase(params);
+      if (result) {
+        return result;
       }
     }
 
@@ -161,7 +162,7 @@ class MockData {
     if (!options.number_of_trails) throw new Error('Number of trails is invalid.');
     if (!options.seconds_apart) throw new Error('Seconds Apart is invalid.');
     if (!options.state) throw new Error('State is invalid.');
-    
+
     let caseParams = {
       organization_id: options.organization_id,
       state: options.state,
@@ -173,7 +174,7 @@ class MockData {
 
     // Add Points
     let trailsParams = {
-      caseId: newCase.id
+      caseId: newCase.caseId
     }
     if (options.publishedOn) trailsParams.startAt = options.publishedOn
     const points = await this.mockTrails(options.number_of_trails, options.seconds_apart, trailsParams)
