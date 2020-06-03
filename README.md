@@ -58,7 +58,26 @@ Refer [.env.template](.env.template) for environment variables to be exported to
 The basic, included LDAP server is to be used for testing purposes only.
 It is not meant for production use.
 
-Please see the OpenLDAP implementations for production-ready servers.
+Please see the OpenLDAP implementations for production-ready servers. Once set up, modify the environment
+variables to point to the new server, with the proper host, port, password, domain components, and bind command.
+
+Example:
+```
+LDAP_HOST=localhost
+LDAP_PORT=1389
+LDAP_PASS=safepaths
+LDAP_ORG='dc=covidsafepaths,dc=org'
+LDAP_BIND='cn=admin'
+```
+
+The Express server queries the LDAP server with each login request at `/login`.
+
+The filter will look like
+`(&(cn={{username}})(password={{password}}))`
+
+Note that `{{username}}` and `{{password}}` are **explicitly required.**
+`{{username}}` will be replaced by the username sent by the client's request.
+`{{password}}` will be replaced by the password sent by the client's request.
 
 To run the server:
 ```

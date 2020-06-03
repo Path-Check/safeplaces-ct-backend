@@ -4,8 +4,11 @@ const path = require('path');
 
 const server = ldap.createServer();
 
-server.bind('cn=root', function (req, res, next) {
-  if (req.dn.toString() !== 'cn=root' || req.credentials !== 'safepaths') {
+server.bind(process.env.LDAP_BIND, function (req, res, next) {
+  if (
+    req.dn.toString() !== process.env.LDAP_BIND ||
+    req.credentials !== process.env.LDAP_PASS
+  ) {
     return next(new ldap.InvalidCredentialsError());
   }
 
@@ -14,7 +17,7 @@ server.bind('cn=root', function (req, res, next) {
 });
 
 function authorize(req, res, next) {
-  if (!req.connection.ldap.bindDN.equals('cn=root'))
+  if (!req.connection.ldap.bindDN.equals(process.env.LDAP_BIND))
     return next(new ldap.InsufficientAccessRightsError());
 
   return next();
@@ -34,7 +37,7 @@ function loadPasswd(req, res, next) {
       if (!record || !record.length) continue;
 
       req.users[record[0]] = {
-        dn: `cn=${record[0]}, ou=users, o=safeplaces`,
+        dn: `cn=${record[0]}, ${process.env.LDAP_ORG}`,
         attributes: {
           cn: record[0],
           password: record[1],
@@ -50,7 +53,7 @@ function loadPasswd(req, res, next) {
 
 const pre = [authorize, loadPasswd];
 
-server.search('o=safeplaces', pre, function (req, res, next) {
+server.search(process.env.LDAP_ORG, pre, function (req, res, next) {
   Object.keys(req.users).forEach(function (k) {
     if (req.filter.matches(req.users[k].attributes)) {
       res.send(req.users[k]);
