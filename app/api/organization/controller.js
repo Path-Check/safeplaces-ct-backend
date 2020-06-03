@@ -1,5 +1,7 @@
 const _ = require('lodash');
+const moment = require('moment');
 const organizations = require('../../../db/models/organizations');
+const cases = require('../../../db/models/cases');
 
 /**
  * @method fetchOrganization
@@ -44,7 +46,7 @@ exports.updateOrganization = async (req, res) => {
 
 /**
  * @method fetchOrganizationCases
- * 
+ *
  * Fetch cases associated with organization.
  * Organization is pulled from the user.
  *
@@ -72,7 +74,7 @@ exports.fetchOrganizationCases = async (req, res) => {
 
 /**
  * @method createOrganizationCase
- * 
+ *
  * Create cases associated with organization.
  * Organization is pulled from the user.
  *
@@ -84,9 +86,14 @@ exports.createOrganizationCase = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const cases = await organizations.getCases(organization_id);
-  if (cases) {
-    res.status(200).json({ cases });
+  const organization = await organizations.fetchById(organization_id);
+  if (!organization) throw new Error('Organization could not be found.')
+
+  const expires_at = moment().startOf('day').add(organization.daysToRetainRecords, 'days').calendar();
+  const newCase = await cases.createCase({ organization_id, expires_at, state: 'unpublished' });
+
+  if (newCase) {
+    res.status(200).json(newCase);
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
   }
@@ -94,7 +101,7 @@ exports.createOrganizationCase = async (req, res) => {
 
 /**
  * @method deleteOrganizationCase
- * 
+ *
  * Delete case from Organization
  * Organization is pulled from the user.
  *

@@ -32,7 +32,7 @@ class Service extends BaseService {
                 .where('state', 'published')
                 .where('expires_at', '>', new Date())
                 .returning('*');
-      }     
+      }
     }
     throw new Error('Could not publish the case. Make sure all are moved into staging state.')
   }
@@ -72,7 +72,7 @@ class Service extends BaseService {
    * @param {Object} options
    * @param {Number} options.organization_id
    * @param {Timestamp} options.expires_at
-   * @return {Array}
+   * @return {Object}
    */
   async createCase(options = null) {
     if (!options.organization_id) throw new Error('Organization ID is invalid')
@@ -81,9 +81,13 @@ class Service extends BaseService {
     const caseId = await this.getNextId(options.organization_id)
     if (caseId) {
       options.id = caseId;
-      options.expires_at = new Date(options.expires_at)
-      return this.create(options);
+      const cases = await this.create(options);
+
+      if (cases) {
+        return this._mapCase(cases.shift());
+      }
     }
+
     throw new Error('Could not create the case.')
   }
 
@@ -161,12 +165,14 @@ class Service extends BaseService {
     const points = await knex(this._name)
               .select(
                 'cases.id AS caseId',
+                'publications.publish_date',
                 'points.id AS pointId',
                 'points.coordinates',
                 'points.time',
                 'points.hash'
               )
               .join('points', 'cases.id', '=', 'points.case_id')
+              .join('publications', 'cases.publication_id', '=', 'publications.id')
               .where('cases.state', 'published')
               .where('cases.expires_at', '>', new Date())
               .returning('*');
@@ -174,6 +180,24 @@ class Service extends BaseService {
       return pointsService._getRedactedPoints(points, true, false);
     }
     return []
+  }
+
+  /**
+   * Update Case External Id
+   *
+   * @method updateCasePublicationId
+   * @param {Number} id
+   * @return {Object}
+   */
+  async updateCaseExternalId(case_id, external_id) {
+    if (!case_id) throw new Error('ID is invalid')
+    if (!external_id) throw new Error('External ID is invalid')
+
+    const results = await this.updateOne(case_id, { external_id });
+
+    if (results) {
+      return this._mapCase(results);
+    }
   }
 
   // private
@@ -198,6 +222,7 @@ class Service extends BaseService {
     itm.caseId = itm.id
     itm.updatedAt = itm.updated_at
     itm.expiresAt = itm.expires_at
+    itm.externalId = itm.external_id
     delete itm.organization_id
     delete itm.publication_id
     delete itm.updated_at

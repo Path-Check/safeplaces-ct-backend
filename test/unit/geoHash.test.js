@@ -11,6 +11,6 @@ describe('Geo Hash', () => {
       "time": 1589117939000
     };
     const hash = await geoHash.encrypt(location, 'salt', true);
-    expect(hash.encodedString).to.be.equal('e2754c01925484c5');
+    expect(hash.encodedString).to.be.equal('a2dcd196d350fda7');
   });
 });

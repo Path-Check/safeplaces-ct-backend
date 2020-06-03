@@ -3,6 +3,7 @@ process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const _ = require('lodash');
+const moment = require('moment')
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const jwt = require('jsonwebtoken');
@@ -25,13 +26,13 @@ describe('Case', () => {
 
   before(async () => {
     await mockData.clearMockData()
-    
+
     let orgParams = {
       name: 'My Example Organization',
       info_website_url: 'http://sample.com',
     };
     currentOrg = await mockData.mockOrganization(orgParams);
-  
+
     let newUserParams = {
       username: 'myAwesomeUser',
       password: 'myAwesomePassword',
@@ -39,7 +40,7 @@ describe('Case', () => {
       organization_id: currentOrg.id,
     };
     await mockData.mockUser(newUserParams);
-  
+
     token = jwt.sign(
       {
         sub: newUserParams.username,
@@ -71,7 +72,7 @@ describe('Case', () => {
 
       // Add Trails
       let trailsParams = {
-        caseId: currentCase.id
+        caseId: currentCase.caseId
       }
       await mockData.mockTrails(10, 1800, trailsParams) // Generate 10 trails 30 min apart
     });
@@ -79,7 +80,7 @@ describe('Case', () => {
     it('and return multiple case points', async () => {
       const results = await chai
         .request(server.app)
-        .get(`/case/points?caseId=${currentCase.id}`)
+        .get(`/case/points?caseId=${currentCase.caseId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json');
 
@@ -113,7 +114,7 @@ describe('Case', () => {
 
     it('and return the newly created point', async () => {
       const newParams = {
-        caseId: currentCase.id,
+        caseId: currentCase.caseId,
         point: {
           longitude: 14.91328448,
           latitude: 41.24060321,
@@ -154,7 +155,7 @@ describe('Case', () => {
     //   .set('Authorization', `Bearer ${token}`)
     //   .set('content-type', 'application/json')
     //   .send(newParams);
-      
+
     // results.should.have.status(200);
   });
 
@@ -172,7 +173,7 @@ describe('Case', () => {
 
     it('return the updated case', async () => {
       const newParams = {
-        caseId: currentCase.id,
+        caseId: currentCase.caseId,
       };
 
       const results = await chai
@@ -191,7 +192,7 @@ describe('Case', () => {
         results.body.case.should.have.property('state');
         results.body.case.should.have.property('updatedAt');
         results.body.case.should.have.property('expiresAt');
-        results.body.case.caseId.should.equal(currentCase.id);
+        results.body.case.caseId.should.equal(currentCase.caseId);
         results.body.case.state.should.equal('staging');
     });
   });
@@ -199,26 +200,26 @@ describe('Case', () => {
   describe('publish a case(s)', () => {
 
     let caseOne, caseTwo, caseThree
-    
+
     beforeEach(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-  
+
       let params = {
         organization_id: currentOrg.id,
         number_of_trails: 10,
         seconds_apart: 1800,
         state: 'staging'
       };
-  
+
       caseOne = await mockData.mockCaseAndTrails(params)
       caseTwo = await mockData.mockCaseAndTrails(params)
       caseThree = await mockData.mockCaseAndTrails(params)
     });
-      
+
     it(`returns multiple published cases (${type})`, async () => {
       const newParams = {
-        caseIds: [caseOne.id, caseTwo.id, caseThree.id],
+        caseIds: [caseOne.caseId, caseTwo.caseId, caseThree.caseId],
       };
 
       const results = await chai
@@ -246,7 +247,7 @@ describe('Case', () => {
 
     it('returns test json to validate contents of file', async () => {
       const newParams = {
-        caseIds: [caseOne.id, caseTwo.id, caseThree.id],
+        caseIds: [caseOne.caseId, caseTwo.caseId, caseThree.caseId],
       };
 
       const results = await chai
@@ -257,7 +258,7 @@ describe('Case', () => {
         .send(newParams);
 
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
-      
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
@@ -282,7 +283,7 @@ describe('Case', () => {
         point.should.be.a('string');
       })
 
-      const firstCursor = results.body.cursor.shift()
+      const firstCursor = results.body.cursor.pages.shift()
       firstCursor.should.be.a('object');
       firstCursor.should.have.property('id');
       firstCursor.id.should.be.a('string');
@@ -296,30 +297,77 @@ describe('Case', () => {
     });
   });
 
-  describe('honors expires at on previously published case', () => {
+  describe('publishes cases that generate multiple files', () => {
 
-    let caseTwo, caseThree
+    let newCase
     
     beforeEach(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-  
+
+      let params = {
+        organization_id: currentOrg.id,
+        number_of_trails: 10,
+        seconds_apart: 1800,
+        state: 'staging'
+      };
+      
+      // Create two cases that have been published.
+      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 5 * 1000)) })) // Published 5 days ago
+      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 2 * 1000)) })) // Published 2 days ago
+
+      // Create third case that will be published on call.
+      newCase = await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: null }))
+    });
+
+    it('returns test json to validate contents of file', async () => {
+      const newParams = {
+        caseIds: [newCase.id],
+      };
+
+      const results = await chai
+        .request(server.app)
+        .post(`/cases/publish?type=json`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send(newParams);
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+
+      results.body.cursor.should.be.a('object');
+      results.body.cursor.pages.should.be.a('array');
+      results.body.cursor.pages.length.should.equal(3);
+      results.body.files.should.be.a('array');
+      results.body.files.length.should.equal(3);
+    });
+  });
+
+  describe('honors expires at on previously published case', () => {
+
+    let caseTwo, caseThree
+
+    beforeEach(async () => {
+      await casesService.deleteAllRows()
+      await pointsService.deleteAllRows()
+
       let params = {
         organization_id: currentOrg.id,
         number_of_trails: 10,
         seconds_apart: 1800
       };
 
-      let invalidDate = (new Date().getTime() - (86400 * 90 * 1000)) // Two months ago
-      
+      let invalidDate = moment().startOf('day').subtract(60, 'days').calendar(); // Two months ago
+
       await mockData.mockCaseAndTrails(_.extend(params, { state: 'published', expires_at: invalidDate }))
       caseTwo = await mockData.mockCaseAndTrails(_.extend(params, { state: 'staging', expires_at: null }))
       caseThree = await mockData.mockCaseAndTrails(_.extend(params, { state: 'staging', expires_at: null }))
     });
-      
+
     it(`returns only 2 of the 3 cases entered (${type})`, async () => {
       const newParams = {
-        caseIds: [caseTwo.id, caseThree.id],
+        caseIds: [caseTwo.caseId, caseThree.caseId],
       };
 
       const results = await chai
@@ -328,7 +376,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
@@ -339,7 +387,7 @@ describe('Case', () => {
 
     it('returns only points from 2 of the 3 cases entered', async () => {
       const newParams = {
-        caseIds: [caseTwo.id, caseThree.id],
+        caseIds: [caseTwo.caseId, caseThree.caseId],
       };
 
       const results = await chai
@@ -348,35 +396,35 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
       results.body.files[0].concern_point_hashes.length.should.equal(20);
     });
-    
+
   });
 
   describe('fails because one of the cases is set to unpublished', () => {
 
     let caseOneInvalid, caseTwo, caseThree
-    
+
     beforeEach(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-  
+
       let params = {
         organization_id: currentOrg.id,
         number_of_trails: 10,
         seconds_apart: 1800,
         state: 'staging'
       };
-  
+
       caseOneInvalid = await mockData.mockCaseAndTrails(_.extend(params, { state: 'unpublished' }))
       caseTwo = await mockData.mockCaseAndTrails(params)
       caseThree = await mockData.mockCaseAndTrails(params)
     });
-      
+
     it('returns a 500', async () => {
       const newParams = {
         caseIds: [caseOneInvalid.id, caseTwo.id, caseThree.id],
@@ -388,11 +436,11 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.not.be.false;
       results.should.have.status(500);
     });
-    
+
   });
 
   describe('delete a case', () => {
@@ -409,17 +457,45 @@ describe('Case', () => {
 
     it('return a 200', async () => {
       const newParams = {
-        caseId: currentCase.id,
+        caseId: currentCase.caseId,
       };
-  
+
       const results = await chai
         .request(server.app)
         .delete(`/case`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.should.have.status(200);
+    });
+  });
+
+  describe('update a case', () => {
+    it('return a 200', async () => {
+      const caseParams = {
+        organization_id: currentOrg.id,
+        external_id: 'sdfasdfasdfasdf',
+        state: 'unpublished'
+      }
+
+      let currentCase = await mockData.mockCase(caseParams)
+
+      let updateParams = {
+        caseId: currentCase.caseId,
+        externalId: 'an_external_id',
+      };
+
+      const results = await chai
+        .request(server.app)
+        .put(`/case`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send(updateParams);
+
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body['external_id'].should.eq('an_external_id')
     });
   });
 

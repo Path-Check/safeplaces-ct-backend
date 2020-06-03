@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const randomCoordinates = require('random-coordinates');
@@ -9,7 +10,6 @@ const usersService = require('../../db/models/users');
 const pointsService = require('../../db/models/points');
 const publicationService = require('../../db/models/publications');
 const casesService = require('../../db/models/cases');
-
 
 class MockData {
 
@@ -102,8 +102,7 @@ class MockData {
     if (!timeIncrementInSeconds) throw new Error('Info Website must be provided');
     if (!options.caseId) throw new Error('Case ID must be provided');
 
-    let trails = this._generateTrailsData(numberOfTrails, timeIncrementInSeconds)
-    
+    let trails = this._generateTrailsData(numberOfTrails, timeIncrementInSeconds, options.startAt)
     let results = await pointsService.insertRedactedTrailSet(
       trails,
       options.caseId
@@ -142,15 +141,16 @@ class MockData {
     const params = {
       state: options.state,
       organization_id: options.organization_id,
+      external_id: options.external_id,
       expires_at: options.expires_at
     };
 
     const organization = await organizationService.fetchById(options.organization_id)
     if (organization) {
-      if (!params.expires_at) params.expires_at = new Date().getTime() + ((organization.daysToRetainRecords * (60 * 60 * 24)) * 1000);
-      const results = await casesService.createCase(params);
-      if (results) {
-        return results[0];
+      if (!params.expires_at) params.expires_at = moment().startOf('day').add(organization.daysToRetainRecords, 'days').calendar();
+      const result = await casesService.createCase(params);
+      if (result) {
+        return result;
       }
     }
 
@@ -162,23 +162,35 @@ class MockData {
     if (!options.number_of_trails) throw new Error('Number of trails is invalid.');
     if (!options.seconds_apart) throw new Error('Seconds Apart is invalid.');
     if (!options.state) throw new Error('State is invalid.');
-    
+
     let caseParams = {
       organization_id: options.organization_id,
       state: options.state,
       expires_at: options.expires_at
     };
+    if (options.publishedOn) caseParams.state = 'published'
     let newCase = await this.mockCase(caseParams)
     newCase.points = [];
 
     // Add Points
     let trailsParams = {
-      caseId: newCase.id
+      caseId: newCase.caseId
     }
+    if (options.publishedOn) trailsParams.startAt = options.publishedOn
     const points = await this.mockTrails(options.number_of_trails, options.seconds_apart, trailsParams)
     if (points) {
       newCase.points = newCase.points.concat(points);
     }
+
+    if (options.publishedOn) {
+      const publicationParams = {
+        organization_id: options.organization_id,
+        publish_date: Math.floor(options.publishedOn / 1000)
+      } 
+      const publication = await publicationService.insert(publicationParams);
+      await casesService.updateCasePublicationId([newCase.id], publication.id);
+    }
+
     return newCase
   }
 
