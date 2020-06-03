@@ -1,0 +1,406 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Safe Places - Server Backend",
+    "description": "The Safe Places API Specification for Backend Server",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "ValidateDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": ["username", "password"]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": ["username", "password"]
+      },
+      "Login2Dto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": ["username", "password", "code"]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 40
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 20
+          },
+          "email": {
+            "type": "string"
+          },
+          "admin": {
+            "type": "boolean"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": ["username", "password", "email", "admin", "role"]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 20
+          }
+        },
+        "required": ["password"]
+      },
+      "SaveRedactedDto": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "trail": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": ["identifier", "trail"]
+      },
+      "PublishDto": {
+        "type": "object",
+        "properties": {
+          "authority_name": {
+            "type": "string"
+          },
+          "publish_date": {
+            "type": "number"
+          },
+          "info_website": {
+            "type": "string"
+          },
+          "concern_points": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "authority_name",
+          "publish_date",
+          "info_website",
+          "concern_points"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/": {
+      "post": {
+        "operationId": "AuthController_bootstrap",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "An intial \"tester\" (password: \"tester54321\") user is created."
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validate": {
+      "post": {
+        "operationId": "AuthController_validate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "summary": "Initiate authorization - part of mandatory API",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/login2": {
+      "post": {
+        "operationId": "AuthController_login2",
+        "summary": "Alternate authorization path if 2 factor login in use - part of extension API",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login2Dto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "summary": "Establish a new user - part of extension API",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/updatePassword": {
+      "post": {
+        "operationId": "AuthController_updatePassword",
+        "summary": "Update the password - part of extension API",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "AuthController_listUsers",
+        "summary": "List users visible to the person logged in - part of extension API",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "SafePlacesController_health",
+        "summary": "Probe readyness of server - part of extension API",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/redacted_trail": {
+      "post": {
+        "operationId": "SafePlacesController_saveRedactedTrail",
+        "summary": "Called to save a redacted trail - part of mandatory API",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveRedactedDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/redacted_trails": {
+      "get": {
+        "operationId": "SafePlacesController_loadAllRedacted",
+        "summary": "Load all redacted trails - part of mandatory API",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/safe_paths": {
+      "post": {
+        "operationId": "SafePlacesController_publish",
+        "summary": "Publish current set of redacted trails - part of mandatory API",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/safe_path/{orgId}": {
+      "get": {
+        "operationId": "SafePlacesController_loadSafePathJson",
+        "summary": "Retrieve current set of points of concern, no auth needed, called by mobile phone app - part of mandatory API",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
