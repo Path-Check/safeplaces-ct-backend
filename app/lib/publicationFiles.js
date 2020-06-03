@@ -43,6 +43,7 @@ class PublicationFiles {
 
   _getHeader(organization, record) {
     return {
+      version: 1.0,
       name: organization.name,
       publish_date_utc: (record.publish_date.getTime() / 1000),
       info_website_url: organization.infoWebsiteUrl,
