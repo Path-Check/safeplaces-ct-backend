@@ -43,10 +43,13 @@ class PublicationFiles {
 
   _getHeader(organization, record) {
     return {
-      version: 1.0,
+      version: "1.0",
       name: organization.name,
       publish_date_utc: (record.publish_date.getTime() / 1000),
       info_website_url: organization.infoWebsiteUrl,
+      api_endpoint_url: organization.apiEndpointUrl,
+      privacy_policy_url: organization.privacyPolicyUrl,
+      reference_website_url: organization.referenceWebsiteUrl,
       notification_threshold_percent: organization.notificationThresholdPercent,
       notification_threshold_count: organization.notificationThresholdCount
     }
