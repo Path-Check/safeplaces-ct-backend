@@ -54,7 +54,6 @@ function loadPasswd(req, res, next) {
 const pre = [authorize, loadPasswd];
 
 server.search(process.env.LDAP_ORG, pre, function (req, res, next) {
-  console.log(req.users)
   Object.keys(req.users).forEach(function (k) {
     if (req.filter.matches(req.users[k].attributes)) {
       res.send(req.users[k]);
