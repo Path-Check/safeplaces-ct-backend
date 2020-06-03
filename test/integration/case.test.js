@@ -25,13 +25,13 @@ describe('Case', () => {
 
   before(async () => {
     await mockData.clearMockData()
-    
+
     let orgParams = {
       name: 'My Example Organization',
       info_website_url: 'http://sample.com',
     };
     currentOrg = await mockData.mockOrganization(orgParams);
-  
+
     let newUserParams = {
       username: 'myAwesomeUser',
       password: 'myAwesomePassword',
@@ -39,7 +39,7 @@ describe('Case', () => {
       organization_id: currentOrg.id,
     };
     await mockData.mockUser(newUserParams);
-  
+
     token = jwt.sign(
       {
         sub: newUserParams.username,
@@ -154,7 +154,7 @@ describe('Case', () => {
     //   .set('Authorization', `Bearer ${token}`)
     //   .set('content-type', 'application/json')
     //   .send(newParams);
-      
+
     // results.should.have.status(200);
   });
 
@@ -199,23 +199,23 @@ describe('Case', () => {
   describe('publish a case(s)', () => {
 
     let caseOne, caseTwo, caseThree
-    
+
     beforeEach(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-  
+
       let params = {
         organization_id: currentOrg.id,
         number_of_trails: 10,
         seconds_apart: 1800,
         state: 'staging'
       };
-  
+
       caseOne = await mockData.mockCaseAndTrails(params)
       caseTwo = await mockData.mockCaseAndTrails(params)
       caseThree = await mockData.mockCaseAndTrails(params)
     });
-      
+
     it(`returns multiple published cases (${type})`, async () => {
       const newParams = {
         caseIds: [caseOne.id, caseTwo.id, caseThree.id],
@@ -257,7 +257,7 @@ describe('Case', () => {
         .send(newParams);
 
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
-      
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
@@ -299,11 +299,11 @@ describe('Case', () => {
   describe('honors expires at on previously published case', () => {
 
     let caseTwo, caseThree
-    
+
     beforeEach(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-  
+
       let params = {
         organization_id: currentOrg.id,
         number_of_trails: 10,
@@ -311,12 +311,12 @@ describe('Case', () => {
       };
 
       let invalidDate = (new Date().getTime() - (86400 * 90 * 1000)) // Two months ago
-      
+
       await mockData.mockCaseAndTrails(_.extend(params, { state: 'published', expires_at: invalidDate }))
       caseTwo = await mockData.mockCaseAndTrails(_.extend(params, { state: 'staging', expires_at: null }))
       caseThree = await mockData.mockCaseAndTrails(_.extend(params, { state: 'staging', expires_at: null }))
     });
-      
+
     it(`returns only 2 of the 3 cases entered (${type})`, async () => {
       const newParams = {
         caseIds: [caseTwo.id, caseThree.id],
@@ -328,7 +328,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
@@ -348,35 +348,35 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');
       results.body.files[0].concern_point_hashes.length.should.equal(20);
     });
-    
+
   });
 
   describe('fails because one of the cases is set to unpublished', () => {
 
     let caseOneInvalid, caseTwo, caseThree
-    
+
     beforeEach(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-  
+
       let params = {
         organization_id: currentOrg.id,
         number_of_trails: 10,
         seconds_apart: 1800,
         state: 'staging'
       };
-  
+
       caseOneInvalid = await mockData.mockCaseAndTrails(_.extend(params, { state: 'unpublished' }))
       caseTwo = await mockData.mockCaseAndTrails(params)
       caseThree = await mockData.mockCaseAndTrails(params)
     });
-      
+
     it('returns a 500', async () => {
       const newParams = {
         caseIds: [caseOneInvalid.id, caseTwo.id, caseThree.id],
@@ -388,11 +388,11 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.not.be.false;
       results.should.have.status(500);
     });
-    
+
   });
 
   describe('delete a case', () => {
@@ -411,15 +411,43 @@ describe('Case', () => {
       const newParams = {
         caseId: currentCase.id,
       };
-  
+
       const results = await chai
         .request(server.app)
         .delete(`/case`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.should.have.status(200);
+    });
+  });
+
+  describe('update a case', () => {
+    it('return a 200', async () => {
+      const caseParams = {
+        organization_id: currentOrg.id,
+        external_id: 'sdfasdfasdfasdf',
+        state: 'unpublished'
+      }
+
+      let currentCase = await mockData.mockCase(caseParams)
+
+      let updateParams = {
+        caseId: currentCase.id,
+        externalId: 'an_external_id',
+      };
+
+      const results = await chai
+        .request(server.app)
+        .put(`/case`)
+        .set('Authorization', `${token}`)
+        .set('content-type', 'application/json')
+        .send(updateParams);
+
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body['external_id'].should.eq('an_external_id')
     });
   });
 
