@@ -25,6 +25,14 @@ server.put(
 
 // Cases
 
+server.post(
+  '/organization/case',
+  server.wrapAsync(
+    async (req, res) => await controller.createOrganizationCase(req, res),
+    true
+  ),
+);
+
 server.get(
   '/organization/cases',
   server.wrapAsync(
