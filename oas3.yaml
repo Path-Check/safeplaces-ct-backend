@@ -1,0 +1,860 @@
+openapi: 3.0.0
+info:
+  title: Safe Places - Server Backend
+  description: >-
+    API spec for SAFE PLACES Backend as part of the SAFE PATHS initiative.  You
+    can find out more about SAFE PATHS AT
+    [https://covidsafepaths.org/](https://covidsafepaths.org/)
+  version: 1.0.0
+  contact:
+    email: satoshi.kawase@pathcheck.org
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+servers:
+  - url: /v1
+components:
+  securitySchemes:
+    contactTracer:
+      type: http
+      scheme: bearer
+      description: contact tracer access
+    admin:
+      type: http
+      scheme: bearer
+      description: admin access
+  responses:
+    ConsentNotGranted:
+      description: Consent Not Granted
+    UnauthorizedError:
+      description: Lacks sufficient authority for operation
+    InvalidRequest:
+      description: Invalid request
+    InternalServerError:
+      description: Internal Server Error
+    AccessForbidden:
+      description: Access forbidden
+    NotFound:
+      description: Not Found
+    InvalidAccessCode:
+      description: Invalid Access Code
+    InvalidToken:
+      description: "There is no user with the username or the password does not match."
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Invalid credentials"
+    UploadInProgress:
+      description: Upload in Progress
+  schemas:
+    apiEndpoint:
+      type: string
+      example: https://s3.aws.com/bucket_name/safepaths.json
+    authCode:
+      type: string
+      example: "123456"
+    caseId:
+      type: number
+      example: 23432461
+    caseState:
+      type: string
+      enum:
+        - original
+        - unpublished
+        - staging
+        - published
+    case:
+      type : object
+      properties:
+        caseId:
+          type: integer
+          example: 14
+        externalId:
+          $ref : '#/components/schemas/externalId'
+        updatedAt:
+          $ref : '#/components/schemas/timeString'
+        state:
+          $ref: '#/components/schemas/caseState'
+        expiresAt:
+          $ref : '#/components/schemas/timeString'
+    caseIds:
+      type : object
+      properties: 
+        caseIds:
+          type: array
+          items: 
+            $ref : '#/components/schemas/caseId'
+          example:
+            - 12
+            - 13
+            - 14
+    caseCreation:
+      type : object
+      properties:
+        caseId:
+          type: integer
+          example: 14
+        updatedAt:
+          $ref : '#/components/schemas/timeString'
+        state:
+          $ref: '#/components/schemas/caseState'
+        expiresAt:
+          $ref : '#/components/schemas/timeString'
+        authCode:
+          $ref: '#/components/schemas/authCode'
+    cases:
+      type: array
+      items:
+        $ref: '#/components/schemas/case'
+    concernPointDBAdd:
+      type: object
+      properties:
+        longitude: 
+          type : number
+          example: 14.91328448
+        latitude:
+          type : number
+          example: 41.24060321
+        time : 
+          $ref : '#/components/schemas/timeString'
+    concernPointDb:
+      type: object
+      properties:
+        pointId:
+          type: number
+          example: 12
+        longitude: 
+          type : number
+          example: 14.91328448
+        latitude:
+          type : number
+          example: 41.24060321
+        time : 
+          type : string
+          example: "2020-05-30T18:25:43.511Z"
+    concernPointApp: 
+      type: object
+      properties:
+        longitude:
+          type: number
+          example: 14.91328448
+        latitude:
+          type: number
+          example: 41.24060321
+        time:
+          type: number
+          example: 1589117739000
+        hash:
+          type: string
+          example: 87e916850d4def3c
+    concernPoints:
+      type: array
+      items:
+        $ref: '#/components/schemas/concernPointApp'
+    consent:
+      type: object
+      properties:
+        consent : 
+          type: boolean
+          example: true
+        accessCode:
+          $ref : '#/components/schemas/authCode'
+    coordinates:
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+    externalId:
+      type: string
+      example: "an_external_id"
+    informationWebsiteUrl:
+      type: string
+      example: "http://cdc.gov"
+    login:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "admin"
+        password:
+          type: string
+          example: "admin"
+    orgId:
+      type: number
+      example: 32424552
+    orgCompleteOnboarding:
+      type: boolean
+      example: true
+    orgName:
+      type: string
+      example: "Same Health Authority"
+    orgConfiguration:
+      type: object
+      properties:
+        organizationId:
+          $ref: '#/components/schemas/orgId'
+        name:
+          $ref: '#/components/schemas/orgName'
+        notificationThresholdPercent:
+          $ref: '#/components/schemas/notificationThreshold'
+        notificationThresholdCount:
+          $ref: '#/components/schemas/notificationCount'
+        numberofDaysToRetainRecords:
+          $ref: '#/components/schemas/numberOfDaysToRetainRecords'
+        regionCoordinates:
+          $ref: '#/components/schemas/regionCoordinates'
+        apiEndpoint:
+          $ref: '#/components/schemas/apiEndpoint'
+        referenceWebsiteUrl:
+          $ref: '#/components/schemas/referenceWebsiteUrl'
+        informationWebsiteUrl:
+          $ref: '#/components/schemas/informationWebsiteUrl'
+    notificationCount:
+      type: number
+      example: 6
+    notificationThreshold:
+      type: number
+      example: 66
+    numberOfDaysToRetainRecords:
+      type: number
+      example: 14
+    pointId:
+      type: integer
+      example: 212
+    referenceWebsiteUrl:
+      type: string
+      example: "http://cdc.gov"
+    regionCoordinates:
+      type: object
+      properties:
+        ne:
+          $ref: '#/components/schemas/coordinates'
+        sw:
+          $ref: '#/components/schemas/coordinates'
+      example:
+        value:
+          { "ne": { "latitude": 20.312764055951195, "longitude": -70.45445121262883}, 
+            "sw": { "latitude": 17.766025040122642, "longitude": -75.49442923997258}
+          }
+    timeString:
+      type: string
+      example: "2020-05-30T18:25:43.511Z"
+    token: 
+      type: object
+      properties:
+        token:
+          type: string
+          example:   "eyABCD4321JIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTU5MDE1MjIzMCwiZXhwIjoxNTkwMTU1ODMwfQ.QUK4ybt971yQiqUT-HTVPh6VsRkxM2wEKTpTYifY3Uw"
+
+    uploadId:
+      type: object
+      properties:
+        uploadId: 
+          type: string
+          example: "42963a2f-9bd8-4ade-a713-3106020c1942"
+    valid:
+      type: object
+      properties:
+        valid : 
+          type: boolean
+          example: true
+
+  examples:
+    concernPoints:
+      value: {  
+                "concernPoints" : 
+              [  {"pointId": 232, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10753902581515137,"latitude":51.55987524514395},
+                {"pointId": 233, "time":"2020-05-30T18:25:43.511Z","longitude":-0.06407687379643874,"latitude":51.53626227398831},
+                {"pointId": 234, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10383699531844902,"latitude":51.5687569927817},
+                {"pointId": 235, "time":"2020-05-30T18:25:43.511Z","longitude":-0.09565287120047716,"latitude":51.56663238135933},
+                {"pointId": 236, "time":"2020-05-30T18:25:43.511Z","longitude":-0.13367363946595986,"latitude":51.53989797636888},
+                {"pointId": 237, "time":"2020-05-30T18:25:43.511Z","longitude":-0.05729357699158614,"latitude":51.53321925729781},
+                {"pointId": 238, "time":"2020-05-30T18:25:43.511Z","longitude":-0.054365847106010994,"latitude":51.550572004199395},
+                {"pointId": 239, "time":"2020-05-30T18:25:43.511Z","longitude":-0.12014169804782877,"latitude":51.54859663929235}
+              ]}
+    casesList:
+      value: 
+        {
+          "cases": [
+                    {
+                      "caseId": 12,
+                      "state": "unpublished",
+                      "externalId": "an_external_id",
+                      "updatedAt": "2020-05-21T18:25:43.511Z",
+                      "expiresAt": "2020-05-30T18:25:43.511Z"
+                    },
+                    {
+                      "caseId": 13,
+                      "state": "staging",
+                      "externalId": "an_external_id",
+                      "updatedAt": "2020-05-21T18:25:43.511Z",
+                      "expiresAt": "2020-05-30T18:25:43.511Z"
+                    },
+                    {
+                      "caseId": 14,
+                      "state": "published",
+                      "externalId": "an_external_id",
+                      "updatedAt": "2020-05-21T18:25:43.511Z",
+                      "expiresAt": "2020-05-30T18:25:43.511Z"
+                    }
+                  ]
+        }
+    caseStaging:
+      value:
+        {
+          "caseId": 14,
+          "updatedAt": "2020-05-21T18:25:43.511Z",
+          "state": "staging",
+          "externalId": "an_external_id",
+          "expiresAt": "2020-05-30T18:25:43.511Z"
+        }
+    casesListPublished:
+      value:
+        {
+          "cases": [
+                    {
+                      "caseId": 12,
+                      "state": "published",
+                      "updatedAt": "2020-05-21T18:25:43.511Z",
+                      "expiresAt": "2020-05-30T18:25:43.511Z"
+                    },
+                    {
+                      "caseId": 13,
+                      "state": "published",
+                      "updatedAt": "2020-05-21T18:25:43.511Z",
+                      "expiresAt": "2020-05-30T18:25:43.511Z"
+                    },
+                    {
+                      "caseId": 14,
+                      "state": "published",
+                      "updatedAt": "2020-05-21T18:25:43.511Z",
+                      "expiresAt": "2020-05-30T18:25:43.511Z"
+                    }
+                  ]
+        }
+
+paths:
+  '/access-code/valid':
+    get:
+      summary: Determines whether an access code is valid and if it can be used to perform an `/upload` API call
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessCode : 
+                  $ref : '#/components/schemas/authCode'
+      responses:
+        '200':
+          description: Successful Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/valid'
+        '403':
+          $ref: '#/components/responses/InvalidAccessCode'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError' 
+  /consent:
+    post:
+      summary: Logs user consent to health authority’s terms of service. Invalidates the accessCode that is passed in the payload if  consent  is false.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/consent'
+      responses:
+        '200':
+          description: Successful request
+        '403':
+          $ref: '#/components/responses/InvalidAccessCode'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError' 
+  /upload:
+    post:
+      summary: Accepts SAFE PATHS data upload from the user. Access code sent in body must match an access code created in a POST /access-code call. The uploadId returned may be used by clients to purge data from this upload at a later time.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessCode:
+                  $ref: '#/components/schemas/authCode'
+                concernPoints:
+                  $ref: '#/components/schemas/concernPoints'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/uploadId'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/AccessForbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '451':
+          $ref: '#/components/responses/ConsentNotGranted'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /login:
+    post:
+      summary: Authenticates the user and responds with a JWT that can be used to access protected endpoints.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login'
+      responses:
+        '200':
+          description: The user was found and the password matched.
+          content:
+            application/json:
+              schema:
+                $ref : '#/components/schemas/token'
+        '401':
+          $ref: '#/components/responses/InvalidToken'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  "/access-code":
+    post:
+      summary: Returns a new access code that clients can use to upload data via the public endpoints above. The code should remain valid for 1 hour.
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessCode: 
+                    $ref: '#/components/schemas/authCode'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
+  /organization:
+    get:
+      summary: Returns information about the organization associated with the requesting user.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organizationId:
+                    $ref : '#/components/schemas/orgId'
+                  name:
+                    $ref : '#/components/schemas/orgName'
+                  completeOnBoarding: 
+                    $ref : '#/components/schemas/orgCompleteOnboarding'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
+  '/organization/configuration':
+    get:
+      summary: Returns the configuration of the organization associated with the requesting user.
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/orgConfiguration'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'      
+      security:
+        - contactTracer: []
+        - admin: []
+    put:
+      summary: Updates the configuration of the organization.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/orgConfiguration'
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/orgConfiguration'
+      security:
+        - contactTracer: []
+        - admin: []
+
+  '/organization/cases':
+    get:
+      description: Gets a list of case records for the organization
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cases:
+                    $ref : '#/components/schemas/cases'
+              examples:
+                one:
+                  $ref: '#/components/examples/casesList'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
+  '/organization/case':
+    post:
+      summary: Creates a new case, and associates it with the organization of logged in user.
+      responses:
+        '200':
+          description: Creates a new case and associates it with the organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/case'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
+  '/case':
+    put:
+      summary: Updates a case (currently only supports updating of case’s external id)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId: 
+                  $ref: '#/components/schemas/caseId'
+                externalId:
+                  $ref : '#/components/schemas/externalId'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref : '#/components/schemas/case'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+              
+    delete:
+      summary: Delete case record
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId: 
+                  $ref: '#/components/schemas/caseId'
+      responses:
+        '200':
+          description: Case deleted
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'        
+      security:
+        - contactTracer: []
+        - admin: []
+  
+  '/case/points':
+    get:
+      summary: Returns all points of concern for the provided case.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId: 
+                  $ref: '#/components/schemas/caseId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  concernPoints:
+                    $ref: '#/components/schemas/concernPointDb'
+              examples:
+                one: 
+                  $ref : '#/components/examples/concernPoints'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+    post:
+      summary: Associates the results of a previous upload with a case. accessCode should match a code returned from POST /access-code, and caseId should be from a call to POST /organization/cases.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessCode:
+                  $ref: '#/components/schemas/authCode'
+                caseId:
+                  $ref : '#/components/schemas/caseId'
+      responses:
+        '200':
+          description: Returns the points of concern now associated with the case.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  concernPoints:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/concernPointDb'
+        '202':
+          $ref: '#/components/responses/UploadInProgress'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/InvalidAccessCode'
+        '451':
+          $ref : '#/components/responses/ConsentNotGranted'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
+  '/case/point':
+    post:
+      summary: Creates a new point of concern to be asssociated with the case
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId:
+                  $ref: '#/components/schemas/caseId'
+                point:
+                  $ref: '#/components/schemas/concernPointDBAdd'
+      responses:
+        '200':
+          description: Patient case updated
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  concernPoint:
+                    $ref: '#/components/schemas/concernPointDb'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+  '/case/consent-to-publishing':
+    post:
+      summary: Captures user consent to having their data published in the aggregated anonymized JSON file that is available to public.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId: 
+                  $ref: '#/components/schemas/caseId'
+      responses:
+        '200': 
+          description: OK
+          content:
+            appliation/json:
+              schema:
+                $ref: '#/components/schemas/case'
+              examples:
+                one:
+                  $ref : '#/components/examples/caseStaging'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+      - contactTracer: []
+      - admin: []
+                
+  '/case/stage':
+    post:
+      summary: Updates the state of the case from unpublished to staging.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId:
+                  $ref: '#/components/schemas/caseId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case:
+                    $ref : '#/components/schemas/case'
+              examples:
+                one:
+                  $ref : '#/components/examples/caseStaging'
+      security:
+        - contactTracer: []
+        - admin: []
+
+  '/cases/publish':
+    post:
+      summary: Moves the state of the cases from staging to published and generates JSON file containing aggregated anonymized points of concern data. JSON file is then pushed to the endpoint responsible for hosting the published data (this functionality is implemented by HA).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref : '#/components/schemas/caseIds'
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/cases'
+              examples:
+                one:
+                  $ref: '#/components/examples/casesListPublished'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+            
+  '/point':
+    put:
+      summary: Updates an existing point of concern
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/concernPointDb'
+      responses:
+        '200': 
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  point:
+                    $ref: '#/components/schemas/concernPointDb'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
+    delete:
+      summary: Deletes the point of concern having the ID corresponding with the pointID param.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pointId:
+                  $ref: '#/components/schemas/pointId'
+      responses:
+        '200':
+          description: Point was deleted
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
