@@ -143,6 +143,7 @@ class MockData {
     const params = {
       state: options.state,
       organization_id: options.organization_id,
+      external_id: options.external_id,
       expires_at: options.expires_at
     };
 

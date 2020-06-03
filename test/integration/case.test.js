@@ -80,7 +80,7 @@ describe('Case', () => {
     it('and return multiple case points', async () => {
       const results = await chai
         .request(server.app)
-        .get(`/case/points?caseId=${currentCase.id}`)
+        .get(`/case/points?caseId=${currentCase.caseId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json');
 
@@ -435,14 +435,14 @@ describe('Case', () => {
       let currentCase = await mockData.mockCase(caseParams)
 
       let updateParams = {
-        caseId: currentCase.id,
+        caseId: currentCase.caseId,
         externalId: 'an_external_id',
       };
 
       const results = await chai
         .request(server.app)
         .put(`/case`)
-        .set('Authorization', `${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(updateParams);
 
