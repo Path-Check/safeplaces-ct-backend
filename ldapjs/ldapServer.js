@@ -17,8 +17,9 @@ server.bind(process.env.LDAP_BIND, function (req, res, next) {
 });
 
 function authorize(req, res, next) {
-  if (!req.connection.ldap.bindDN.equals(process.env.LDAP_BIND))
+  if (!req.connection.ldap.bindDN.equals(process.env.LDAP_BIND)) {
     return next(new ldap.InsufficientAccessRightsError());
+  }
 
   return next();
 }
@@ -40,9 +41,8 @@ function loadPasswd(req, res, next) {
         dn: `cn=${record[0]}, ${process.env.LDAP_ORG}`,
         attributes: {
           cn: record[0],
-          password: record[1],
-          role: record[2],
-          maps_api_key: process.env.SEED_MAPS_API_KEY, // For testing purposes only
+          userPassword: record[1],
+          objectclass: record[2],
         },
       };
     }
@@ -55,7 +55,10 @@ const pre = [authorize, loadPasswd];
 
 server.search(process.env.LDAP_ORG, pre, function (req, res, next) {
   Object.keys(req.users).forEach(function (k) {
-    if (req.filter.matches(req.users[k].attributes)) {
+    if (
+      req.filter.matches(req.users[k].attributes) &&
+      req.dn.toString() === req.users[k].dn
+    ) {
       res.send(req.users[k]);
       res.end();
       return next();
