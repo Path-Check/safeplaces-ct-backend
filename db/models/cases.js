@@ -37,33 +37,48 @@ class Service extends BaseService {
   }
 
   /**
+   * Consent To Publish
+   *
+   * @method consentToPublish
+   * @param {Number} case_id
+   * @return {Object}
+   */
+  async moveToStaging(case_id) {
+    const result = await this.updateOne(case_id, { consented_to_publishing_at: new Date() });
+    if (result) {
+      return this._mapCase(results);
+    }
+  }
+
+  /**
    * Mark Case Staging
    *
-   * @method stage
+   * @method moveToStaging
    * @param {Number} case_id
-   * @return {Array}
+   * @return {Object}
    */
   async moveToStaging(case_id) {
     const results = await this.updateOne(case_id, {
       state: 'staging',
       staged_at: this.database.fn.now(),
     });
-    if (results) {
-      return this._mapCase(results);
+
+    if (result) {
+      return this._mapCase(result);
     }
   }
 
   /**
    * Mark Case Unpublished
    *
-   * @method stage
+   * @method unpublish
    * @param {Number} case_id
-   * @return {Array}
+   * @return {Object}
    */
   async unpublish(case_id) {
-    const results = await this.updateOne(case_id, { state: 'unpublished' });
-    if (results) {
-      return this._mapCase(results);
+    const result = await this.updateOne(case_id, { state: 'unpublished' });
+    if (result) {
+      return this._mapCase(result);
     }
   }
 
