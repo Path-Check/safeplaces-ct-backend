@@ -84,6 +84,11 @@ class Server {
     return Promise.fromCallback(cb => this._server.listen(port, cb));
   }
 
+
+  close() {
+    this._server.close();
+  }
+
   /**
    * @method get
    */
@@ -127,6 +132,7 @@ class Server {
             req.user = user;
             fn(req, res, next).catch(next);
           } else {
+            console.log('Falling t')
             return res.status(401).send('Unauthorized');
           }
         })(req, res, next);

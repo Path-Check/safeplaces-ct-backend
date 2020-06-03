@@ -32,7 +32,7 @@ class Service extends BaseService {
                 .where('state', 'published')
                 .where('expires_at', '>', new Date())
                 .returning('*');
-      }     
+      }
     }
     throw new Error('Could not publish the case. Make sure all are moved into staging state.')
   }
@@ -178,6 +178,24 @@ class Service extends BaseService {
     return []
   }
 
+  /**
+   * Update Case External Id
+   *
+   * @method updateCasePublicationId
+   * @param {Number} id
+   * @return {Object}
+   */
+  async updateCaseExternalId(case_id, external_id) {
+    if (!case_id) throw new Error('ID is invalid')
+    if (!external_id) throw new Error('External ID is invalid')
+
+    const results = await this.updateOne(case_id, { external_id });
+
+    if (results) {
+      return this._mapCase(results);
+    }
+  }
+
   // private
 
   /**
@@ -200,6 +218,7 @@ class Service extends BaseService {
     itm.caseId = itm.id
     itm.updatedAt = itm.updated_at
     itm.expiresAt = itm.expires_at
+    itm.externalId = itm.external_id
     delete itm.organization_id
     delete itm.publication_id
     delete itm.updated_at

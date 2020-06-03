@@ -1,8 +1,8 @@
 exports.seed = function (knex) {
   return knex('organizations')
-    .del()
+    .del() // Deletes ALL existing entries
     .then(async function () {
-      
+
       await knex('organizations').insert({
         id: 1,
         name: 'Dev Organization'

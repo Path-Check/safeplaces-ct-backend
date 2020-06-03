@@ -1,53 +1,17 @@
-const bcrypt = require('bcrypt');
 const passport = require('passport');
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwtSecret = require('../../config/jwtConfig');
 const users = require('../../db/models/users');
+const ldap = require('ldapjs');
+const CustomStrategy = require('passport-custom').Strategy;
 
-const LocalStrategy = require('passport-local').Strategy;
+const ldapServerUrl = `ldap://${process.env.LDAP_HOST}:${process.env.LDAP_PORT}`;
 
 const opts = {
-  jwtFromRequest: ExtractJWT.fromHeader('authorization'),
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
   secretOrKey: jwtSecret.secret,
 };
-
-const localStrategy = new LocalStrategy(
-  {
-    passReqToCallback: true,
-    session: false,
-  },
-  async (req, username, password, done) => {
-    let user;
-    try {
-      user = await users.findOne({ username: username });
-      if (!user) {
-        return done(null, false, {
-          status: 401,
-          message: 'Invalid credentials.',
-        });
-      } else {
-        bcrypt.compare(password, user.password, (err, check) => {
-          if (err) {
-            //TODO: log error
-            return done();
-          } else if (check) {
-            return done(null, [{ username: user.username }]); // TODO: Why are we passing just the username back and not the user.
-          } else {
-            return done(null, false, {
-              status: 401,
-              message: 'Invalid credentials.',
-            });
-          }
-        });
-      }
-    } catch (e) {
-      return done(e);
-    }
-  },
-);
-
-passport.use('local', localStrategy);
 
 const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
   try {
@@ -71,11 +35,66 @@ const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
 
 passport.use('jwt', jwtStrategy);
 
-passport.serializeUser(function (user, done) {
+const ldapClient = ldap.createClient({
+  url: ldapServerUrl,
+});
+
+ldapClient.on('error', err => {
+  if (err.message.startsWith('connect ECONNREFUSED')) {
+    throw new Error(`LDAP server not found at ${ldapServerUrl}. Please start a server to enable authentication. Please see README.md for more information.`);
+  } else {
+    console.error(err);
+  }
+});
+
+ldapClient.bind(process.env.LDAP_BIND, process.env.LDAP_PASS, err => {
+  if (err) console.log(err);
+});
+
+/**
+ * Validate the filter
+ */
+
+if (
+  process.env.LDAP_FILTER.indexOf('{{username}}') === -1 ||
+  process.env.LDAP_FILTER.indexOf('{{password}}') === -1
+) {
+  throw new Error(
+    'LDAP_FILTER environment variable must contain the keywords {{username}} and {{password}}. ' +
+    'These keywords will be replaced by the request details appropriately.'
+  )
+}
+
+passport.use('ldap', new CustomStrategy(
+  function(req, done) {
+    /*
+     * Filter will look like
+     * (&(cn={{username}})(password={{password}}))
+     * {{username}} will be replaced by the sent username
+     * {{password}} will be replaced by the sent password
+     */
+
+    let filter = process.env.LDAP_FILTER;
+    filter = filter.replace(/{{username}}/g, req.body.username);
+    filter = filter.replace(/{{password}}/g, req.body.password);
+
+    ldapClient.search(process.env.LDAP_ORG, { filter }, (err, res) => {
+      res.on('searchEntry', function(entry) {
+        return done(err, entry.object);
+      });
+      res.on('error', function(err) {
+        console.log(err.message);
+        return done(null, {});
+      });
+    });
+  },
+));
+
+passport.serializeUser(function(user, done) {
   done(null, user);
 });
 
-passport.deserializeUser(function (user, done) {
+passport.deserializeUser(function(user, done) {
   done(null, user);
 });
 

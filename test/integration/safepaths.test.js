@@ -21,7 +21,7 @@
 // // const ORGANISATION_ID = 'a88309c2-26cd-4d2b-8923-af0779e423a3';
 // // const USER_ID = 'a88309ca-26cd-4d2b-8923-af0779e423a3';
 // // const USERNAME = 'admin';
-// // const 
+// // const
 
 // chai.use(chaiHttp);
 
@@ -423,7 +423,7 @@
 //           start_date,
 //           end_date
 //         })
-//         .set('Authorization', `${token}`)
+//         .set('Authorization', `Bearer ${token}`)
 //         .end(function (err, res) {
 //           res.should.have.status(200);
 //           res.should.be.json; // jshint ignore:line
