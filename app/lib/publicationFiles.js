@@ -144,6 +144,19 @@ class PublicationFiles {
       ];
     }
 
+    const shuffle = (array) => {
+      let currentIndex = array.length
+      let temporaryValue, randomIndex
+      while (0 !== currentIndex) {
+        randomIndex = Math.floor(Math.random() * currentIndex)
+        currentIndex -= 1
+        temporaryValue = array[currentIndex]
+        array[currentIndex] = array[randomIndex]
+        array[randomIndex] = temporaryValue
+      }
+      return array
+    }
+
     // Get Publication dates, and sort them.
     let publicationDates = [...new Set(trails.map(trail => new Date(trail.publish_date).getTime()))];
     publicationDates = publicationDates.sort((a,b) => (a.time > b.time) ? 1 : ((b.time > a.time) ? -1 : 0)).reverse(); // Assure they are sorted properly.
@@ -187,7 +200,7 @@ class PublicationFiles {
 
     // Sort all trails by time for privacy.
     return groups.map(group => {
-      group.trails = group.trails.sort((a,b) => (a.time > b.time) ? 1 : ((b.time > a.time) ? -1 : 0));
+      group.trails = shuffle(group.trails);
       return group
     })
   }
