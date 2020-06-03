@@ -66,8 +66,9 @@ Example:
 LDAP_HOST=localhost
 LDAP_PORT=1389
 LDAP_PASS=safepaths
-LDAP_ORG='dc=covidsafepaths,dc=org'
-LDAP_BIND='cn=admin'
+LDAP_ORG="dc=covidsafepaths, dc=org"
+LDAP_BIND="cn=admin, dc=covidsafepaths, dc=org"
+LDAP_FILTER="(&(cn={{username}})(password={{password}}))"
 ```
 
 The Express server queries the LDAP server with each login request at `/login`.
