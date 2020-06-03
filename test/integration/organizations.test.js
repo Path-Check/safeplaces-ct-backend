@@ -3,6 +3,7 @@ process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const chai = require('chai');
+const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
 const jwt = require('jsonwebtoken');
 

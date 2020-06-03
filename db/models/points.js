@@ -137,7 +137,7 @@ class Service extends BaseService {
 
   async findIntervalCases(publication) {
     if (!publication.start_date) throw new Error('Start date is invalid');
-    if (!publication.end_date) throw new Error('Start date is invalid');
+    if (!publication.end_date) throw new Error('End date is invalid');
 
     let cases = await this.table
                   .select('case_id')

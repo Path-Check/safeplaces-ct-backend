@@ -7,7 +7,6 @@ const accessCodesService = require('../../../db/models/accessCodes');
 const uploadService = require('../../../db/models/upload');
 const pointsService = require('../../../db/models/points');
 
-const utils = require('../../lib/utils');
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
 const writeToGCSBucket = require('../../lib/writeToGCSBucket');

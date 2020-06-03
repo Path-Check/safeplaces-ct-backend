@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const BaseService = require('../common/service.js');
 const casesService = require('./cases');
 
@@ -29,15 +28,7 @@ class Service extends BaseService {
 
     const results = await this.create(publication);
     if (results) {
-
-      let intervalCheck = await pointsService.findIntervalCases(results[0])
-      if (intervalCheck.length > 0) {
-        const casesUpdateResults = await casesService.updateCasePublicationId(intervalCheck, results[0].id)
-        if (!casesUpdateResults) {
-          throw new Error('Internal server error.')
-        }
-      }
-      return _.extend(results[0], { cases: intervalCheck })
+      return results[0];
     }
     throw new Error('Internal server error.')
   }

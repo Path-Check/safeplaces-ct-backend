@@ -4,6 +4,7 @@ process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const _ = require('lodash');
 const chai = require('chai');
+const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
 const jwt = require('jsonwebtoken');
 
@@ -23,13 +24,13 @@ describe('Point', () => {
 
   before(async () => {
     await mockData.clearMockData()
-    
+
     let orgParams = {
       name: 'My Example Organization',
       info_website_url: 'http://sample.com',
     };
     currentOrg = await mockData.mockOrganization(orgParams);
-  
+
     let newUserParams = {
       username: 'myAwesomeUser',
       password: 'myAwesomePassword',
@@ -37,7 +38,7 @@ describe('Point', () => {
       organization_id: currentOrg.id,
     };
     await mockData.mockUser(newUserParams);
-  
+
     token = jwt.sign(
       {
         sub: newUserParams.username,
@@ -61,14 +62,14 @@ describe('Point', () => {
     before(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-  
+
       let params = {
         organization_id: currentOrg.id,
         number_of_trails: 10,
         seconds_apart: 1800,
         state: 'staging'
       };
-  
+
       currentCase = await mockData.mockCaseAndTrails(_.extend(params, { state: 'unpublished' }))
     });
 
@@ -81,7 +82,7 @@ describe('Point', () => {
         latitude: 39.24060321,
         time: "2020-05-21T18:25:43.511Z"
       };
-  
+
       const results = await chai
         .request(server.app)
         .put(`/point`)
@@ -109,31 +110,31 @@ describe('Point', () => {
     before(async () => {
       await casesService.deleteAllRows()
       await pointsService.deleteAllRows()
-  
+
       let params = {
         organization_id: currentOrg.id,
         number_of_trails: 10,
         seconds_apart: 1800,
         state: 'staging'
       };
-  
+
       currentCase = await mockData.mockCaseAndTrails(_.extend(params, { state: 'unpublished' }))
     });
 
     it('return a 200', async () => {
       const testPoint = currentCase.points[0];
-      
+
       const newParams = {
         pointId: testPoint.id,
       };
-  
+
       const results = await chai
         .request(server.app)
         .delete(`/point`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.should.have.status(200);
     });
   });

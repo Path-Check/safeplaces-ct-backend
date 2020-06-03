@@ -5,6 +5,7 @@ process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 const _ = require('lodash');
 const moment = require('moment')
 const chai = require('chai');
+const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
 const jwt = require('jsonwebtoken');
 
@@ -293,7 +294,7 @@ describe('Case', () => {
   describe('publishes cases that generate multiple files', () => {
 
     let newCase
-    
+
     beforeEach(async () => {
       await casesService.deleteAllRows();
       await pointsService.deleteAllRows();
@@ -304,7 +305,7 @@ describe('Case', () => {
         seconds_apart: 1800,
         state: 'staging'
       };
-      
+
       // Create two cases that have been published.
       await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 5 * 1000)) })); // Published 5 days ago
       await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 2 * 1000)) })); // Published 2 days ago
