@@ -50,35 +50,6 @@ components:
                 example: "Invalid credentials"
     UploadInProgress:
       description: Upload in Progress
-  parameters:
-    authCodeParam:
-      in : path
-      name: code
-      required: true
-      description: 'Access code'
-      schema:
-        $ref: '#/components/schemas/authCode'
-    caseIdParam:
-      in : path
-      name: caseId
-      required : true
-      description: 'The ID of the case'
-      schema:
-        $ref: '#/components/schemas/caseId'
-    orgIdParam:
-      in : path
-      name: orgId
-      required: true
-      description: 'the ID of the org'
-      schema:
-        $ref: '#/components/schemas/orgId'
-    pointIdParam:
-      in : path
-      name: pointId
-      required: true
-      description: 'The Id of the point'
-      schema:
-        $ref: '#/components/schemas/pointId'
   schemas:
     apiEndpoint:
       type: string
@@ -102,12 +73,25 @@ components:
         caseId:
           type: integer
           example: 14
+        externalId:
+          $ref : '#/components/schemas/externalId'
         updatedAt:
           $ref : '#/components/schemas/timeString'
-        status:
+        state:
           $ref: '#/components/schemas/caseState'
         expiresAt:
           $ref : '#/components/schemas/timeString'
+    caseIds:
+      type : object
+      properties: 
+        caseIds:
+          type: array
+          items: 
+            $ref : '#/components/schemas/caseId'
+          example:
+            - 12
+            - 13
+            - 14
     caseCreation:
       type : object
       properties:
@@ -116,7 +100,7 @@ components:
           example: 14
         updatedAt:
           $ref : '#/components/schemas/timeString'
-        status:
+        state:
           $ref: '#/components/schemas/caseState'
         expiresAt:
           $ref : '#/components/schemas/timeString'
@@ -266,7 +250,8 @@ components:
       properties:
         token:
           type: string
-          example: "eyABCD4321JIUzI1NiIsInR5cCI6IkpXVCJ9"
+          example:   "eyABCD4321JIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTU5MDE1MjIzMCwiZXhwIjoxNTkwMTU1ODMwfQ.QUK4ybt971yQiqUT-HTVPh6VsRkxM2wEKTpTYifY3Uw"
+
     uploadId:
       type: object
       properties:
@@ -299,23 +284,35 @@ components:
           "cases": [
                     {
                       "caseId": 12,
-                      "status": "unpublished",
+                      "state": "unpublished",
+                      "externalId": "an_external_id",
                       "updatedAt": "2020-05-21T18:25:43.511Z",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     },
                     {
                       "caseId": 13,
-                      "status": "staging",
+                      "state": "staging",
+                      "externalId": "an_external_id",
                       "updatedAt": "2020-05-21T18:25:43.511Z",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     },
                     {
                       "caseId": 14,
-                      "status": "published",
+                      "state": "published",
+                      "externalId": "an_external_id",
                       "updatedAt": "2020-05-21T18:25:43.511Z",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     }
                   ]
+        }
+    caseStaging:
+      value:
+        {
+          "caseId": 14,
+          "updatedAt": "2020-05-21T18:25:43.511Z",
+          "state": "staging",
+          "externalId": "an_external_id",
+          "expiresAt": "2020-05-30T18:25:43.511Z"
         }
     casesListPublished:
       value:
@@ -323,25 +320,25 @@ components:
           "cases": [
                     {
                       "caseId": 12,
-                      "status": "published",
+                      "state": "published",
                       "updatedAt": "2020-05-21T18:25:43.511Z",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     },
                     {
                       "caseId": 13,
-                      "status": "published",
+                      "state": "published",
                       "updatedAt": "2020-05-21T18:25:43.511Z",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     },
                     {
                       "caseId": 14,
-                      "status": "published",
+                      "state": "published",
                       "updatedAt": "2020-05-21T18:25:43.511Z",
                       "expiresAt": "2020-05-30T18:25:43.511Z"
                     }
                   ]
         }
-    
+
 paths:
   '/access-code/valid':
     get:
@@ -378,8 +375,8 @@ paths:
       responses:
         '200':
           description: Successful request
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/InvalidAccessCode'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -416,8 +413,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /login:
     post:
-      operationId: AuthController_login
-      summary: Initiate authorization - part of mandatory API
+      summary: Authenticates the user and responds with a JWT that can be used to access protected endpoints.
       parameters: []
       requestBody:
         content:
@@ -454,6 +450,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
   /organization:
     get:
       summary: Returns information about the organization associated with the requesting user.
@@ -477,6 +477,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
   '/organization/configuration':
     get:
       summary: Returns the configuration of the organization associated with the requesting user.
@@ -493,6 +497,9 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'      
+      security:
+        - contactTracer: []
+        - admin: []
     put:
       summary: Updates the configuration of the organization.
       requestBody:
@@ -507,6 +514,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/orgConfiguration'
+      security:
+        - contactTracer: []
+        - admin: []
+
   '/organization/cases':
     get:
       description: Gets a list of case records for the organization
@@ -529,31 +540,30 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
   '/organization/case':
     post:
-      summary: Creates a new case,  and associates it with the organization.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                organizationId: 
-                  $ref: '#/components/schemas/orgId'
-
+      summary: Creates a new case, and associates it with the organization of logged in user.
       responses:
         '200':
           description: Creates a new case and associates it with the organization
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/caseCreation'
+                $ref: '#/components/schemas/case'
         '400':
           $ref: '#/components/responses/InvalidRequest'
         '403':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
   '/case':
     put:
       summary: Updates a case (currently only supports updating of case’s external id)
@@ -573,24 +583,16 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  caseId: 
-                    $ref: '#/components/schemas/caseId'
-                  state:
-                    $ref: '#/components/schemas/caseState'
-                  externalId:
-                    $ref: '#/components/schemas/externalId'
-                  expiresAt:
-                    $ref: '#/components/schemas/timeString'
-                  updatedAt:
-                    $ref: '#/components/schemas/timeString'
+                $ref : '#/components/schemas/case'
         '400':
           $ref: '#/components/responses/InvalidRequest'
         '403':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
               
     delete:
       summary: Delete case record
@@ -611,6 +613,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'        
+      security:
+        - contactTracer: []
+        - admin: []
+  
   '/case/points':
     get:
       summary: Returns all points of concern for the provided case.
@@ -678,6 +684,10 @@ paths:
           $ref : '#/components/responses/ConsentNotGranted'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
   '/case/point':
     post:
       summary: Creates a new point of concern to be asssociated with the case
@@ -697,13 +707,74 @@ paths:
           content: 
             application/json:
               schema:
-                $ref: '#/components/schemas/concernPointDb'
+                type: object
+                properties:
+                  concernPoint:
+                    $ref: '#/components/schemas/concernPointDb'
         '400':
           $ref: '#/components/responses/InvalidRequest'
         '403':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+  '/case/consent-to-publishing':
+    post:
+      summary: Captures user consent to having their data published in the aggregated anonymized JSON file that is available to public.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId: 
+                  $ref: '#/components/schemas/caseId'
+      responses:
+        '200': 
+          description: OK
+          content:
+            appliation/json:
+              schema:
+                $ref: '#/components/schemas/case'
+              examples:
+                one:
+                  $ref : '#/components/examples/caseStaging'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security:
+      - contactTracer: []
+      - admin: []
+                
+  '/case/stage':
+    post:
+      summary: Updates the state of the case from unpublished to staging.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caseId:
+                  $ref: '#/components/schemas/caseId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case:
+                    $ref : '#/components/schemas/case'
+              examples:
+                one:
+                  $ref : '#/components/examples/caseStaging'
       security:
         - contactTracer: []
         - admin: []
@@ -715,12 +786,8 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                caseIds:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/caseId'
+              $ref : '#/components/schemas/caseIds'
+
       responses:
         '200':
           description: OK
@@ -728,7 +795,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/cases'
-              examples: 
+              examples:
                 one:
                   $ref: '#/components/examples/casesListPublished'
         '400':
@@ -737,6 +804,9 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
             
   '/point':
     put:
@@ -752,15 +822,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/concernPointDb'
+                type: object
+                properties:
+                  point:
+                    $ref: '#/components/schemas/concernPointDb'
         '400':
           $ref: '#/components/responses/InvalidRequest'
         '403':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
+
     delete:
-      summary: Deletes an existing point of concern
+      summary: Deletes the point of concern having the ID corresponding with the pointID param.
       requestBody:
         content:
           application/json:
@@ -778,3 +855,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      security:
+        - contactTracer: []
+        - admin: []
