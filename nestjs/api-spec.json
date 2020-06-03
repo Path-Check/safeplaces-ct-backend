@@ -27,10 +27,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "username",
-          "password"
-        ]
+        "required": ["username", "password"]
       },
       "LoginDto": {
         "type": "object",
@@ -42,10 +39,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "username",
-          "password"
-        ]
+        "required": ["username", "password"]
       },
       "Login2Dto": {
         "type": "object",
@@ -60,11 +54,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "username",
-          "password",
-          "code"
-        ]
+        "required": ["username", "password", "code"]
       },
       "RegisterDto": {
         "type": "object",
@@ -89,13 +79,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "username",
-          "password",
-          "email",
-          "admin",
-          "role"
-        ]
+        "required": ["username", "password", "email", "admin", "role"]
       },
       "ChangePasswordDto": {
         "type": "object",
@@ -106,9 +90,7 @@
             "maxLength": 20
           }
         },
-        "required": [
-          "password"
-        ]
+        "required": ["password"]
       },
       "SaveRedactedDto": {
         "type": "object",
@@ -123,10 +105,7 @@
             }
           }
         },
-        "required": [
-          "identifier",
-          "trail"
-        ]
+        "required": ["identifier", "trail"]
       },
       "PublishDto": {
         "type": "object",
