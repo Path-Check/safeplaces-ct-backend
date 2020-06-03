@@ -39,14 +39,14 @@ class Service extends BaseService {
   /**
    * Consent To Publish
    *
-   * @method consentToPublish
+   * @method consentToPublishing
    * @param {Number} case_id
    * @return {Object}
    */
-  async moveToStaging(case_id) {
-    const result = await this.updateOne(case_id, { consented_to_publishing_at: new Date() });
-    if (result) {
-      return this._mapCase(results);
+  async consentToPublishing(case_id) {
+    const result = await this.updateOne(case_id, { consented_to_publishing_at: this.database.fn.now() });
+    if (result){
+      return this._mapCase(result);
     }
   }
 
@@ -266,6 +266,7 @@ class Service extends BaseService {
     delete itm.staged_at;
     delete itm.expires_at;
     delete itm.created_at;
+    delete itm.consented_to_publishing_at;
     delete itm.id;
     return itm
   }
