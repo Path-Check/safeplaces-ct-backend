@@ -16,6 +16,6 @@ exports.seed = function (knex) {
         api_endpoint_url:
           'https://api.something.give/safe_path/',
       });
-      
+
     });
 };

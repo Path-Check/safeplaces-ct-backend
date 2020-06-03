@@ -34,7 +34,7 @@ const encrypt = async (location, salt = 'salt', debug = false) => {
   const secret = `${hash}${roundedTime}`;
 
   const options = {
-    N: 16384 // Only option that we might want to change.
+    N: 4096 // Only option that we might want to change.
   };
 
   const derivedKey = await Promise.fromCallback(cb => crypto.scrypt(secret, salt, 8, options, cb));

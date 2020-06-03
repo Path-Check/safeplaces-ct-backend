@@ -1,8 +1,6 @@
-const _ = require('lodash');
 const knex = require('../knex.js');
 const BaseService = require('../common/service.js');
 const casesService = require('./cases');
-const pointsService = require('./points');
 
 class Service extends BaseService {
 
@@ -27,21 +25,11 @@ class Service extends BaseService {
   }
 
   async insert(publication) {
-    publication.start_date = new Date(publication.start_date * 1000);
-    publication.end_date = new Date(publication.end_date * 1000);
     publication.publish_date = new Date(publication.publish_date * 1000);
 
     const results = await knex(this._name).insert(publication).returning('*');
     if (results) {
-      
-      let intervalCheck = await pointsService.findIntervalCases(results[0])
-      if (intervalCheck.length > 0) {
-        const casesUpdateResults = await casesService.updateCasePublicationId(intervalCheck, results[0].id)
-        if (!casesUpdateResults) {
-          throw new Error('Internal server error.')
-        }
-      }
-      return _.extend(results[0], { cases: intervalCheck })
+      return results[0]
     }
     throw new Error('Internal server error.')
   }
