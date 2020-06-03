@@ -165,12 +165,14 @@ class Service extends BaseService {
     const points = await knex(this._name)
               .select(
                 'cases.id AS caseId',
+                'publications.publish_date',
                 'points.id AS pointId',
                 'points.coordinates',
                 'points.time',
                 'points.hash'
               )
               .join('points', 'cases.id', '=', 'points.case_id')
+              .join('publications', 'cases.publication_id', '=', 'publications.id')
               .where('cases.state', 'published')
               .where('cases.expires_at', '>', new Date())
               .returning('*');

@@ -11,7 +11,6 @@ const pointsService = require('../../db/models/points');
 const publicationService = require('../../db/models/publications');
 const casesService = require('../../db/models/cases');
 
-
 class MockData {
 
   /**
@@ -103,8 +102,7 @@ class MockData {
     if (!timeIncrementInSeconds) throw new Error('Info Website must be provided');
     if (!options.caseId) throw new Error('Case ID must be provided');
 
-    let trails = this._generateTrailsData(numberOfTrails, timeIncrementInSeconds)
-
+    let trails = this._generateTrailsData(numberOfTrails, timeIncrementInSeconds, options.startAt)
     let results = await pointsService.insertRedactedTrailSet(
       trails,
       options.caseId
@@ -170,6 +168,7 @@ class MockData {
       state: options.state,
       expires_at: options.expires_at
     };
+    if (options.publishedOn) caseParams.state = 'published'
     let newCase = await this.mockCase(caseParams)
     newCase.points = [];
 
@@ -177,10 +176,21 @@ class MockData {
     let trailsParams = {
       caseId: newCase.caseId
     }
+    if (options.publishedOn) trailsParams.startAt = options.publishedOn
     const points = await this.mockTrails(options.number_of_trails, options.seconds_apart, trailsParams)
     if (points) {
       newCase.points = newCase.points.concat(points);
     }
+
+    if (options.publishedOn) {
+      const publicationParams = {
+        organization_id: options.organization_id,
+        publish_date: Math.floor(options.publishedOn / 1000)
+      } 
+      const publication = await publicationService.insert(publicationParams);
+      await casesService.updateCasePublicationId([newCase.id], publication.id);
+    }
+
     return newCase
   }
 

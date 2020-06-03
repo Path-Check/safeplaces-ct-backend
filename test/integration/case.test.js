@@ -283,7 +283,7 @@ describe('Case', () => {
         point.should.be.a('string');
       })
 
-      const firstCursor = results.body.cursor.shift()
+      const firstCursor = results.body.cursor.pages.shift()
       firstCursor.should.be.a('object');
       firstCursor.should.have.property('id');
       firstCursor.id.should.be.a('string');
@@ -294,6 +294,53 @@ describe('Case', () => {
       firstCursor.should.have.property('filename');
       firstCursor.filename.should.be.a('string');
       firstCursor.filename.should.equal(pageEndpoint.replace('[PAGE]', `${firstCursor.startTimestamp}_${firstCursor.endTimestamp}`));
+    });
+  });
+
+  describe('publishes cases that generate multiple files', () => {
+
+    let newCase
+    
+    beforeEach(async () => {
+      await casesService.deleteAllRows()
+      await pointsService.deleteAllRows()
+
+      let params = {
+        organization_id: currentOrg.id,
+        number_of_trails: 10,
+        seconds_apart: 1800,
+        state: 'staging'
+      };
+      
+      // Create two cases that have been published.
+      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 5 * 1000)) })) // Published 5 days ago
+      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 2 * 1000)) })) // Published 2 days ago
+
+      // Create third case that will be published on call.
+      newCase = await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: null }))
+    });
+
+    it('returns test json to validate contents of file', async () => {
+      const newParams = {
+        caseIds: [newCase.id],
+      };
+
+      const results = await chai
+        .request(server.app)
+        .post(`/cases/publish?type=json`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send(newParams);
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+
+      results.body.cursor.should.be.a('object');
+      results.body.cursor.pages.should.be.a('array');
+      results.body.cursor.pages.length.should.equal(3);
+      results.body.files.should.be.a('array');
+      results.body.files.length.should.equal(3);
     });
   });
 

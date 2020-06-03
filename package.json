@@ -14,7 +14,9 @@
     "test:int": "mocha test/integration/*.* --exit",
     "test:unit": "mocha test/unit/*.* --exit",
     "test:all": "mocha test/**/*.* --exit",
-    "format": "prettier --write **/*.{js,json}"
+    "format": "prettier --write **/*.{js,json}",
+    "ldap:build": "cd ldapjs && npm install",
+    "ldap:start": "cd ldapjs && npm start"
   },
   "pre-commit": [
     "format",

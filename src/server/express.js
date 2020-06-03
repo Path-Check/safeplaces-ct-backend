@@ -132,6 +132,7 @@ class Server {
             req.user = user;
             fn(req, res, next).catch(next);
           } else {
+            console.log('Falling t')
             return res.status(401).send('Unauthorized');
           }
         })(req, res, next);
