@@ -24,7 +24,7 @@ exports.login = (req, res) => {
     );
     res.status(200).json({
       token: token,
-      maps_api_key: user.maps_api_key,
+      maps_api_key: process.env.SEED_MAPS_API_KEY,
     });
   } else {
     res.status(401).json({ message: 'Invalid credentials.' });
