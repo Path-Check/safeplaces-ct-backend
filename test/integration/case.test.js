@@ -50,13 +50,6 @@ describe('Case', () => {
       },
       jwtSecret.secret,
     );
-
-    // const caseParams = {
-    //   organization_id: currentOrg.id,
-    //   state: 'unpublished'
-    // };
-
-    // currentCase = await mockData.mockCase(caseParams)
   });
 
   describe('fetch case points', () => {
