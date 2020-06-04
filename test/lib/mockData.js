@@ -3,6 +3,7 @@ const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const randomCoordinates = require('random-coordinates');
+const sinon = require('sinon');
 
 const organizationService = require('../../db/models/organizations');
 const settingsService = require('../../db/models/settings');
@@ -10,6 +11,8 @@ const usersService = require('../../db/models/users');
 const pointsService = require('../../db/models/points');
 const publicationService = require('../../db/models/publications');
 const casesService = require('../../db/models/cases');
+const uploadService = require('../../db/models/upload');
+const accessCodesService = require('../../db/models/accessCodes');
 
 class MockData {
 
@@ -19,12 +22,13 @@ class MockData {
    * Clear out Mock Data
    */
   async clearMockData() {
-    await organizationService.deleteAllRows()
-    await settingsService.deleteAllRows()
-    await usersService.deleteAllRows()
-    await pointsService.deleteAllRows()
-    await publicationService.deleteAllRows()
-    await casesService.deleteAllRows()
+    await organizationService.deleteAllRows();
+    await settingsService.deleteAllRows();
+    await usersService.deleteAllRows();
+    await pointsService.deleteAllRows();
+    await publicationService.deleteAllRows();
+    await casesService.deleteAllRows();
+    sinon.restore();
   }
 
   /**
@@ -187,12 +191,80 @@ class MockData {
       const publicationParams = {
         organization_id: options.organization_id,
         publish_date: Math.floor(options.publishedOn / 1000)
-      } 
+      }
       const publication = await publicationService.insert(publicationParams);
       await casesService.updateCasePublicationId([newCase.caseId], publication.id);
     }
 
     return newCase
+  }
+
+  /**
+   * Generate a mock access code
+   *
+   * @method mockAccessCode
+   */
+  async mockAccessCode() {
+    const mockCode = {
+      id: 1,
+      value: await accessCodesService.generateValue(),
+      valid: true,
+    };
+
+    try {
+      sinon.restoreObject(accessCodesService);
+    } catch (error) {
+      // no-op
+    }
+
+    sinon.stub(accessCodesService, 'create').returns(mockCode);
+
+    sinon.stub(accessCodesService, 'find').callsFake((query) => {
+      if (query && (query.id === mockCode.id || query.value === mockCode.value)) {
+        return mockCode;
+      }
+      return null;
+    });
+
+    return await accessCodesService.create();
+  }
+
+  /**
+   * Generates mock upload points
+   *
+   * @method mockUploadPoints
+   * @param {Number} num
+   * @param {Number} timeIncrementInSeconds
+   * @param {Object} options
+   */
+  async mockUploadPoints(accessCode, num) {
+    if (!accessCode || !accessCode.id) throw new Error('Access code must be provided');
+
+    const accessCodeId = accessCode.id;
+    let points = this._generateUploadedPoints(accessCodeId, num);
+
+    try {
+      sinon.restoreObject(uploadService);
+    } catch (error) {
+      // no-op
+    }
+
+    sinon.stub(uploadService, 'create').returns(points);
+
+    sinon.stub(uploadService, 'fetchPoints').callsFake((accessCode) => {
+      if (accessCode && accessCode.id === accessCodeId) {
+        return points;
+      }
+      return [];
+    });
+
+    sinon.stub(uploadService, 'deletePoints').callsFake((accessCode) => {
+      if (accessCode && accessCode.id === accessCodeId) {
+        points = [];
+      }
+    });
+
+    return await uploadService.create(points);
   }
 
   // private
@@ -208,6 +280,20 @@ class MockData {
         time: coordTime
       };
     })
+  }
+
+  _generateUploadedPoints(accessCodeId, num) {
+    const uploadId = uuidv4();
+    return Array(num).fill("").map(() => {
+      const coords = randomCoordinates({fixed: 5}).split(',');
+      return {
+        access_code_id: accessCodeId,
+        upload_id: uploadId,
+        coordinates: pointsService.makeCoordinate(parseFloat(coords[1]), parseFloat(coords[0])),
+        time: uploadService.database.fn.now(),
+        hash: "test",
+      };
+    });
   }
 }
 

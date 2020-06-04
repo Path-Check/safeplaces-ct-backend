@@ -1,11 +1,10 @@
-const knex = require('../knex.js');
 const BaseService = require('../common/service.js');
 const casesService = require('./cases');
 
 class Service extends BaseService {
 
   findLastOne(query) {
-    return knex(this._name).where(query).orderBy('created_at', 'desc').first();
+    return this.table.where(query).orderBy('created_at', 'desc').first();
   }
 
   async findLastPublicationAndCases(options) {
@@ -16,7 +15,7 @@ class Service extends BaseService {
       organization_id: options.organization_id
     }
 
-    const publication = await knex(this._name).where(query).orderBy('created_at', 'desc').first();
+    const publication = await this.table.where(query).orderBy('created_at', 'desc').first();
     if (publication) {
       publication.cases = await this.selectPublicationCases(publication.id, options.status)
       return publication
@@ -27,9 +26,9 @@ class Service extends BaseService {
   async insert(publication) {
     publication.publish_date = new Date(publication.publish_date * 1000);
 
-    const results = await knex(this._name).insert(publication).returning('*');
+    const results = await this.create(publication);
     if (results) {
-      return results[0]
+      return results[0];
     }
     throw new Error('Internal server error.')
   }

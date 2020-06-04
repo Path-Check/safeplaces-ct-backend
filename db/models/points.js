@@ -1,8 +1,9 @@
 const BaseService = require('../common/service.js');
-const knex = require('../knex.js');
+const Buffer = require('buffer').Buffer;
+
+const knex = require('../knex.js').private;
 const knexPostgis = require("knex-postgis");
 const wkx = require('wkx');
-const Buffer = require('buffer').Buffer;
 const geoHash = require('../../app/lib/geoHash');
 
 const st = knexPostgis(knex);
@@ -26,13 +27,12 @@ class Service extends BaseService {
     throw new Error('Could not find redacted points.')
   }
 
-  async createRedactdPoint(caseId, point) {
+  async createRedactedPoint(caseId, point) {
     let record = {};
     let hash = await geoHash.encrypt(point)
     if (hash) {
       record.hash = hash.encodedString
-      record.coordinates = st.setSRID(
-        st.makePoint(point.longitude, point.latitude), 4326);
+      record.coordinates = this.makeCoordinate(point.longitude, point.latitude);
       record.time = new Date(point.time); // Assumes time in epoch seconds
       record.case_id = caseId;
       const points = await this.create(record);
@@ -41,6 +41,31 @@ class Service extends BaseService {
       }
     }
     throw new Error('Could not create hash.')
+  }
+
+  async createPointsFromUpload(caseId, uploadedPoints) {
+    if (!caseId) throw new Error('Case ID is invalid');
+    if (!uploadedPoints) throw new Error('Uploaded points are invalid');
+
+    const records = [];
+
+    uploadedPoints.forEach(point => {
+      records.push({
+        hash: point.hash,
+        coordinates: point.coordinates,
+        time: point.time,
+        upload_id: point.upload_id,
+        case_id: caseId,
+      });
+    });
+
+    const points = await this.create(records);
+
+    if (!points) {
+      throw new Error('Could not create points.');
+    }
+
+    return this._getRedactedPoints(points);
   }
 
   /**
@@ -58,8 +83,7 @@ class Service extends BaseService {
     let hash = await geoHash.encrypt(point)
     if (hash) {
       record.hash = hash.encodedString
-      record.coordinates = st.setSRID(
-        st.makePoint(point.longitude, point.latitude), 4326);
+      record.coordinates = this.makeCoordinate(point.longitude, point.latitude);
       record.time = new Date(point.time);
       const points = await this.updateOne(point_id, record);
       if (points) {
@@ -68,7 +92,14 @@ class Service extends BaseService {
     }
     throw new Error('Could not create hash.')
   }
-  
+
+  makeCoordinate(longitude, latitude) {
+    return st.setSRID(
+      st.makePoint(longitude, latitude),
+      4326
+    );
+  }
+
   // private
 
   /**
@@ -105,7 +136,7 @@ class Service extends BaseService {
   //   if (!publication.start_date) throw new Error('Start date is invalid');
   //   if (!publication.end_date) throw new Error('Start date is invalid');
 
-  //   return knex(this._name)
+  //   return this.table
   //     .whereIn('case_id', publication.cases)
   //     .where('time', '>=', new Date(publication.start_date))
   //     .where('time', '<=', new Date(publication.end_date));
@@ -113,9 +144,9 @@ class Service extends BaseService {
 
   async findIntervalCases(publication) {
     if (!publication.start_date) throw new Error('Start date is invalid');
-    if (!publication.end_date) throw new Error('Start date is invalid');
+    if (!publication.end_date) throw new Error('End date is invalid');
 
-    let cases = await knex(this._name)
+    let cases = await this.table
                   .select('case_id')
                   .where('time', '>=', new Date(publication.start_date))
                   .where('time', '<=', new Date(publication.end_date))
@@ -125,7 +156,7 @@ class Service extends BaseService {
     }
     return []
   }
-  
+
   async insertRedactedTrailSet(trails, caseId) {
     let trailRecords = [];
 
@@ -135,15 +166,14 @@ class Service extends BaseService {
       hash = await geoHash.encrypt(trail)
       if (hash) {
         record.hash = hash.encodedString
-        record.coordinates = st.setSRID(
-          st.makePoint(trail.longitude, trail.latitude), 4326);
+        record.coordinates = this.makeCoordinate(trail.longitude, trail.latitude);
         record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
         record.case_id = caseId;
         trailRecords.push(record);
       }
     }
-    
-    return knex(this._name).insert(trailRecords).returning('*');
+
+    return this.create(trailRecords);
   }
 
 }

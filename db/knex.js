@@ -1,5 +1,6 @@
-var environment = process.env.NODE_ENV || 'development';
-var config = require('../knexfile.js')[environment];
-var knex = require('knex')(config);
+const environment = process.env.NODE_ENV || 'development';
 
-module.exports = knex;
+module.exports = {
+  public: require('knex')(require('../knexfile-public.js')[environment]),
+  private: require('knex')(require('../knexfile.js')[environment]),
+};

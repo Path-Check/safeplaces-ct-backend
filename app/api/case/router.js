@@ -9,6 +9,11 @@ server.get(
 );
 
 server.post(
+  '/case/points',
+  server.wrapAsync(async (req, res) => await controller.ingestUploadedPoints(req, res), true),
+);
+
+server.post(
   '/case/point',
   server.wrapAsync(async (req, res) => await controller.createCasePoint(req, res), true),
 );
