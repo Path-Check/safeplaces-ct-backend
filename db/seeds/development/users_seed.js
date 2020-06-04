@@ -12,7 +12,7 @@ exports.seed = function (knex) {
       return knex('users').insert({
         id: 'a88309ca-26cd-4d2b-8923-af0779e423a3',
         organization_id: 1,
-        username: 'admin',
+        username: 'spladmin',
         password: password,
         email: 'admin@org.com',
         is_admin: true,
