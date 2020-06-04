@@ -68,17 +68,17 @@ LDAP_PORT=1389
 LDAP_PASS=safepaths
 LDAP_ORG="dc=covidsafepaths, dc=org"
 LDAP_BIND="cn=admin, dc=covidsafepaths, dc=org"
-LDAP_FILTER="(&(cn={{username}})(password={{password}}))"
+LDAP_SEARCH="cn={{username}}, dc=covidsafepaths, dc=org"
+LDAP_FILTER="(objectClass=*)"
 ```
 
 The Express server queries the LDAP server with each login request at `/login`.
 
-The filter will look like
-`(&(cn={{username}})(password={{password}}))`
+The search query will look like
+`cn={{username}}, dc=covidsafepaths, dc=org`
 
-Note that `{{username}}` and `{{password}}` are **explicitly required.**
+Note that `{{username}}` is **explicitly required.**
 `{{username}}` will be replaced by the username sent by the client's request.
-`{{password}}` will be replaced by the password sent by the client's request.
 
 To run the server:
 ```

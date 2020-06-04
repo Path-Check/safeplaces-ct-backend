@@ -56,11 +56,10 @@ ldapClient.bind(process.env.LDAP_BIND, process.env.LDAP_PASS, err => {
  */
 
 if (
-  process.env.LDAP_FILTER.indexOf('{{username}}') === -1 ||
-  process.env.LDAP_FILTER.indexOf('{{password}}') === -1
+  process.env.LDAP_SEARCH.indexOf('{{username}}') === -1
 ) {
   throw new Error(
-    'LDAP_FILTER environment variable must contain the keywords {{username}} and {{password}}. ' +
+    'LDAP_FILTER environment variable must contain the keyword {{username}}. ' +
     'These keywords will be replaced by the request details appropriately.'
   )
 }
@@ -74,12 +73,20 @@ passport.use('ldap', new CustomStrategy(
      * {{password}} will be replaced by the sent password
      */
 
-    let filter = process.env.LDAP_FILTER;
-    filter = filter.replace(/{{username}}/g, req.body.username);
-    filter = filter.replace(/{{password}}/g, req.body.password);
+    let query =
+      process.env.LDAP_SEARCH
+      .replace(/{{username}}/g, req.body.username);
 
-    ldapClient.search(process.env.LDAP_ORG, { filter }, (err, res) => {
+    ldapClient.search(query, {
+      filter: process.env.LDAP_FILTER,
+      scope: 'base',
+      // attributes: ['dn', 'sn', 'cn']
+    }, (err, res) => {
       res.on('searchEntry', function(entry) {
+        // Compare the retrieved password and the sent password.
+        if (entry.object.userPassword !== req.body.password) {
+          return done(null, {});
+        }
         return done(err, entry.object);
       });
       res.on('error', function(err) {

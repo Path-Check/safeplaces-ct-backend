@@ -29,7 +29,7 @@ describe('POST /login', function() {
       .request(server.app)
       .post('/login')
       .send({
-        username: 'admin',
+        username: 'spladmin',
         password: 'password',
       })
       .end(function(err, res) {
@@ -38,7 +38,7 @@ describe('POST /login', function() {
         expect(res.body).to.haveOwnProperty('token');
         let parsedJwt = parseJwt(res.body.token);
         expect(parsedJwt).to.haveOwnProperty('sub');
-        expect(parsedJwt.sub).to.equal('admin');
+        expect(parsedJwt.sub).to.equal('spladmin');
         expect(parsedJwt).to.haveOwnProperty('iat');
         chai.assert.equal(new Date(parsedJwt.iat * 1000) instanceof Date, true);
         expect(parsedJwt).to.haveOwnProperty('exp');
@@ -54,7 +54,7 @@ describe('POST /login', function() {
       .request(server.app)
       .post('/login')
       .send({
-        username: 'admin',
+        username: 'spladmin',
         password: 'wrongpassword',
       })
       .end(function(err, res) {
