@@ -47,12 +47,19 @@ class Service extends BaseService {
     if (!caseId) throw new Error('Case ID is invalid');
     if (!uploadedPoints) throw new Error('Uploaded points are invalid');
 
+    const records = [];
+
     uploadedPoints.forEach(point => {
-      delete point.id;
-      point.case_id = caseId;
+      records.push({
+        hash: point.hash,
+        coordinates: point.coordinates,
+        time: point.time,
+        upload_id: point.upload_id,
+        case_id: caseId,
+      });
     });
 
-    const points = await this.create(uploadedPoints);
+    const points = await this.create(records);
 
     if (!points) {
       throw new Error('Could not create points.');

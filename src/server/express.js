@@ -20,7 +20,7 @@ class Server {
     if (process.env.NODE_ENV !== 'test') {
       this._app.use(logger('dev'));
     }
-    
+
     this._app.use(cors());
     this._app.use(express.json());
     this._app.use(express.urlencoded({ extended: false }));
@@ -132,7 +132,6 @@ class Server {
             req.user = user;
             fn(req, res, next).catch(next);
           } else {
-            console.log('Falling t')
             return res.status(401).send('Unauthorized');
           }
         })(req, res, next);

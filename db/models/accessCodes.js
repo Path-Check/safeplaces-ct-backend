@@ -8,38 +8,19 @@ const LENGTH = 6;
 
 class Service extends BaseService {
 
-  async create() {
-    let value = '';
-
-    // Try to generate a unique code a maximum of 10 times before aborting
-    let attempts = 10;
+  async create(attempts) {
+    // Try to generate a unique code a maximum number of times before aborting
+    attempts = (attempts || 10);
 
     while (attempts > 0) {
-      // Generate a random 1-byte integer
-      let entropy = await rand.next(1);
-
-      // There are only 10 possible digits (ELEMENTS.length),
-      // so each 1-byte random number can be used for 2 elements.
-      const lhs = (entropy & 0xF);
-      const rhs = ((entropy >>> 4) & 0xF);
-
-      if (lhs < ELEMENTS.length) {
-        value += ELEMENTS[lhs];
-      }
-      if (rhs < ELEMENTS.length && value.length < LENGTH) {
-        value += ELEMENTS[rhs];
-      }
+      let value = this.generateValue();
 
       // Attempt to create the code. This may fail if the value is in use,
       // in which case we'll try again.
-      if (value.length == LENGTH) {
-        try {
-          await super.create({ value: value });
-          return this.find({ value: value });
-        } catch (error) {
-          value = '';
-          attempts -= 1;
-        }
+      try {
+        return (await super.create({ value }))[0];
+      } catch (error) {
+        attempts -= 1;
       }
     }
 
@@ -59,14 +40,27 @@ class Service extends BaseService {
     );
   }
 
-  async invalidate(code) {
-    if (!code || !code.id) throw new Error('Query is invalid');
+  async generateValue() {
+    let value = '';
 
-    await this.updateOne(code.id, {
-      invalidated_at: this.database.fn.now(),
-    });
+    while (value.length < LENGTH) {
+      // Generate a random 1-byte integer
+      let entropy = await rand.next(1);
 
-    code.valid = false;
+      // There are only 10 possible digits (ELEMENTS.length),
+      // so each 1-byte random number can be used for 2 elements.
+      const lhs = (entropy & 0xF);
+      const rhs = ((entropy >>> 4) & 0xF);
+
+      if (lhs < ELEMENTS.length) {
+        value += ELEMENTS[lhs];
+      }
+      if (rhs < ELEMENTS.length && value.length < LENGTH) {
+        value += ELEMENTS[rhs];
+      }
+    }
+
+    return value;
   }
 
 }

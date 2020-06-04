@@ -11,7 +11,6 @@ const jwtSecret = require('../../config/jwtConfig');
 
 const server = require('../../app');
 const mockData = require('../lib/mockData');
-const accessCodeService = require('../../db/models/accessCodes');
 const uploadService = require('../../db/models/upload');
 
 chai.use(chaiHttp);
@@ -22,7 +21,6 @@ describe('POST /case/points', () => {
 
   before(async () => {
     await mockData.clearMockData();
-    await accessCodeService.deleteAllRows();
 
     const orgParams = {
       name: 'Test Organization',
@@ -50,7 +48,7 @@ describe('POST /case/points', () => {
       jwtSecret.secret,
     );
 
-    currentAccessCode = await accessCodeService.create();
+    currentAccessCode = await mockData.mockAccessCode();
   });
 
   it('should fail for unauthorized clients', async () => {
@@ -106,7 +104,9 @@ describe('POST /case/points', () => {
   });
 
   it('should succeed when consent is granted', async () => {
-    currentAccessCode = await accessCodeService.updateOne(currentAccessCode.id, { upload_consent: true });
+    currentAccessCode.upload_consent = true;
+
+    await mockData.mockUploadPoints(currentAccessCode, 0);
 
     let result = await chai
       .request(server.app)
@@ -120,17 +120,14 @@ describe('POST /case/points', () => {
   });
 
   it('should ingest and return points once uploaded', async () => {
-    currentAccessCode = await accessCodeService.updateOne(currentAccessCode.id, { upload_consent: true });
+    currentAccessCode.upload_consent = true;
 
     const currentCase = await mockData.mockCase({
       organization_id: currentOrg.id,
       state: 'unpublished',
     });
 
-    const points = await mockData.mockUploadPoints(currentAccessCode, 1);
-
-    let uploadedPoints = await uploadService.fetchPoints(currentAccessCode);
-    uploadedPoints.length.should.equal(points.length);
+    let points = await mockData.mockUploadPoints(currentAccessCode, 5);
 
     let result = await chai
       .request(server.app)
@@ -145,7 +142,7 @@ describe('POST /case/points', () => {
     chai.should().exist(result.body.concernPoints);
     result.body.concernPoints.length.should.equal(points.length);
 
-    uploadedPoints = await uploadService.fetchPoints(currentAccessCode);
-    uploadedPoints.length.should.equal(0);
+    points = await uploadService.fetchPoints(currentAccessCode);
+    points.length.should.equal(0);
   });
 });

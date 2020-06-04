@@ -46,6 +46,8 @@ describe('POST /access-code', () => {
       },
       jwtSecret.secret,
     );
+
+    await mockData.mockAccessCode();
   });
 
   it('should fail for unauthorized clients', async () => {
