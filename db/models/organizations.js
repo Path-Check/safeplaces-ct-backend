@@ -84,10 +84,18 @@ class Service extends BaseService {
     if (!id) throw new Error('Organization ID was not valid');
     if (!params) throw new Error('Params were not valid');
 
-    const results = await this.updateOne(id, params)
-    if (results) {
-      return this.fetchById(id)
+    const mappedParams = this._reverseMap(params);
+    const orgResults = await this.updateOne(id, _.pick(mappedParams, ['name', 'completed_onboarding']));
+
+    if (orgResults) {
+      const paramsSettings = _.omit(mappedParams, ['name', 'completed_onboarding']);
+      const settingsResults = await settingsService.updateByOrganizationId(id, paramsSettings);
+
+      if (settingsResults) {
+        return await this.fetchById(id)
+      }
     }
+
     throw new Error('Internal server errror.')
   }
 
@@ -147,6 +155,32 @@ class Service extends BaseService {
         daysToRetainRecords: itm.days_to_retain_records,
         completedOnboarding: itm.completed_onboarding
       }
+   }
+
+
+   /**
+   * Map camelcase params to snakecase
+   *
+   * @private
+   * @method _reverseMap
+   * @param {Object}
+   * @return {Object}
+   */
+
+   _reverseMap(itm) {
+     return {
+       name: itm.name,
+       info_website_url: itm.infoWebsiteUrl,
+       reference_website_url: itm.referenceWebsiteUrl,
+       api_endpoint_url: itm.apiEndpointUrl,
+       privacy_policy_url: itm.privacyPolicyUrl,
+       region_coordinates: itm.regionCoordinates,
+       notification_threshold_percent: itm.notificationThresholdPercent,
+       notification_threshold_count: itm.notificationThresholdCount,
+       chunking_in_seconds: itm.chunkingInSeconds,
+       days_to_retain_records: itm.daysToRetainRecords,
+       completed_onboarding: itm.completedOnboarding
+     }
    }
 }
 
