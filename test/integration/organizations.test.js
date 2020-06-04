@@ -78,7 +78,19 @@ describe('Organization ', () => {
 
     it('update the record', async () => {
       const newParams = {
-        name: 'My New Example Name',
+        name: "Some Health Authority",
+        notificationThresholdPercent: 66,
+        notificationThresholdCount: 6,
+        daysToRetainRecords: 14,
+        regionCoordinates: {
+          ne: { "latitude": 20.312764055951195, "longitude": -70.45445121262883},
+          sw: { "latitude": 17.766025040122642, "longitude": -75.49442923997258}
+        },
+        apiEndpointUrl: "https://s3.aws.com/bucket_name/safepaths.json",
+        referenceWebsiteUrl: "http://cdc.gov",
+        infoWebsiteUrl: "http://cdc.gov",
+        privacyPolicyUrl: "https://superprivate.com",
+        completedOnboarding: true
       };
 
       const results = await chai
@@ -91,14 +103,14 @@ describe('Organization ', () => {
       results.should.have.status(200);
       results.body.should.be.a('object');
       results.body.name.should.equal(newParams.name);
-      results.body.infoWebsiteUrl.should.equal(currentOrg.infoWebsiteUrl);
-      results.body.referenceWebsiteUrl.should.equal(currentOrg.referenceWebsiteUrl);
-      results.body.apiEndpointUrl.should.equal(currentOrg.apiEndpointUrl);
-      results.body.notificationThresholdPercent.should.equal(currentOrg.notificationThresholdPercent);
-      results.body.notificationThresholdCount.should.equal(currentOrg.notificationThresholdCount);
-      results.body.daysToRetainRecords.should.equal(currentOrg.daysToRetainRecords);
-      results.body.privacyPolicyUrl.should.equal(currentOrg.privacyPolicyUrl);
-      results.body.completedOnboarding.should.equal(false);
+      results.body.infoWebsiteUrl.should.equal(newParams.infoWebsiteUrl);
+      results.body.referenceWebsiteUrl.should.equal(newParams.referenceWebsiteUrl);
+      results.body.apiEndpointUrl.should.equal(newParams.apiEndpointUrl);
+      results.body.notificationThresholdPercent.should.equal(newParams.notificationThresholdPercent);
+      results.body.notificationThresholdCount.should.equal(newParams.notificationThresholdCount);
+      results.body.daysToRetainRecords.should.equal(newParams.daysToRetainRecords);
+      results.body.privacyPolicyUrl.should.equal(newParams.privacyPolicyUrl);
+      results.body.completedOnboarding.should.equal(newParams.completedOnboarding);
     });
 
     it('fetch the organizations cases', async () => {
