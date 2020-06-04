@@ -1,17 +1,14 @@
+/* eslint-disable */
 
-const logErrors = () => {
-  return (error, req, res) => {
+module.exports = function (err, req, res, next) {
+  let errorCode = err.statusCode || 500
+  let errorMessage = err.message || 'General error.'
 
-    let errorCode = error.statusCode || 500
-    let errorMessage = error.message || 'General error.'
-  
-    console.log(`${errorCode} - ${errorMessage}`)
-    if (error.stack) {
-      console.log('##### Error Stack: ', error.stack)
-    }
-  
-    res.status(errorCode).json({ message: `${errorCode} - ${errorMessage}` })
+  let response = { message: `${errorCode} - ${errorMessage}` }
+  if (process.env.NODE_ENV !== 'production') {
+    response.error = err
   }
-}
 
-module.exports = logErrors
+  res.status(errorCode).json(response)
+}
+/* eslint-enable */
