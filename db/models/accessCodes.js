@@ -13,7 +13,7 @@ class Service extends BaseService {
     attempts = (attempts || 10);
 
     while (attempts > 0) {
-      let value = this.generateValue();
+      let value = await this.generateValue();
 
       // Attempt to create the code. This may fail if the value is in use,
       // in which case we'll try again.
