@@ -51,12 +51,12 @@ describe('Case', () => {
       jwtSecret.secret,
     );
 
-    const caseParams = {
-      organization_id: currentOrg.id,
-      state: 'unpublished'
-    };
+    // const caseParams = {
+    //   organization_id: currentOrg.id,
+    //   state: 'unpublished'
+    // };
 
-    currentCase = await mockData.mockCase(caseParams)
+    // currentCase = await mockData.mockCase(caseParams)
   });
 
   describe('fetch case points', () => {
@@ -302,8 +302,8 @@ describe('Case', () => {
     let newCase
     
     beforeEach(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await casesService.deleteAllRows();
+      await pointsService.deleteAllRows();
 
       let params = {
         organization_id: currentOrg.id,
@@ -313,16 +313,16 @@ describe('Case', () => {
       };
       
       // Create two cases that have been published.
-      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 5 * 1000)) })) // Published 5 days ago
-      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 2 * 1000)) })) // Published 2 days ago
+      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 5 * 1000)) })); // Published 5 days ago
+      await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: (new Date().getTime() - (86400 * 2 * 1000)) })); // Published 2 days ago
 
       // Create third case that will be published on call.
-      newCase = await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: null }))
+      newCase = await mockData.mockCaseAndTrails(_.extend(params, { publishedOn: null }));
     });
 
     it('returns test json to validate contents of file', async () => {
       const newParams = {
-        caseIds: [newCase.id],
+        caseIds: [newCase.caseId],
       };
 
       const results = await chai
@@ -331,7 +331,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-
+        
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');

@@ -185,7 +185,7 @@ class Service extends BaseService {
   /**
    * Update Case External Id
    *
-   * @method updateCasePublicationId
+   * @method updateCaseExternalId
    * @param {Number} id
    * @return {Object}
    */

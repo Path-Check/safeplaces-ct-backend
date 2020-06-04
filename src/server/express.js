@@ -42,7 +42,7 @@ class Server {
     this._app.use(function (req, res, next) {
       next(createError(404));
     }); // If we get to here then we obviously didn't find the route, so trigger error.
-    this._app.use(errorHandler()) // Catch all for errors.
+    this._app.use(errorHandler) // Catch all for errors.
 
     // error handler
 

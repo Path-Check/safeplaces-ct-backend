@@ -169,6 +169,7 @@ class MockData {
       expires_at: options.expires_at
     };
     if (options.publishedOn) caseParams.state = 'published'
+
     let newCase = await this.mockCase(caseParams)
     newCase.points = [];
 
@@ -188,7 +189,7 @@ class MockData {
         publish_date: Math.floor(options.publishedOn / 1000)
       } 
       const publication = await publicationService.insert(publicationParams);
-      await casesService.updateCasePublicationId([newCase.id], publication.id);
+      await casesService.updateCasePublicationId([newCase.caseId], publication.id);
     }
 
     return newCase
