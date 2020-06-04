@@ -72,6 +72,8 @@ describe('Organization ', () => {
 
       results.should.have.status(200);
       results.body.name.should.equal(currentOrg.name);
+      results.body.id.should.equal(currentOrg.id);
+      results.body.completedOnboarding.should.equal(currentOrg.completedOnboarding);
     });
 
     it('update the record', async () => {
