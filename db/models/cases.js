@@ -176,15 +176,11 @@ class Service extends BaseService {
    * @param {Object} point
    * @return {Object}
    */
-  async createCasePoint(case_id, point) {
-    if (!case_id) throw new Error('Case ID is invalid')
-    if (!point) throw new Error('Point is invalid')
+  createCasePoint(case_id, point) {
+    if (!case_id) throw new Error('Case ID is invalid');
+    if (!point) throw new Error('Point is invalid');
 
-    const points = await pointsService.createRedactedPoint(case_id, point)
-    if (points) {
-      return points
-    }
-    return []
+    return pointsService.createRedactedPoint(case_id, point);
   }
 
   /**
