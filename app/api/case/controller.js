@@ -76,7 +76,7 @@ exports.ingestUploadedPoints = async (req, res) => {
   const accessCode = await accessCodesService.find({ value: codeValue });
 
   // Check access code validity
-  if (!accessCode || !accessCode.valid) {
+  if (!accessCode) {
     res.status(403).send();
     return;
   }
