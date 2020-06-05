@@ -165,11 +165,11 @@ describe('Organization ', () => {
       results.should.have.status(200);
       results.body.should.be.a('object');
       results.body.should.have.property('caseId');
+      results.body.should.have.property('contact_tracer_id');
       results.body.should.have.property('state');
       results.body.should.have.property('updatedAt');
       results.body.should.have.property('expiresAt');
       results.body.state.should.equal('unpublished');
-
     });
   });
 });
