@@ -168,7 +168,8 @@ class Service extends BaseService {
                 'points.id AS pointId',
                 'points.coordinates',
                 'points.time',
-                'points.hash'
+                'points.hash',
+                'points.duration'
               )
               .join('points', 'cases.id', '=', 'points.case_id')
               .join('publications', 'cases.publication_id', '=', 'publications.id')

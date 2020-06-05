@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const AdmZip = require('adm-zip');
+const transform = require('./pocTransform.js');
 
 /**
  * @class PublicationFiles
@@ -27,6 +28,8 @@ class PublicationFiles {
       endpoint = '/'
     }
     this._apiEndpointPage = `${endpoint}[PAGE].json`;
+
+    trails = transform.durationToDiscreet(trails)
 
     const header = this._getHeader(organization, record);
     const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds);

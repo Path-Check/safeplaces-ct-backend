@@ -56,7 +56,7 @@ class Service extends BaseService {
         coordinates: point.coordinates,
         time: new Date(point.time * 1000),
         upload_id: uploadedPoints[0].upload_id,
-        duration: point.durationMin,
+        duration: point.duration,
         case_id: caseId,
       }
     });
@@ -106,7 +106,7 @@ class Service extends BaseService {
   /**
    * Filter all Points and return redacted information
    *
-   * @method _getRedactedPoints
+   * @method _buildDurationPoints
    * @param {Array} points
    * @return {Array}
    */
@@ -147,6 +147,7 @@ class Service extends BaseService {
       trail.pointId = point.pointId || point.id
       trail.longitude = c.x;
       trail.latitude = c.y;
+      trail.duration = point.duration;
       if (includeHash) trail.hash = point.hash;
       trail.time = (point.time.getTime() / 1000);
       if (returnDateTime) trail.time = point.time
@@ -174,6 +175,8 @@ class Service extends BaseService {
   async insertRedactedTrailSet(trails, caseId) {
     let trailRecords = [];
 
+    trails = transform.discreetToDuration(trails)
+
     let trail, record, hash;
     for(trail of trails) {
       record = {};
@@ -183,6 +186,7 @@ class Service extends BaseService {
         record.coordinates = this.makeCoordinate(trail.longitude, trail.latitude);
         record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
         record.case_id = caseId;
+        record.duration = trail.duration;
         trailRecords.push(record);
       }
     }

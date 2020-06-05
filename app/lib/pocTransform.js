@@ -10,7 +10,7 @@ const discreetToDuration = discreetArr => {
   for (i = 0; i < discreetArr.length; i++) {
     curDiscreet = discreetArr[i];
     if (i === 0) {
-      durationArr[0] = { ...discreetArr[0], durationMin: 5 };
+      durationArr[0] = { ...discreetArr[0], duration: 5 };
     } else {
       curDuration = durationArr[durationArr.length - 1];
 
@@ -22,7 +22,7 @@ const discreetToDuration = discreetArr => {
       } else {
         durationArr[durationArr.length] = {
           ...curDiscreet,
-          durationMin: 5,
+          duration: 5,
         };
       }
     }
@@ -41,7 +41,7 @@ const durationToDiscreet = durationArr => {
   let discreetArr = [];
 
   // merge points that intersect one another within a 5 min window
-  // NOTE;  durationMin is not a multiple of 5
+  // NOTE;  duration is not a multiple of 5
   for (i = 0; i < durationArr.length; i++) {
     cur = durationArr[i];
     if (i === 0) {
@@ -62,6 +62,7 @@ const durationToDiscreet = durationArr => {
   durationArrMerged = roundDuration(durationArrMerged);
 
   for (i = 0; i < durationArrMerged.length; i++) {
+    // console.log('durationArrMerged: ', durationArrMerged[i])
     discreetArr = [
       ...discreetArr,
       ...durationPointToDiscreetPoints(durationArrMerged[i]),
@@ -80,7 +81,7 @@ const discreetMergeCondition = (curDiscreet, curDuration) => {
   if (curDiscreet.longitude !== curDuration.longitude) {
     return false;
   }
-  if (curDiscreet.time > curDuration.time + curDuration.durationMin * MINUTE) {
+  if (curDiscreet.time > curDuration.time + curDuration.duration * MINUTE) {
     return false;
   }
   return true;
@@ -90,7 +91,7 @@ const discreetMerge = (curDiscreet, curDuration) => {
   const rawDuration =
     (curDiscreet.time + 5 * MINUTE - curDuration.time) / MINUTE;
 
-  return { ...curDuration, durationMin: rawDuration };
+  return { ...curDuration, duration: rawDuration };
 };
 
 const durationMergeCondition = (cur, prv) => {
@@ -100,7 +101,7 @@ const durationMergeCondition = (cur, prv) => {
   if (cur.longitude !== prv.longitude) {
     return false;
   }
-  if (cur.time > prv.time + prv.durationMin * MINUTE) {
+  if (cur.time > prv.time + prv.duration * MINUTE) {
     return false;
   }
   return true;
@@ -109,22 +110,23 @@ const durationMergeCondition = (cur, prv) => {
 const durationMerge = (cur, prv) => {
   const startTime = prv.time < cur.time ? prv.time : cur.time;
   const endTime =
-    cur.time + cur.durationMin * MINUTE > prv.time + prv.durationMin * MINUTE
-      ? cur.time + cur.durationMin * MINUTE
-      : prv.time + prv.durationMin * MINUTE;
+    cur.time + cur.duration * MINUTE > prv.time + prv.duration * MINUTE
+      ? cur.time + cur.duration * MINUTE
+      : prv.time + prv.duration * MINUTE;
 
-  return { ...cur, durationMin: (endTime - startTime) / MINUTE };
+  return { ...cur, duration: (endTime - startTime) / MINUTE };
 };
 
 const durationPointToDiscreetPoints = durationPoint => {
   const discreetPoints = [];
   let i;
-  for (i = 0; i < durationPoint.durationMin / 5; i++) {
+  for (i = 0; i < durationPoint.duration / 5; i++) {
     discreetPoints[discreetPoints.length] = {
       latitude: durationPoint.latitude,
       longitude: durationPoint.longitude,
       time: durationPoint.time + i * 5 * MINUTE,
       hash: durationPoint.hash,
+      publish_date: durationPoint.publish_date
     };
   }
   return discreetPoints;
@@ -134,7 +136,7 @@ const roundDuration = durationArr => {
   let i;
   // round down duration to nearest 5 min
   for (i = 0; i < durationArr.length; i++) {
-    durationArr[i].durationMin = Math.floor(durationArr[i].durationMin / 5) * 5;
+    durationArr[i].duration = Math.floor(durationArr[i].duration / 5) * 5;
   }
 
   return durationArr;
