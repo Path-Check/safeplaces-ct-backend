@@ -269,10 +269,28 @@ class MockData {
 
   // private
 
-  _generateTrailsData(numberOfTrails, timeIncrementInSeconds, startAt = new Date().getTime()) {
+  _generateGroupedTrailsData(coordinates, startTime, duration) {
+    const standardIncrement = 5
+    const numberOfTrails = (duration / standardIncrement)
+    let coordTime = startTime;
+    return Array(numberOfTrails).fill("").map(() => {
+      coordTime = coordTime + (standardIncrement * 60 * 1000);
+      return {
+        longitude: coordinates.longitude,
+        latitude: coordinates.latitude,
+        time: coordTime
+      };
+    })
+  }
+
+  _generateTrailsData(numberOfTrails, timeIncrementInSeconds, startAt = new Date().getTime(), decrementTime = true) {
     let coordTime = Math.floor(startAt / 1000);
     return Array(numberOfTrails).fill("").map(() => {
-      coordTime = coordTime - timeIncrementInSeconds;
+      if (decrementTime) {
+        coordTime = coordTime - timeIncrementInSeconds;
+      } else {
+        coordTime = coordTime + timeIncrementInSeconds;
+      }
       const coords = randomCoordinates({fixed: 5}).split(',');
       return {
         longitude: parseFloat(coords[1]),

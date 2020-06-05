@@ -8,7 +8,7 @@ exports.seed = function (knex) {
     .del() // Deletes ALL existing entries
     .then(async function () {
       // Inserts seed entries one by one in series
-      let password = await bcrypt.hash('admin', 5);
+      let password = await bcrypt.hash('password', 5);
       return knex('users').insert({
         id: 'a88309ca-26cd-4d2b-8923-af0779e423a3',
         organization_id: 1,

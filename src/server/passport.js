@@ -90,7 +90,7 @@ passport.use('ldap', new CustomStrategy(
         return done(err, entry.object);
       });
       res.on('error', function(err) {
-        console.log(err.message);
+        if (process.env.NODE_ENV === 'development') console.log(err.message);
         return done(null, {});
       });
     });

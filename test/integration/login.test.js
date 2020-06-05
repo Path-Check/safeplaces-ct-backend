@@ -6,6 +6,8 @@ const chaiHttp = require('chai-http');
 const expect = chai.expect;
 const server = require('../../app');
 
+//  const mockData = require('../lib/mockData');
+
 chai.use(chaiHttp);
 
 function parseJwt(token) {
@@ -24,7 +26,26 @@ function parseJwt(token) {
 }
 
 describe('POST /login', function() {
-  it('should login on user creds and return map api key', function(done) {
+  
+  // before(async () => {
+  //   await mockData.clearMockData()
+
+  //   let orgParams = {
+  //     name: 'My Example Organization',
+  //     info_website_url: 'http://sample.com',
+  //   };
+  //   const currentOrg = await mockData.mockOrganization(orgParams);
+
+  //   let newUserParams = {
+  //     username: 'spladmin',
+  //     password: 'password',
+  //     email: 'spladmin@yomanbob.com',
+  //     organization_id: currentOrg.id,
+  //   };
+  //   await mockData.mockUser(newUserParams);
+  // });
+  
+  it.skip('should login on user creds and return map api key', function(done) {
     chai
       .request(server.app)
       .post('/login')
