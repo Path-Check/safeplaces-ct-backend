@@ -23,6 +23,35 @@ exports.fetchOrganizationById = async (req, res) => {
 };
 
 /**
+ * @method fetchOrganizationConfig
+ *
+ * Fetch Organization config information.
+ *
+ */
+exports.fetchOrganizationConfig = async (req, res) => {
+  const { user: { organization_id } } = req;
+
+  if (!organization_id) throw new Error('Organization ID is missing.');
+
+  const organization = await organizations.fetchById(organization_id);
+
+  if (organization) {
+    res.status(200).json(_.pick(organization, [
+      'name',
+      'notificationThresholdPercent',
+      'notificationThresholdCount',
+      'daysToRetainRecords',
+      'regionCoordinates',
+      'apiEndpointUrl',
+      'referenceWebsiteUrl',
+      'infoWebsiteUrl',
+    ]));
+  } else {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+/**
  * @method updateOrganization
  *
  * Update Organization
