@@ -22,7 +22,7 @@ describe('Points of Concern', () => {
       "latitude": 41.24060321
     };
 
-    const startTime = new Date().getTime() - (86400000)
+    const startTime = new Date().getTime() - (86400000 * 30)
 
     const trails = mockData._generateGroupedTrailsData(coordinates, startTime, 25)
     const grouped = transform.discreetToDuration(trails)
@@ -38,7 +38,7 @@ describe('Points of Concern', () => {
   });
 
   it('should group and ungroup a more complex set of coordinates', async () => {
-    const startTime = new Date().getTime() - (86400000)
+    const startTime = new Date().getTime() - (86400000 * 30)
 
     let final = []
     let testGrouping

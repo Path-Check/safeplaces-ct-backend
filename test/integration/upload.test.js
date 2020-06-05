@@ -137,7 +137,7 @@ describe('POST /case/points', () => {
         accessCode: currentAccessCode.value,
         caseId: currentCase.caseId,
       });
-      
+      console.log(result.error)
     result.should.have.status(200);
 
     chai.should().exist(result.body.concernPoints);

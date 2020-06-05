@@ -54,7 +54,7 @@ class Service extends BaseService {
       return {
         hash: point.hash,
         coordinates: point.coordinates,
-        time: new Date(point.time * 1000),
+        time: point.time,
         upload_id: uploadedPoints[0].upload_id,
         duration: point.duration,
         case_id: caseId,
@@ -195,10 +195,32 @@ class Service extends BaseService {
     return this.create(trailRecords);
   }
 
+  async loadTestRedactedTrails(trails, caseId) {
+    let trailRecords = [];
+
+    trails = transform.discreetToDuration(trails)
+
+    let trail, record, hash;
+    for(trail of trails) {
+      record = {};
+      hash = await geoHash.encrypt(trail)
+      if (hash) {
+        record.hash = hash.encodedString
+        record.coordinates = this.makeCoordinate(trail.longitude, trail.latitude);
+        record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
+        record.case_id = caseId;
+        record.duration = trail.duration;
+        trailRecords.push(record);
+      }
+    }
+
+    return trailRecords
+  }
+
   async fetchTestHash(longitude, latitude) {
-    const results = await this.raw(`SELECT ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}),4326) AS point`);
+    const results = await this.raw(`SELECT ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}),4326) AS point, now() AS time`);
     if (results) {
-      return results.rows[0].point;
+      return results.rows[0];
     }
     return null;
   }
