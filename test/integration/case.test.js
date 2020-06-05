@@ -209,6 +209,88 @@ describe('Case', () => {
     });
   });
 
+  describe('update a point on a case', () => {
+
+    before(async () => {
+      await casesService.deleteAllRows()
+      await pointsService.deleteAllRows()
+
+      let params = {
+        organization_id: currentOrg.id,
+        number_of_trails: 10,
+        seconds_apart: 1800,
+        state: 'staging'
+      };
+
+      currentCase = await mockData.mockCaseAndTrails(_.extend(params, { state: 'unpublished' }))
+    });
+
+    it('return a 200', async () => {
+      const testPoint = currentCase.points[0];
+
+      const newParams = {
+        pointId: testPoint.id,
+        longitude: 12.91328448,
+        latitude: 39.24060321,
+        time: "2020-05-21T18:25:43.511Z"
+      };
+
+      const results = await chai
+        .request(server.app)
+        .put(`/case/point`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send(newParams);
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body.should.have.property('concernPoint');
+      results.body.concernPoint.should.be.a('object');
+      results.body.concernPoint.should.have.property('pointId');
+      results.body.concernPoint.should.have.property('longitude');
+      results.body.concernPoint.should.have.property('latitude');
+      results.body.concernPoint.should.have.property('time');
+      results.body.concernPoint.pointId.should.equal(testPoint.id);
+      results.body.concernPoint.longitude.should.equal(newParams.longitude);
+
+    });
+  });
+
+  describe('delete a point on a case', () => {
+
+    before(async () => {
+      await casesService.deleteAllRows()
+      await pointsService.deleteAllRows()
+
+      let params = {
+        organization_id: currentOrg.id,
+        number_of_trails: 10,
+        seconds_apart: 1800,
+        state: 'staging'
+      };
+
+      currentCase = await mockData.mockCaseAndTrails(_.extend(params, { state: 'unpublished' }))
+    });
+
+    it('returns a 200', async () => {
+      const testPoint = currentCase.points[0];
+
+      const newParams = {
+        pointId: testPoint.id,
+      };
+
+      const results = await chai
+        .request(server.app)
+        .delete(`/case/point`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send(newParams);
+
+      results.should.have.status(200);
+    });
+  });
+
   describe('consent to publishing case', () => {
 
     before(async () => {

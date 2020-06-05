@@ -1,5 +1,7 @@
 // app/api/case/controller.js
 
+const _ = require('lodash');
+
 const casesService = require('../../../db/models/cases');
 const organizationsService = require('../../../db/models/organizations');
 const publicationsService = require('../../../db/models/publications');
@@ -20,13 +22,16 @@ const writeToGCSBucket = require('../../lib/writeToGCSBucket');
 exports.fetchCasePoints = async (req, res) => {
   const { caseId } = req.body;
 
-  if (!caseId) throw new Error('Case ID is not valid.')
+  if (!caseId) throw new Error('Case ID is not valid.');
 
-  let concernPoints = await casesService.fetchCasePoints(caseId)
+  const concernPoints = await casesService.fetchCasePoints(caseId);
+
   if (concernPoints) {
     res.status(200).json({ concernPoints });
   }
-  throw new Error('Internal server error.');
+  else {
+    throw new Error('Internal server error.');
+  }
 };
 
 /**
@@ -43,11 +48,14 @@ exports.fetchCasesPoints = async (req, res) => {
     return;
   }
 
-  let concernPoints = await casesService.fetchCasesPoints(caseIds)
+  const concernPoints = await casesService.fetchCasesPoints(caseIds);
+
   if (concernPoints) {
     res.status(200).json({ concernPoints });
   }
-  throw new Error('Internal server error.');
+  else {
+    throw new Error('Internal server error.');
+  }
 };
 
 /**
@@ -104,16 +112,66 @@ exports.ingestUploadedPoints = async (req, res) => {
 exports.createCasePoint = async (req, res) => {
   const { caseId, point } = req.body;
 
-  if (!caseId) throw new Error('Case ID is not valid.')
-  if (!point.latitude) throw new Error('Latitude is not valid.')
-  if (!point.longitude) throw new Error('Latitude is not valid.')
-  if (!point.time) throw new Error('Latitude is not valid.')
+  if (!caseId) throw new Error('Case ID is not valid.');
+  if (!point.latitude) throw new Error('Latitude is not valid.');
+  if (!point.longitude) throw new Error('Latitude is not valid.');
+  if (!point.time) throw new Error('Latitude is not valid.');
 
-  let concernPoint = await casesService.createCasePoint(caseId, point)
+  const concernPoint = await casesService.createCasePoint(caseId, point);
+
   if (concernPoint) {
     res.status(200).json({ concernPoint });
   }
-  throw new Error('Internal server error.');
+  else {
+    throw new Error('Internal server error.');
+  }
+};
+
+/**
+ * @method updateCasePoint
+ *
+ * Updates an existing point of concern
+ *
+ */
+exports.updateCasePoint = async (req, res) => {
+  const { body, body: { pointId } } = req;
+
+  if (!pointId) throw new Error('Point ID is not valid.');
+  if (!body.latitude) throw new Error('Latitude is not valid.');
+  if (!body.longitude) throw new Error('Latitude is not valid.');
+  if (!body.time) throw new Error('Latitude is not valid.');
+
+  const params = _.pick(body, ['longitude','latitude','time']);
+
+  const concernPoint = await pointsService.updateRedactedPoint(pointId, params);
+
+  if (concernPoint) {
+    res.status(200).json({ concernPoint });
+  }
+  else {
+    throw new Error('Internal server error.');
+  }
+};
+
+/**
+ * @method deleteCasePoint
+ *
+ * Deletes the point of concern having the ID corresponding with the pointID param.
+ *
+ */
+exports.deleteCasePoint = async (req, res) => {
+  const { pointId } = req.body;
+
+  if (!pointId) throw new Error('Case ID is not valid.')
+
+  const caseResults = await pointsService.deleteWhere({ id: pointId });
+
+  if (caseResults) {
+    res.sendStatus(200);
+  }
+  else {
+    throw new Error('Internal server error.');
+  }
 };
 
 /**
@@ -126,14 +184,16 @@ exports.createCasePoint = async (req, res) => {
 exports.consentToPublish = async (req, res) => {
   const { caseId } = req.body;
 
-  if (!caseId) throw new Error('Case ID is not valid.')
+  if (!caseId) throw new Error('Case ID is not valid.');
 
-  let caseResult = await casesService.consentToPublishing(caseId)
+  const caseResult = await casesService.consentToPublishing(caseId);
+
   if (caseResult) {
     res.status(200).json({ case: caseResult })
   }
-
-  throw new Error('Internal server error.');
+  else {
+    throw new Error('Internal server error.');
+  }
 };
 
 /**
@@ -145,13 +205,16 @@ exports.consentToPublish = async (req, res) => {
 exports.setCaseToStaging = async (req, res) => {
   const { caseId } = req.body;
 
-  if (!caseId) throw new Error('Case ID is not valid.')
+  if (!caseId) throw new Error('Case ID is not valid.');
 
-  let caseResults = await casesService.moveToStaging(caseId)
+  const caseResults = await casesService.moveToStaging(caseId);
+
   if (caseResults) {
     res.status(200).json({ case: caseResults });
   }
-  throw new Error('Internal server error.');
+  else {
+    throw new Error('Internal server error.');
+  }
 };
 
 /**
@@ -257,13 +320,16 @@ exports.publishCases = async (req, res) => {
 exports.deleteCase = async (req, res) => {
   const { caseId } = req.body;
 
-  if (!caseId) throw new Error('Case ID is not valid.')
+  if (!caseId) throw new Error('Case ID is not valid.');
 
-  let caseResults = await casesService.deleteWhere({ id: caseId })
+  const caseResults = await casesService.deleteWhere({ id: caseId });
+
   if (caseResults) {
     res.sendStatus(200);
   }
-  throw new Error('Internal server error.');
+  else {
+    throw new Error('Internal server error.');
+  }
 };
 
 /**
