@@ -37,7 +37,9 @@ exports.fetchOrganizationConfig = async (req, res) => {
 
   if (organization) {
     res.status(200).json(_.pick(organization, [
+      'id',
       'name',
+      'completedOnboarding',
       'notificationThresholdPercent',
       'notificationThresholdCount',
       'daysToRetainRecords',
@@ -45,6 +47,7 @@ exports.fetchOrganizationConfig = async (req, res) => {
       'apiEndpointUrl',
       'referenceWebsiteUrl',
       'infoWebsiteUrl',
+      'privacyPolicyUrl',
     ]));
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
