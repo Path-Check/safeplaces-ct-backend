@@ -54,7 +54,7 @@ class Service extends BaseService {
       return {
         hash: point.hash,
         coordinates: point.coordinates,
-        time: point.time,
+        time: new Date(point.time),
         upload_id: uploadedPoints[0].upload_id,
         duration: point.duration,
         case_id: caseId,
@@ -120,7 +120,7 @@ class Service extends BaseService {
       point.longitude = c.x;
       point.longitude = c.x;
       point.latitude = c.y;
-      point.time = p.time;
+      point.time = new Date(p.time).getTime();
       point.hash = p.hash;
       return point
     });
