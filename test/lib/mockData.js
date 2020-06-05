@@ -241,7 +241,7 @@ class MockData {
     if (!accessCode || !accessCode.id) throw new Error('Access code must be provided');
 
     const accessCodeId = accessCode.id;
-    let points = this._generateUploadedPoints(accessCodeId, num);
+    let points = await this._generateUploadedPoints(accessCodeId, num);
 
     try {
       sinon.restoreObject(uploadService);
@@ -300,19 +300,26 @@ class MockData {
     })
   }
 
-  _generateUploadedPoints(accessCodeId, num) {
+  /* eslint-disable */
+  async _generateUploadedPoints(accessCodeId, num) {
     const uploadId = uuidv4();
-    return Array(num).fill("").map(() => {
+
+    let final = []
+    let i;
+    for(i of Array(num).fill("")) {
       const coords = randomCoordinates({fixed: 5}).split(',');
-      return {
+      const entry = {
         access_code_id: accessCodeId,
         upload_id: uploadId,
-        coordinates: pointsService.makeCoordinate(parseFloat(coords[1]), parseFloat(coords[0])),
-        time: uploadService.database.fn.now(),
+        coordinates: await pointsService.fetchTestHash(parseFloat(coords[1]), parseFloat(coords[0])),
+        time: Math.floor(new Date().getTime() / 1000),
         hash: "test",
-      };
-    });
+      }
+      final.push(entry);
+    }
+    return final;
   }
+  /* eslint-enable */
 }
 
 module.exports = new MockData();

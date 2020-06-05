@@ -124,6 +124,7 @@ const durationPointToDiscreetPoints = durationPoint => {
       latitude: durationPoint.latitude,
       longitude: durationPoint.longitude,
       time: durationPoint.time + i * 5 * MINUTE,
+      hash: durationPoint.hash,
     };
   }
   return discreetPoints;

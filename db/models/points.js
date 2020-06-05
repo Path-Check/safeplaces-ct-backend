@@ -5,6 +5,7 @@ const knex = require('../knex.js').private;
 const knexPostgis = require("knex-postgis");
 const wkx = require('wkx');
 const geoHash = require('../../app/lib/geoHash');
+const transform = require('../../app/lib/pocTransform.js');
 
 const st = knexPostgis(knex);
 
@@ -47,20 +48,20 @@ class Service extends BaseService {
     if (!caseId) throw new Error('Case ID is invalid');
     if (!uploadedPoints) throw new Error('Uploaded points are invalid');
 
-    const records = [];
+    const pointsGrouped = this._buildDurationPoints(uploadedPoints);
 
-    uploadedPoints.forEach(point => {
-      records.push({
+    const records = pointsGrouped.map(point => {
+      return {
         hash: point.hash,
         coordinates: point.coordinates,
-        time: point.time,
-        upload_id: point.upload_id,
+        time: new Date(point.time * 1000),
+        upload_id: uploadedPoints[0].upload_id,
+        duration: point.durationMin,
         case_id: caseId,
-      });
+      }
     });
 
     const points = await this.create(records);
-
     if (!points) {
       throw new Error('Could not create points.');
     }
@@ -106,6 +107,30 @@ class Service extends BaseService {
    * Filter all Points and return redacted information
    *
    * @method _getRedactedPoints
+   * @param {Array} points
+   * @return {Array}
+   */
+  _buildDurationPoints(points) {
+    const redactedPoints = points.map(p => {
+      let point = {};
+      const b = new Buffer.from(p.coordinates, 'hex');
+      const c = wkx.Geometry.parse(b);
+      point.coordinates = p.coordinates
+      point.longitude = c.x;
+      point.longitude = c.x;
+      point.latitude = c.y;
+      point.time = p.time;
+      point.hash = p.hash;
+      return point
+    });
+
+    return transform.discreetToDuration(redactedPoints)
+  }
+
+  /**
+   * Filter all Points and return redacted information
+   *
+   * @method _getRedactedPoints
    * @param {String} case_id
    * @param {Options} Options
    * @return {Array}
@@ -130,17 +155,6 @@ class Service extends BaseService {
 
     return redactedTrail;
   }
-
-  // findInterval(publication) {
-  //   if (!publication.id) throw new Error('Publication ID is invalid');
-  //   if (!publication.start_date) throw new Error('Start date is invalid');
-  //   if (!publication.end_date) throw new Error('Start date is invalid');
-
-  //   return this.table
-  //     .whereIn('case_id', publication.cases)
-  //     .where('time', '>=', new Date(publication.start_date))
-  //     .where('time', '<=', new Date(publication.end_date));
-  // }
 
   async findIntervalCases(publication) {
     if (!publication.start_date) throw new Error('Start date is invalid');
@@ -174,6 +188,14 @@ class Service extends BaseService {
     }
 
     return this.create(trailRecords);
+  }
+
+  async fetchTestHash(longitude, latitude) {
+    const results = await this.raw(`SELECT ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}),4326) AS point`);
+    if (results) {
+      return results.rows[0].point;
+    }
+    return null;
   }
 
 }
