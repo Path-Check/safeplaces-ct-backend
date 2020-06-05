@@ -117,16 +117,16 @@ class Service extends BaseService {
   }
 
   /**
-   * Fetch all case points
+   * Fetch all case points associated with a case
    *
    * @method fetchCasePoints
    * @param {Number} case_id
    * @return {Array}
    */
   async fetchCasePoints(case_id) {
-    if (!case_id) throw new Error('Case ID is invalid')
+    if (!case_id) throw new Error('Case ID is invalid.')
 
-    const points = await pointsService.fetchRedactedPoints(case_id)
+    const points = await pointsService.fetchRedactedPoints([case_id])
     if (points) {
       return points
     }
@@ -134,7 +134,24 @@ class Service extends BaseService {
   }
 
   /**
-   * Fetch all case points
+   * Fetch all case points associated with a group cases
+   *
+   * @method fetchCasesPoints
+   * @param {Array} case_ids
+   * @return {Array}
+   */
+  async fetchCasesPoints(case_ids) {
+    if (!case_ids) throw new Error('Case IDs is invalid.')
+
+    const points = await pointsService.fetchRedactedPoints(case_ids)
+    if (points) {
+      return points
+    }
+    return []
+  }
+
+  /**
+   * Create case point
    *
    * @method createCasePoint
    * @param {Number} case_id

@@ -74,9 +74,10 @@ describe('Case', () => {
     it('and return multiple case points', async () => {
       const results = await chai
         .request(server.app)
-        .get(`/case/points?caseId=${currentCase.caseId}`)
+        .get(`/case/points`)
         .set('Authorization', `Bearer ${token}`)
-        .set('content-type', 'application/json');
+        .set('content-type', 'application/json')
+        .send({ caseId: currentCase.caseId });
 
       results.error.should.be.false;
       results.should.have.status(200);
@@ -91,6 +92,76 @@ describe('Case', () => {
       firstChunk.should.have.property('latitude');
       firstChunk.should.have.property('time');
 
+    });
+  });
+
+  describe('fetch points for multiple cases', () => {
+
+    let caseOne, caseTwo, caseThree;
+
+    before(async () => {
+      await casesService.deleteAllRows()
+
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'staging'
+      };
+      caseOne = await mockData.mockCase(caseParams)
+      caseTwo = await mockData.mockCase(caseParams)
+      caseThree = await mockData.mockCase(caseParams)
+
+      await mockData.mockTrails(10, 1800, { caseId: caseOne.caseId }) // Generate 10 trails 30 min apart
+      await mockData.mockTrails(10, 1800, { caseId: caseTwo.caseId }) // Generate 10 trails 30 min apart
+      await mockData.mockTrails(10, 1800, { caseId: caseThree.caseId }) // Generate 10 trails 30 min apart
+    });
+
+    it('and return points for all cases', async () => {
+      const results = await chai
+        .request(server.app)
+        .get(`/cases/points`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send({ caseIds: [caseOne.caseId, caseTwo.caseId, caseThree.caseId ]});
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body.should.have.property('concernPoints');
+      results.body.concernPoints.should.be.a('array');
+      results.body.concernPoints.length.should.equal(30);
+
+      const firstChunk = results.body.concernPoints.shift()
+      firstChunk.should.have.property('pointId');
+      firstChunk.should.have.property('longitude');
+      firstChunk.should.have.property('latitude');
+      firstChunk.should.have.property('time');
+    });
+
+    it('and returns no points if no caseIds are passed', async () => {
+      const results = await chai
+        .request(server.app)
+        .get(`/cases/points`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send({ caseIds: []});
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body.should.have.property('concernPoints');
+      results.body.concernPoints.should.be.a('array');
+      results.body.concernPoints.length.should.equal(0);
+    });
+
+    it('and fails if caseIds are not passed', async () => {
+      const results = await chai
+        .request(server.app)
+        .get(`/cases/points`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send();
+
+      results.should.have.status(400);
     });
   });
 
@@ -325,7 +396,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');

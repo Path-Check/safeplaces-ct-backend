@@ -13,14 +13,14 @@ class Service extends BaseService {
   /**
    * Fetch All Points and run through Redaction.
    *
-   * @method _getRedactedPoints
-   * @param {String} case_id
+   * @method fetchRedactedPoints
+   * @param {Array} case_ids
    * @return {Array}
    */
-  async fetchRedactedPoints(case_id) {
-    if (!case_id) throw new Error('Case ID is invalid')
+  async fetchRedactedPoints(case_ids) {
+    if (!case_ids) throw new Error('Case IDs is invalid')
 
-    const points = await this.find({ case_id })
+    const points = await this.table.whereIn('case_id', case_ids)
     if (points) {
       return this._getRedactedPoints(points)
     }
