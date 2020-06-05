@@ -185,6 +185,7 @@ describe('Case', () => {
         results.body.case.should.have.property('caseId');
         results.body.case.should.have.property('contactTracerId');
         results.body.case.should.have.property('state');
+        results.body.case.should.have.property('stagedAt');
         results.body.case.should.have.property('updatedAt');
         results.body.case.should.have.property('expiresAt');
         results.body.case.caseId.should.equal(currentCase.caseId);
