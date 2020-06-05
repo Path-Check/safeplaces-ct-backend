@@ -172,7 +172,7 @@ describe('Organization ', () => {
 
     it('delete the record', async () => {
       const newParams = {
-        case_id: caseToDelete.caseId,
+        caseId: caseToDelete.caseId,
       };
 
       const results = await chai
