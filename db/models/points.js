@@ -86,6 +86,7 @@ class Service extends BaseService {
       record.hash = hash.encodedString
       record.coordinates = this.makeCoordinate(point.longitude, point.latitude);
       record.time = new Date(point.time);
+      record.duration = point.duration;
       const points = await this.updateOne(point_id, record);
       if (points) {
         return this._getRedactedPoints([points]).shift()

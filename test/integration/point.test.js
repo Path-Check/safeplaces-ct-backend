@@ -80,7 +80,8 @@ describe('Point', () => {
         pointId: testPoint.id,
         longitude: 12.91328448,
         latitude: 39.24060321,
-        time: "2020-05-21T18:25:43.511Z"
+        time: "2020-05-21T18:25:43.511Z",
+        duration: 5
       };
 
       const results = await chai
@@ -89,7 +90,7 @@ describe('Point', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-
+        
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');

@@ -16,8 +16,9 @@ exports.updatePoint = async (req, res) => {
   if (!body.latitude) throw new Error('Latitude is not valid.')
   if (!body.longitude) throw new Error('Latitude is not valid.')
   if (!body.time) throw new Error('Latitude is not valid.')
+  if (!body.duration) throw new Error('Duration is not valid.')
 
-  const params = _.pick(body, ['longitude','latitude','time']);
+  const params = _.pick(body, ['longitude','latitude','time','duration']);
 
   const point = await pointsService.updateRedactedPoint(pointId, params);
   if (point) {
