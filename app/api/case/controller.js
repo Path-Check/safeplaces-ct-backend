@@ -147,9 +147,9 @@ exports.setCaseToStaging = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.')
 
-  let caseResult = await casesService.moveToStaging(caseId)
-  if (caseResult) {
-    res.status(200).json({ case: caseResult });
+  let caseResults = await casesService.moveToStaging(caseId)
+  if (caseResults) {
+    res.status(200).json({ case: caseResults });
   }
   throw new Error('Internal server error.');
 };
@@ -259,8 +259,8 @@ exports.deleteCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.')
 
-  let caseResult = await casesService.deleteOne({ id: caseId })
-  if (caseResult) {
+  let caseResults = await casesService.deleteWhere({ id: caseId })
+  if (caseResults) {
     res.sendStatus(200);
   }
   throw new Error('Internal server error.');
@@ -278,10 +278,10 @@ exports.updateOrganizationCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is missing.');
 
-  const caseResult = await casesService.updateCaseExternalId(caseId, externalId)
+  const results = await casesService.updateCaseExternalId(caseId, externalId)
 
-  if (caseResult) {
-    res.status(200).json({ case: caseResult })
+  if (results) {
+    res.status(200).json({ case: results })
   } else {
     res.status(500).json({ message: 'Internal Server Error'})
   }

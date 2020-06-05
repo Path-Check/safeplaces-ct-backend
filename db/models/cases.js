@@ -63,8 +63,8 @@ class Service extends BaseService {
       staged_at: this.database.fn.now(),
     });
 
-    if (result) {
-      return this._mapCase(result);
+    if (results) {
+      return this._mapCase(results);
     }
   }
 
@@ -76,9 +76,9 @@ class Service extends BaseService {
    * @return {Object}
    */
   async unpublish(case_id) {
-    const result = await this.updateOne(case_id, { state: 'unpublished' });
-    if (result) {
-      return this._mapCase(result);
+    const results = await this.updateOne(case_id, { state: 'unpublished' });
+    if (results) {
+      return this._mapCase(results);
     }
   }
 
