@@ -116,7 +116,7 @@ describe('POST /case/points', () => {
         accessCode: currentAccessCode.value,
         caseId: 1,
       });
-      console.log(result.error)
+      
     result.should.have.status(202);
   });
 

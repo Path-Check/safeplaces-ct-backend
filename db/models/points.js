@@ -144,7 +144,7 @@ class Service extends BaseService {
       const b = new Buffer.from(point.coordinates, 'hex');
       const c = wkx.Geometry.parse(b);
       trail.publish_date = point.publish_date || null
-      trail.caseId = point.caseId || null
+      trail.caseId = point.caseId || point.case_id || null
       trail.pointId = point.pointId || point.id
       trail.longitude = c.x;
       trail.latitude = c.y;
