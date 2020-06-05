@@ -44,7 +44,10 @@ class Service extends BaseService {
    * @return {Array}
    */
   async moveToStaging(case_id) {
-    const results = await this.updateOne(case_id, { state: 'staging' });
+    const results = await this.updateOne(case_id, {
+      state: 'staging',
+      staged_at: this.database.fn.now(),
+    });
     if (results) {
       return this._mapCase(results);
     }
@@ -218,18 +221,20 @@ class Service extends BaseService {
   }
 
   _mapCase(itm) {
-    itm.caseId = itm.id
-    itm.updatedAt = itm.updated_at
-    itm.expiresAt = itm.expires_at
-    itm.externalId = itm.external_id
+    itm.caseId = itm.id;
+    itm.updatedAt = itm.updated_at;
+    itm.stagedAt = itm.staged_at;
+    itm.expiresAt = itm.expires_at;
+    itm.externalId = itm.external_id;
     itm.contactTracerId = itm.contact_tracer_id;
-    delete itm.organization_id
-    delete itm.publication_id
+    delete itm.organization_id;
+    delete itm.publication_id;
     delete itm.contact_tracer_id;
-    delete itm.updated_at
-    delete itm.expires_at
-    delete itm.created_at
-    delete itm.id
+    delete itm.updated_at;
+    delete itm.staged_at;
+    delete itm.expires_at;
+    delete itm.created_at;
+    delete itm.id;
     return itm
   }
 }
