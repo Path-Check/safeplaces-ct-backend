@@ -18,11 +18,32 @@ const writeToGCSBucket = require('../../lib/writeToGCSBucket');
  *
  */
 exports.fetchCasePoints = async (req, res) => {
-  const { caseId } = req.query;
+  const { caseId } = req.body;
 
   if (!caseId) throw new Error('Case ID is not valid.')
 
   let concernPoints = await casesService.fetchCasePoints(caseId)
+  if (concernPoints) {
+    res.status(200).json({ concernPoints });
+  }
+  throw new Error('Internal server error.');
+};
+
+/**
+ * @method fetchCasesPoints
+ *
+ * Returns all points of concern for the provided cases.
+ *
+ */
+exports.fetchCasesPoints = async (req, res) => {
+  const { caseIds } = req.body;
+
+  if (!caseIds) {
+    res.status(400).send();
+    return;
+  }
+
+  let concernPoints = await casesService.fetchCasesPoints(caseIds)
   if (concernPoints) {
     res.status(200).json({ concernPoints });
   }
@@ -175,7 +196,7 @@ exports.publishCases = async (req, res) => {
     const publicationParams = {
       organization_id: organization.id,
       publish_date: Math.floor(new Date().getTime() / 1000)
-    } 
+    }
     const publication = await publicationsService.insert(publicationParams);
     if (publication) {
 
