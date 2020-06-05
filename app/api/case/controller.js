@@ -119,9 +119,6 @@ exports.createCasePoint = async (req, res) => {
 /**
  * @method consentToPublish
  *
- * TODO: Currently in "Needs Confirmation" state in the API spec.
- * Will handle once Confirmed.
- *
  * Captures user consent to having their data published in the
  * aggregated anonymized JSON file that is available to public.
  *
@@ -131,11 +128,12 @@ exports.consentToPublish = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.')
 
-  const data = {
-    message: 'All Ok!',
-  };
+  let caseResult = await casesService.consentToPublishing(caseId)
+  if (caseResult) {
+    res.status(200).json({ case: caseResult })
+  }
 
-  res.status(200).json(data);
+  throw new Error('Internal server error.');
 };
 
 /**
@@ -283,7 +281,7 @@ exports.updateOrganizationCase = async (req, res) => {
   const results = await casesService.updateCaseExternalId(caseId, externalId)
 
   if (results) {
-    res.status(200).json(results)
+    res.status(200).json({ case: results })
   } else {
     res.status(500).json({ message: 'Internal Server Error'})
   }

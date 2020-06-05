@@ -209,19 +209,41 @@ describe('Case', () => {
     });
   });
 
-  it('add user consent to publish', async () => {
-    // const newParams = {
-    //   caseId: caseToTestStaging.id,
-    // };
+  describe('consent to publishing case', () => {
 
-    // const results = await chai
-    //   .request(server.app)
-    //   .post(`/case/consent-to-publishing`)
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .set('content-type', 'application/json')
-    //   .send(newParams);
+    before(async () => {
+      await casesService.deleteAllRows()
 
-    // results.should.have.status(200);
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'unpublished'
+      };
+      currentCase = await mockData.mockCase(caseParams)
+    });
+
+    it('returns the updated case', async () => {
+      const requestParams = {
+          caseId: currentCase.caseId
+      };
+
+      const result = await chai
+        .request(server.app)
+        .post(`/case/consent-to-publishing`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send(requestParams);
+
+        result.error.should.be.false;
+        result.should.have.status(200);
+        result.body.should.be.a('object');
+        result.body.should.have.property('case');
+        result.body.case.should.be.a('object');
+        result.body.case.should.have.property('caseId');
+        result.body.case.should.have.property('state');
+        result.body.case.should.have.property('updatedAt');
+        result.body.case.should.have.property('expiresAt');
+        result.body.case.caseId.should.equal(currentCase.caseId);
+    });
   });
 
   describe('move a case to staging', () => {
@@ -563,7 +585,7 @@ describe('Case', () => {
 
       results.should.have.status(200);
       results.body.should.be.a('object');
-      results.body['external_id'].should.eq('an_external_id')
+      results.body.case.externalId.should.eq('an_external_id')
     });
   });
 
