@@ -81,16 +81,21 @@ exports.fetchOrganizationCases = async (req, res) => {
  */
 exports.createOrganizationCase = async (req, res) => {
   const {
-    user: { organization_id }
+    user: { id, organization_id }
   } = req;
 
+  if (!id) throw new Error('User ID is missing.');
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
   if (!organization) throw new Error('Organization could not be found.')
 
-  const expires_at = moment().startOf('day').add(organization.daysToRetainRecords, 'days').calendar();
-  const newCase = await cases.createCase({ organization_id, expires_at, state: 'unpublished' });
+  const newCase = await cases.createCase({
+    contact_tracer_id: id,
+    organization_id,
+    expires_at: moment().startOf('day').add(organization.daysToRetainRecords, 'days').calendar(),
+    state: 'unpublished'
+  });
 
   if (newCase) {
     res.status(200).json(newCase);

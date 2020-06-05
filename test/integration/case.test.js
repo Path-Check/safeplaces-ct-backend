@@ -183,6 +183,7 @@ describe('Case', () => {
         results.body.should.have.property('case');
         results.body.case.should.be.a('object');
         results.body.case.should.have.property('caseId');
+        results.body.case.should.have.property('contactTracerId');
         results.body.case.should.have.property('state');
         results.body.case.should.have.property('updatedAt');
         results.body.case.should.have.property('expiresAt');
@@ -231,6 +232,7 @@ describe('Case', () => {
 
       results.body.cases.forEach(c => {
         c.should.have.property('caseId');
+        c.should.have.property('contactTracerId');
         c.state.should.be.equal('published');
         c.should.have.property('state');
         c.should.have.property('updatedAt');
@@ -325,7 +327,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       results.error.should.be.false;
       results.should.have.status(200);
       results.body.should.be.a('object');

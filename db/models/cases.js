@@ -222,8 +222,10 @@ class Service extends BaseService {
     itm.updatedAt = itm.updated_at
     itm.expiresAt = itm.expires_at
     itm.externalId = itm.external_id
+    itm.contactTracerId = itm.contact_tracer_id;
     delete itm.organization_id
     delete itm.publication_id
+    delete itm.contact_tracer_id;
     delete itm.updated_at
     delete itm.expires_at
     delete itm.created_at
