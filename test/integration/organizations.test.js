@@ -26,6 +26,17 @@ describe('Organization ', () => {
     let orgParams = {
       name: 'My Example Organization',
       info_website_url: 'http://sample.com',
+      notification_threshold_percent: 66,
+      notification_threshold_count: 6,
+      days_to_retain_records: 14,
+      region_coordinates: {
+        "ne": { "latitude": 20.312764055951195, "longitude": -70.45445121262883 },
+        "sw": { "latitude": 17.766025040122642, "longitude": -75.49442923997258 },
+      },
+      api_endpoint_url: 'http://api.sample.com',
+      reference_website_url: 'http://reference.sample.com',
+      privacy_policy_url: 'http://privacy.reference.sample.com',
+      completed_onboarding: true,
     };
     currentOrg = await mockData.mockOrganization(orgParams);
 
@@ -73,6 +84,30 @@ describe('Organization ', () => {
       results.should.have.status(200);
       results.body.name.should.equal(currentOrg.name);
       results.body.id.should.equal(currentOrg.id);
+      results.body.completedOnboarding.should.equal(currentOrg.completedOnboarding);
+    });
+
+    it('fetch the configuration using http', async () => {
+      const results = await chai
+        .request(server.app)
+        .get(`/organization/configuration`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json');
+
+      results.should.have.status(200);
+      results.body.id.should.equal(currentOrg.id);
+      results.body.name.should.equal(currentOrg.name);
+      results.body.notificationThresholdPercent.should.equal(currentOrg.notificationThresholdPercent);
+      results.body.notificationThresholdCount.should.equal(currentOrg.notificationThresholdCount);
+      results.body.daysToRetainRecords.should.equal(currentOrg.daysToRetainRecords);
+      results.body.regionCoordinates.ne.latitude.should.equal(currentOrg.regionCoordinates.ne.latitude);
+      results.body.regionCoordinates.ne.longitude.should.equal(currentOrg.regionCoordinates.ne.longitude);
+      results.body.regionCoordinates.sw.latitude.should.equal(currentOrg.regionCoordinates.sw.latitude);
+      results.body.regionCoordinates.sw.longitude.should.equal(currentOrg.regionCoordinates.sw.longitude);
+      results.body.apiEndpointUrl.should.equal(currentOrg.apiEndpointUrl);
+      results.body.referenceWebsiteUrl.should.equal(currentOrg.referenceWebsiteUrl);
+      results.body.privacyPolicyUrl.should.equal(currentOrg.privacyPolicyUrl);
+      results.body.infoWebsiteUrl.should.equal(currentOrg.infoWebsiteUrl);
       results.body.completedOnboarding.should.equal(currentOrg.completedOnboarding);
     });
 

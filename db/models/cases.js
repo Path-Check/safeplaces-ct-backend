@@ -37,14 +37,32 @@ class Service extends BaseService {
   }
 
   /**
+   * Consent To Publish
+   *
+   * @method consentToPublishing
+   * @param {Number} case_id
+   * @return {Object}
+   */
+  async consentToPublishing(case_id) {
+    const result = await this.updateOne(case_id, { consented_to_publishing_at: this.database.fn.now() });
+    if (result){
+      return this._mapCase(result);
+    }
+  }
+
+  /**
    * Mark Case Staging
    *
-   * @method stage
+   * @method moveToStaging
    * @param {Number} case_id
-   * @return {Array}
+   * @return {Object}
    */
   async moveToStaging(case_id) {
-    const results = await this.updateOne(case_id, { state: 'staging' });
+    const results = await this.updateOne(case_id, {
+      state: 'staging',
+      staged_at: this.database.fn.now(),
+    });
+
     if (results) {
       return this._mapCase(results);
     }
@@ -53,9 +71,9 @@ class Service extends BaseService {
   /**
    * Mark Case Unpublished
    *
-   * @method stage
+   * @method unpublish
    * @param {Number} case_id
-   * @return {Array}
+   * @return {Object}
    */
   async unpublish(case_id) {
     const results = await this.updateOne(case_id, { state: 'unpublished' });
@@ -117,16 +135,16 @@ class Service extends BaseService {
   }
 
   /**
-   * Fetch all case points
+   * Fetch all case points associated with a case
    *
    * @method fetchCasePoints
    * @param {Number} case_id
    * @return {Array}
    */
   async fetchCasePoints(case_id) {
-    if (!case_id) throw new Error('Case ID is invalid')
+    if (!case_id) throw new Error('Case ID is invalid.')
 
-    const points = await pointsService.fetchRedactedPoints(case_id)
+    const points = await pointsService.fetchRedactedPoints([case_id])
     if (points) {
       return points
     }
@@ -134,22 +152,35 @@ class Service extends BaseService {
   }
 
   /**
-   * Fetch all case points
+   * Fetch all case points associated with a group cases
+   *
+   * @method fetchCasesPoints
+   * @param {Array} case_ids
+   * @return {Array}
+   */
+  async fetchCasesPoints(case_ids) {
+    if (!case_ids) throw new Error('Case IDs is invalid.')
+
+    const points = await pointsService.fetchRedactedPoints(case_ids)
+    if (points) {
+      return points
+    }
+    return []
+  }
+
+  /**
+   * Create case point
    *
    * @method createCasePoint
    * @param {Number} case_id
    * @param {Object} point
    * @return {Object}
    */
-  async createCasePoint(case_id, point) {
-    if (!case_id) throw new Error('Case ID is invalid')
-    if (!point) throw new Error('Point is invalid')
+  createCasePoint(case_id, point) {
+    if (!case_id) throw new Error('Case ID is invalid');
+    if (!point) throw new Error('Point is invalid');
 
-    const points = await pointsService.createRedactedPoint(case_id, point)
-    if (points) {
-      return points
-    }
-    return []
+    return pointsService.createRedactedPoint(case_id, point);
   }
 
   /**
@@ -219,18 +250,21 @@ class Service extends BaseService {
   }
 
   _mapCase(itm) {
-    itm.caseId = itm.id
-    itm.updatedAt = itm.updated_at
-    itm.expiresAt = itm.expires_at
-    itm.externalId = itm.external_id
+    itm.caseId = itm.id;
+    itm.updatedAt = itm.updated_at;
+    itm.stagedAt = itm.staged_at;
+    itm.expiresAt = itm.expires_at;
+    itm.externalId = itm.external_id;
     itm.contactTracerId = itm.contact_tracer_id;
-    delete itm.organization_id
-    delete itm.publication_id
+    delete itm.organization_id;
+    delete itm.publication_id;
     delete itm.contact_tracer_id;
-    delete itm.updated_at
-    delete itm.expires_at
-    delete itm.created_at
-    delete itm.id
+    delete itm.updated_at;
+    delete itm.staged_at;
+    delete itm.expires_at;
+    delete itm.created_at;
+    delete itm.consented_to_publishing_at;
+    delete itm.id;
     return itm
   }
 }
