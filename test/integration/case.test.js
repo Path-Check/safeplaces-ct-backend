@@ -183,7 +183,7 @@ describe('Case', () => {
         results.body.should.have.property('case');
         results.body.case.should.be.a('object');
         results.body.case.should.have.property('caseId');
-        results.body.case.should.have.property('contact_tracer_id');
+        results.body.case.should.have.property('contactTracerId');
         results.body.case.should.have.property('state');
         results.body.case.should.have.property('updatedAt');
         results.body.case.should.have.property('expiresAt');
@@ -232,7 +232,7 @@ describe('Case', () => {
 
       results.body.cases.forEach(c => {
         c.should.have.property('caseId');
-        c.should.have.property('contact_tracer_id');
+        c.should.have.property('contactTracerId');
         c.state.should.be.equal('published');
         c.should.have.property('state');
         c.should.have.property('updatedAt');
