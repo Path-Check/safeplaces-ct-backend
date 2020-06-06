@@ -1,7 +1,7 @@
 
 exports.up = function(knex) {
   return knex.schema.table('points', table => {
-    table.integer('duration').nullable();
+    table.integer('duration').default(5);
   });
 };
 

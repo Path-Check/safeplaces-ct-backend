@@ -4,7 +4,6 @@ const Buffer = require('buffer').Buffer;
 const knex = require('../knex.js').private;
 const knexPostgis = require("knex-postgis");
 const wkx = require('wkx');
-const geoHash = require('../../app/lib/geoHash');
 const transform = require('../../app/lib/pocTransform.js');
 
 const st = knexPostgis(knex);
@@ -29,17 +28,15 @@ class Service extends BaseService {
   }
 
   async createRedactedPoint(caseId, point) {
-    let record = {};
-    let hash = await geoHash.encrypt(point)
-    if (hash) {
-      record.hash = hash.encodedString
-      record.coordinates = this.makeCoordinate(point.longitude, point.latitude);
-      record.time = new Date(point.time); // Assumes time in epoch seconds
-      record.case_id = caseId;
-      const points = await this.create(record);
-      if (points) {
-        return this._getRedactedPoints(points).shift()
-      }
+    let record = {
+      hash: null,
+      coordinates: this.makeCoordinate(point.longitude, point.latitude),
+      time: new Date(point.time), // Assumes time in epoch seconds
+      case_id: caseId,
+    };
+    const points = await this.create(record);
+    if (points) {
+      return this._getRedactedPoints(points).shift()
     }
     throw new Error('Could not create hash.')
   }
@@ -80,17 +77,15 @@ class Service extends BaseService {
    * @return {Object}
    */
   async updateRedactedPoint(point_id, point) {
-    let record = {};
-    let hash = await geoHash.encrypt(point)
-    if (hash) {
-      record.hash = hash.encodedString
-      record.coordinates = this.makeCoordinate(point.longitude, point.latitude);
-      record.time = new Date(point.time);
-      record.duration = point.duration;
-      const points = await this.updateOne(point_id, record);
-      if (points) {
-        return this._getRedactedPoints([points]).shift()
-      }
+    let record = {
+      hash: null,
+      coordinates: this.makeCoordinate(point.longitude, point.latitude),
+      time: new Date(point.time),
+      duration: point.duration
+    };
+    const points = await this.updateOne(point_id, record);
+    if (points) {
+      return this._getRedactedPoints([points]).shift()
     }
     throw new Error('Could not create hash.')
   }
@@ -174,47 +169,31 @@ class Service extends BaseService {
   }
 
   async insertRedactedTrailSet(trails, caseId) {
-    let trailRecords = [];
-
     trails = transform.discreetToDuration(trails)
-
-    let trail, record, hash;
-    for(trail of trails) {
-      record = {};
-      hash = await geoHash.encrypt(trail)
-      if (hash) {
-        record.hash = hash.encodedString
-        record.coordinates = this.makeCoordinate(trail.longitude, trail.latitude);
-        record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
-        record.case_id = caseId;
-        record.duration = trail.duration;
-        trailRecords.push(record);
+    const trailRecords = trails.map(trail => {
+      return {
+        hash: null,
+        coordinates: this.makeCoordinate(trail.longitude, trail.latitude),
+        time: new Date(trail.time * 1000), // Assumes time in epoch seconds
+        case_id: caseId,
+        duration: trail.duration
       }
-    }
+    })
 
     return this.create(trailRecords);
   }
 
   async loadTestRedactedTrails(trails, caseId) {
-    let trailRecords = [];
-
     trails = transform.discreetToDuration(trails)
-
-    let trail, record, hash;
-    for(trail of trails) {
-      record = {};
-      hash = await geoHash.encrypt(trail)
-      if (hash) {
-        record.hash = hash.encodedString
-        record.coordinates = this.makeCoordinate(trail.longitude, trail.latitude);
-        record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
-        record.case_id = caseId;
-        record.duration = trail.duration;
-        trailRecords.push(record);
+    return trails.map(trail => {
+      return {
+        hash: null,
+        coordinates: this.makeCoordinate(trail.longitude, trail.latitude),
+        time: new Date(trail.time * 1000), // Assumes time in epoch seconds
+        case_id: caseId,
+        duration: trail.duration
       }
-    }
-
-    return trailRecords
+    });
   }
 
   async fetchTestHash(longitude, latitude) {

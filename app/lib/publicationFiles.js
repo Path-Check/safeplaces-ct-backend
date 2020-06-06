@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const AdmZip = require('adm-zip');
+const geoHash = require('./geoHash');
 const transform = require('./pocTransform.js');
 
 /**
@@ -20,7 +21,7 @@ class PublicationFiles {
    * @param {Array[Trails]} trails
    * @return {Object}
    */
-  build(organization, record, trails) {
+  async build(organization, record, trails) {
     if (!organization.apiEndpointUrl) throw new Error('Your API endpoint is invalid.') 
 
     let endpoint = organization.apiEndpointUrl
@@ -29,7 +30,7 @@ class PublicationFiles {
     }
     this._apiEndpointPage = `${endpoint}[PAGE].json`;
 
-    trails = transform.durationToDiscreet(trails)
+    trails = await this._transformAndHash(trails);
 
     const header = this._getHeader(organization, record);
     const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds);
@@ -44,20 +45,6 @@ class PublicationFiles {
     return { files, cursor };
   }
 
-  _getHeader(organization, record) {
-    return {
-      version: "1.0",
-      name: organization.name,
-      publish_date_utc: (record.publish_date.getTime() / 1000),
-      info_website_url: organization.infoWebsiteUrl,
-      api_endpoint_url: organization.apiEndpointUrl,
-      privacy_policy_url: organization.privacyPolicyUrl,
-      reference_website_url: organization.referenceWebsiteUrl,
-      notification_threshold_percent: organization.notificationThresholdPercent,
-      notification_threshold_count: organization.notificationThresholdCount
-    }
-  }
-
   /**
    * 
    * Build Publication File Content and return zip file Buffer.
@@ -68,7 +55,7 @@ class PublicationFiles {
    * @param {Array[Trails]} trails
    * @return {<Promise>ZipFile}
    */
-  // 
+  
   async buildAndZip(organization, record, trails) {
     const pages = await this.build(organization, record, trails)
     if (pages) {
@@ -89,6 +76,56 @@ class PublicationFiles {
   }
 
   // private
+
+  /**
+   * 
+   * Fetch Header
+   *
+   * @method _getHeader
+   * @param {Object} organization
+   * @param {Object} record
+   * @return {Object}
+   */
+  
+  _getHeader(organization, record) {
+    return {
+      version: "1.0",
+      name: organization.name,
+      publish_date_utc: (record.publish_date.getTime() / 1000),
+      info_website_url: organization.infoWebsiteUrl,
+      api_endpoint_url: organization.apiEndpointUrl,
+      privacy_policy_url: organization.privacyPolicyUrl,
+      reference_website_url: organization.referenceWebsiteUrl,
+      notification_threshold_percent: organization.notificationThresholdPercent,
+      notification_threshold_count: organization.notificationThresholdCount
+    }
+  }
+
+  /**
+   * 
+   * Transform from duration to discreet and build hashes.
+   *
+   * @method _transformAndHash
+   * @param {Array[Trails]} trails
+   * @return {Array[HashedTrails]}
+   */
+  
+  async _transformAndHash(trails) {
+    trails = transform.durationToDiscreet(trails)
+
+    let trail, hash;
+    let trailRecords = [];
+
+    for(trail of trails) {
+      hash = await geoHash.encrypt(trail)
+      if (hash) {
+        trail.hash = hash.encodedString
+        trailRecords.push(trail);
+      }
+    }
+
+    return trailRecords;
+  }
 
   /**
    * Get all information related to paginating.

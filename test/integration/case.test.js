@@ -183,7 +183,8 @@ describe('Case', () => {
         point: {
           longitude: 14.91328448,
           latitude: 41.24060321,
-          time: "2020-05-01T18:25:43.511Z"
+          time: "2020-05-01T18:25:43.511Z",
+          duration: 5
         }
       };
 

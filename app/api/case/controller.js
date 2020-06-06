@@ -116,6 +116,7 @@ exports.createCasePoint = async (req, res) => {
   if (!point.latitude) throw new Error('Latitude is not valid.');
   if (!point.longitude) throw new Error('Latitude is not valid.');
   if (!point.time) throw new Error('Latitude is not valid.');
+  if (!point.duration) throw new Error('Duration is not valid.');
 
   const concernPoint = await casesService.createCasePoint(caseId, point);
 
@@ -281,7 +282,7 @@ exports.publishCases = async (req, res) => {
             })
             .send(data)
         } else {
-          let pages = publicationFiles.build(organization, publication, points)
+          let pages = await publicationFiles.build(organization, publication, points)
 
           if (process.env.NODE_ENV !== 'production') {
             if (type === 'json') {
