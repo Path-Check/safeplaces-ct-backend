@@ -124,6 +124,7 @@ describe('POST /case/points', () => {
 
     const currentCase = await mockData.mockCase({
       organization_id: currentOrg.id,
+      invalidated_at: new Date("2020-06-02T18:25:43.000Z"),
       state: 'unpublished',
     });
 

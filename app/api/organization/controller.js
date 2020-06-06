@@ -146,13 +146,13 @@ exports.createOrganizationCase = async (req, res) => {
 exports.deleteOrganizationCase = async (req, res) => {
   const {
     user: { organization_id },
-    body: { case_id }
+    body: { caseId }
   } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
-  if (!case_id) throw new Error('Case ID is missing.');
+  if (!caseId) throw new Error('Case ID is missing.');
 
-  const results = await organizations.deleteCase(organization_id, case_id);
+  const results = await organizations.deleteCase(organization_id, caseId);
   if (results) {
     res.sendStatus(200);
   } else {
