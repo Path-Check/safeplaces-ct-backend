@@ -6,6 +6,8 @@ const chaiHttp = require('chai-http');
 const expect = chai.expect;
 const server = require('../../app');
 
+//  const mockData = require('../lib/mockData');
+
 chai.use(chaiHttp);
 
 function parseJwt(token) {
@@ -24,6 +26,7 @@ function parseJwt(token) {
 }
 
 describe('POST /login', function() {
+  
   it('should login on user creds and return map api key', function(done) {
     chai
       .request(server.app)

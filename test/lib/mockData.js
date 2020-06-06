@@ -118,6 +118,73 @@ class MockData {
   }
 
   /**
+   * Generate Mock Trails for Load Test
+   *
+   * Pass in the case id and the pre generated trails.
+   *
+   * @method mockTrailsLoadTest
+   * @param {String} startTime
+   * @param {Object} options
+   * @param {Number} options.startTime
+   * @param {Number} options.organization_id
+   * @param {Number} options.organization_id
+   */
+  async mockTrailsLoadTest(options= {}) {
+    if (!options.startTime) throw new Error('Start Time must be provided');
+    if (!options.organization_id) throw new Error('Organization ID must be provided');
+    if (!options.numberOfRecords) throw new Error('Number of Records must be provided');
+
+    const caseParams = {
+      organization_id: options.organization_id,
+      state: options.state || 'unpublished'
+    };
+    let pointsCase = await this.mockCase(caseParams);
+    if (pointsCase) {
+      const trails = this._generateTrailsData(options.numberOfRecords, 300, options.startTime, true) 
+      const results = await pointsService.loadTestRedactedTrails(
+        trails,
+        pointsCase.caseId
+      );
+      if (results) {
+        return results;
+      }
+    }
+    throw new Error('Problem adding the trails.');
+  }
+
+  /**
+   * Generate Mock Trails Directly from Data
+   *
+   * Pass in the case id and the pre generated trails.
+   *
+   * @method mockTrailsDirect
+   * @param {String} startTime
+   * @param {Object} options
+   * @param {Number} options.caseId
+   */
+  async mockTrailsDirect(options= {}) {
+    if (!options.startTime) throw new Error('Start Time must be provided');
+    if (!options.organization_id) throw new Error('Organization ID must be provided');
+
+    const caseParams = {
+      organization_id: options.organization_id,
+      state: options.state || 'unpublished'
+    };
+    let pointsCase = await this.mockCase(caseParams);
+    if (pointsCase) {
+      const trails = this._generateLargeGroupingOfPoints(options.startTime);
+      const results = await pointsService.insertRedactedTrailSet(
+        trails,
+        pointsCase.caseId
+      );
+      if (results) {
+        return results;
+      }
+    }
+    throw new Error('Problem adding the trails.');
+  }
+
+  /**
    * @method mockPublication
    *
    * Generate Mock Publication
@@ -241,7 +308,7 @@ class MockData {
     if (!accessCode || !accessCode.id) throw new Error('Access code must be provided');
 
     const accessCodeId = accessCode.id;
-    let points = this._generateUploadedPoints(accessCodeId, num);
+    let points = await this._generateUploadedPoints(accessCodeId, num);
 
     try {
       sinon.restoreObject(uploadService);
@@ -269,10 +336,61 @@ class MockData {
 
   // private
 
-  _generateTrailsData(numberOfTrails, timeIncrementInSeconds, startAt = new Date().getTime()) {
+  _getRandomCoordinates() {
+    const coords = randomCoordinates({fixed: 5}).split(',');
+    return {
+      longitude: parseFloat(coords[1]),
+      latitude: parseFloat(coords[0])
+    };
+  }
+
+  _generateLargeGroupingOfPoints(startTime) {
+    let final = []
+
+    const groupOne = this._generateGroupedTrailsData(this._getRandomCoordinates(), startTime, 25)
+    final = final.concat(groupOne)
+
+    // Start 5 minutes after the last trail point and add 100 random points in 5 min increments
+    const randomTrails = this._generateTrailsData(100, 300, (groupOne[4].time + 300000), false) 
+    final = final.concat(randomTrails)
+
+    // Create another grouping for 45 min
+    const groupTwo = this._generateGroupedTrailsData(this._getRandomCoordinates(), (randomTrails[99].time + 300000), 45)
+    final = final.concat(groupTwo)
+
+    // Start 5 minutes after the last trail point and add 250 random points in 5 min increments
+    const randomTrailsTwo = this._generateTrailsData(250, 300, (groupTwo[4].time + 300000), false)
+    final = final.concat(randomTrailsTwo)
+
+    // Create another grouping for 15 min
+    const groupThree = this._generateGroupedTrailsData(this._getRandomCoordinates(), (randomTrailsTwo[99].time + 300000), 15)
+    final = final.concat(groupThree)
+
+    return final
+  }
+
+  _generateGroupedTrailsData(coordinates, startTime, duration) {
+    const standardIncrement = 5
+    const numberOfTrails = (duration / standardIncrement)
+    let coordTime = startTime;
+    return Array(numberOfTrails).fill("").map(() => {
+      coordTime = coordTime + (standardIncrement * 60 * 1000);
+      return {
+        longitude: coordinates.longitude,
+        latitude: coordinates.latitude,
+        time: coordTime
+      };
+    })
+  }
+
+  _generateTrailsData(numberOfTrails, timeIncrementInSeconds, startAt = new Date().getTime(), decrementTime = true) {
     let coordTime = Math.floor(startAt / 1000);
     return Array(numberOfTrails).fill("").map(() => {
-      coordTime = coordTime - timeIncrementInSeconds;
+      if (decrementTime) {
+        coordTime = coordTime - timeIncrementInSeconds;
+      } else {
+        coordTime = coordTime + timeIncrementInSeconds;
+      }
       const coords = randomCoordinates({fixed: 5}).split(',');
       return {
         longitude: parseFloat(coords[1]),
@@ -282,19 +400,27 @@ class MockData {
     })
   }
 
-  _generateUploadedPoints(accessCodeId, num) {
+  /* eslint-disable */
+  async _generateUploadedPoints(accessCodeId, num) {
     const uploadId = uuidv4();
-    return Array(num).fill("").map(() => {
+
+    let final = []
+    let i;
+    for(i of Array(num).fill("")) {
       const coords = randomCoordinates({fixed: 5}).split(',');
-      return {
+      const dbData = await pointsService.fetchTestHash(parseFloat(coords[1]), parseFloat(coords[0]))
+      const entry = {
         access_code_id: accessCodeId,
         upload_id: uploadId,
-        coordinates: pointsService.makeCoordinate(parseFloat(coords[1]), parseFloat(coords[0])),
-        time: uploadService.database.fn.now(),
+        coordinates: dbData.point,
+        time: dbData.time,
         hash: "test",
-      };
-    });
+      }
+      final.push(entry);
+    }
+    return final;
   }
+  /* eslint-enable */
 }
 
 module.exports = new MockData();

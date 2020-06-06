@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt');
-
 exports.seed = function (knex) {
   if (!process.env.SEED_MAPS_API_KEY) {
     throw new Error('Populate environment variable SEED_MAPS_API_KEY');

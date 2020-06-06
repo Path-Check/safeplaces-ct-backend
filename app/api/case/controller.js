@@ -116,6 +116,7 @@ exports.createCasePoint = async (req, res) => {
   if (!point.latitude) throw new Error('Latitude is not valid.');
   if (!point.longitude) throw new Error('Latitude is not valid.');
   if (!point.time) throw new Error('Latitude is not valid.');
+  if (!point.duration) throw new Error('Duration is not valid.');
 
   const concernPoint = await casesService.createCasePoint(caseId, point);
 
@@ -140,8 +141,9 @@ exports.updateCasePoint = async (req, res) => {
   if (!body.latitude) throw new Error('Latitude is not valid.');
   if (!body.longitude) throw new Error('Latitude is not valid.');
   if (!body.time) throw new Error('Latitude is not valid.');
+  if (!body.duration) throw new Error('Duration is not valid.');
 
-  const params = _.pick(body, ['longitude','latitude','time']);
+  const params = _.pick(body, ['longitude','latitude','time','duration']);
 
   const concernPoint = await pointsService.updateRedactedPoint(pointId, params);
 
@@ -280,7 +282,7 @@ exports.publishCases = async (req, res) => {
             })
             .send(data)
         } else {
-          let pages = publicationFiles.build(organization, publication, points)
+          let pages = await publicationFiles.build(organization, publication, points)
 
           if (process.env.NODE_ENV !== 'production') {
             if (type === 'json') {

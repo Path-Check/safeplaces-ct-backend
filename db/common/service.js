@@ -56,6 +56,10 @@ class BaseService {
     return this.table.del();
   }
 
+  raw(string) {
+    return knex[this._scope].raw(string);
+  }
+
   get database() {
     return knex[this._scope];
   }

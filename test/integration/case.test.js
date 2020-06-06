@@ -183,7 +183,8 @@ describe('Case', () => {
         point: {
           longitude: 14.91328448,
           latitude: 41.24060321,
-          time: "2020-05-01T18:25:43.511Z"
+          time: "2020-05-01T18:25:43.511Z",
+          duration: 5
         }
       };
 
@@ -232,7 +233,8 @@ describe('Case', () => {
         pointId: testPoint.id,
         longitude: 12.91328448,
         latitude: 39.24060321,
-        time: "2020-05-21T18:25:43.511Z"
+        time: "2020-05-21T18:25:43.511Z",
+        duration: 5
       };
 
       const results = await chai
@@ -251,6 +253,7 @@ describe('Case', () => {
       results.body.concernPoint.should.have.property('longitude');
       results.body.concernPoint.should.have.property('latitude');
       results.body.concernPoint.should.have.property('time');
+      results.body.concernPoint.should.have.property('duration');
       results.body.concernPoint.pointId.should.equal(testPoint.id);
       results.body.concernPoint.longitude.should.equal(newParams.longitude);
 
@@ -314,7 +317,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(requestParams);
-
+        
         result.error.should.be.false;
         result.should.have.status(200);
         result.body.should.be.a('object');
