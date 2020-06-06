@@ -34,6 +34,7 @@ class Service extends BaseService {
       coordinates: this.makeCoordinate(point.longitude, point.latitude),
       time: new Date(point.time), // Assumes time in epoch seconds
       case_id: caseId,
+      duration: point.duration,
     };
     const points = await this.create(record);
     if (points) {
