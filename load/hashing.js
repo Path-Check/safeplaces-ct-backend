@@ -1,4 +1,4 @@
-const mockData = require('../lib/mockData');
+const mockData = require('../test/lib/mockData');
 
 /**
  * #############################################

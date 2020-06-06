@@ -4,6 +4,7 @@ const Buffer = require('buffer').Buffer;
 const knex = require('../knex.js').private;
 const knexPostgis = require("knex-postgis");
 const wkx = require('wkx');
+const geoHash = require('../../app/lib/geoHash');
 const transform = require('../../app/lib/pocTransform.js');
 
 const st = knexPostgis(knex);
@@ -153,6 +154,13 @@ class Service extends BaseService {
     return redactedTrail;
   }
 
+  /**
+   * Find cases in a specific time interval
+   *
+   * @method findIntervalCases
+   * @param {Object} publication
+   * @return {Array}
+   */
   async findIntervalCases(publication) {
     if (!publication.start_date) throw new Error('Start date is invalid');
     if (!publication.end_date) throw new Error('End date is invalid');
@@ -168,6 +176,14 @@ class Service extends BaseService {
     return []
   }
 
+  /**
+   * Insert a group of points with redacted data.
+   *
+   * @method loadTestRedactedTrails
+   * @param {Array} trails
+   * @param {Number} caseId
+   * @return {Array}
+   */
   async insertRedactedTrailSet(trails, caseId) {
     trails = transform.discreetToDuration(trails)
     const trailRecords = trails.map(trail => {
@@ -183,19 +199,44 @@ class Service extends BaseService {
     return this.create(trailRecords);
   }
 
+  /**
+   * Simply used to test the length of the process for hashing a large set of points.
+   *
+   * @method loadTestRedactedTrails
+   * @param {Array} trails
+   * @param {Number} caseId
+   * @return {Array}
+   */
   async loadTestRedactedTrails(trails, caseId) {
+    let trailRecords = [];
+
     trails = transform.discreetToDuration(trails)
-    return trails.map(trail => {
-      return {
-        hash: null,
-        coordinates: this.makeCoordinate(trail.longitude, trail.latitude),
-        time: new Date(trail.time * 1000), // Assumes time in epoch seconds
-        case_id: caseId,
-        duration: trail.duration
+
+    let trail, record, hash;
+    for(trail of trails) {
+      record = {};
+      hash = await geoHash.encrypt(trail)
+      if (hash) {
+        record.hash = hash.encodedString
+        record.coordinates = this.makeCoordinate(trail.longitude, trail.latitude);
+        record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
+        record.case_id = caseId;
+        record.duration = trail.duration;
+        trailRecords.push(record);
       }
-    });
+    }
+
+    return trailRecords
   }
 
+  /**
+   * Needed to generate Hashes and timestamps of postgis for sinon stubs in tests.
+   *
+   * @method loadTestRedactedTrails
+   * @param {Number} longitude
+   * @param {Number} latitude
+   * @return {Object}
+   */
   async fetchTestHash(longitude, latitude) {
     const results = await this.raw(`SELECT ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}),4326) AS point, now() AS time`);
     if (results) {
