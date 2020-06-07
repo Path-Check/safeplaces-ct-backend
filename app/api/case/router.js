@@ -3,18 +3,18 @@
 const server = require('../../../src/server');
 const controller = require('./controller');
 
-server.get(
+server.post(
   '/case/points',
   server.wrapAsync(async (req, res) => await controller.fetchCasePoints(req, res), true),
 );
 
-server.get(
+server.post(
   '/cases/points',
   server.wrapAsync(async (req, res) => await controller.fetchCasesPoints(req, res), true),
 );
 
 server.post(
-  '/case/points',
+  '/case/points/ingest',
   server.wrapAsync(async (req, res) => await controller.ingestUploadedPoints(req, res), true),
 );
 

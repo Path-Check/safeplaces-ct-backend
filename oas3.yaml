@@ -83,10 +83,10 @@ components:
           $ref : '#/components/schemas/timeString'
     caseIds:
       type : object
-      properties: 
+      properties:
         caseIds:
           type: array
-          items: 
+          items:
             $ref : '#/components/schemas/caseId'
           example:
             - 12
@@ -113,13 +113,13 @@ components:
     concernPointDBAdd:
       type: object
       properties:
-        longitude: 
+        longitude:
           type : number
           example: 14.91328448
         latitude:
           type : number
           example: 41.24060321
-        time : 
+        time :
           $ref : '#/components/schemas/timeString'
     concernPointDb:
       type: object
@@ -127,16 +127,16 @@ components:
         pointId:
           type: number
           example: 12
-        longitude: 
+        longitude:
           type : number
           example: 14.91328448
         latitude:
           type : number
           example: 41.24060321
-        time : 
+        time :
           type : string
           example: "2020-05-30T18:25:43.511Z"
-    concernPointApp: 
+    concernPointApp:
       type: object
       properties:
         longitude:
@@ -158,7 +158,7 @@ components:
     consent:
       type: object
       properties:
-        consent : 
+        consent :
           type: boolean
           example: true
         accessCode:
@@ -239,13 +239,13 @@ components:
           $ref: '#/components/schemas/coordinates'
       example:
         value:
-          { "ne": { "latitude": 20.312764055951195, "longitude": -70.45445121262883}, 
+          { "ne": { "latitude": 20.312764055951195, "longitude": -70.45445121262883},
             "sw": { "latitude": 17.766025040122642, "longitude": -75.49442923997258}
           }
     timeString:
       type: string
       example: "2020-05-30T18:25:43.511Z"
-    token: 
+    token:
       type: object
       properties:
         token:
@@ -255,20 +255,20 @@ components:
     uploadId:
       type: object
       properties:
-        uploadId: 
+        uploadId:
           type: string
           example: "42963a2f-9bd8-4ade-a713-3106020c1942"
     valid:
       type: object
       properties:
-        valid : 
+        valid :
           type: boolean
           example: true
 
   examples:
     concernPoints:
-      value: {  
-                "concernPoints" : 
+      value: {
+                "concernPoints" :
               [  {"pointId": 232, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10753902581515137,"latitude":51.55987524514395},
                 {"pointId": 233, "time":"2020-05-30T18:25:43.511Z","longitude":-0.06407687379643874,"latitude":51.53626227398831},
                 {"pointId": 234, "time":"2020-05-30T18:25:43.511Z","longitude":-0.10383699531844902,"latitude":51.5687569927817},
@@ -279,7 +279,7 @@ components:
                 {"pointId": 239, "time":"2020-05-30T18:25:43.511Z","longitude":-0.12014169804782877,"latitude":51.54859663929235}
               ]}
     casesList:
-      value: 
+      value:
         {
           "cases": [
                     {
@@ -349,7 +349,7 @@ paths:
             schema:
               type: object
               properties:
-                accessCode : 
+                accessCode :
                   $ref : '#/components/schemas/authCode'
       responses:
         '200':
@@ -363,7 +363,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError' 
+          $ref: '#/components/responses/InternalServerError'
   /consent:
     post:
       summary: Logs user consent to health authority’s terms of service. Invalidates the accessCode that is passed in the payload if  consent  is false.
@@ -380,7 +380,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError' 
+          $ref: '#/components/responses/InternalServerError'
   /upload:
     post:
       summary: Accepts SAFE PATHS data upload from the user. Access code sent in body must match an access code created in a POST /access-code call. The uploadId returned may be used by clients to purge data from this upload at a later time.
@@ -442,7 +442,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  accessCode: 
+                  accessCode:
                     $ref: '#/components/schemas/authCode'
         '400':
           $ref: '#/components/responses/InvalidRequest'
@@ -469,7 +469,7 @@ paths:
                     $ref : '#/components/schemas/orgId'
                   name:
                     $ref : '#/components/schemas/orgName'
-                  completeOnBoarding: 
+                  completeOnBoarding:
                     $ref : '#/components/schemas/orgCompleteOnboarding'
         '400':
           $ref: '#/components/responses/InvalidRequest'
@@ -485,7 +485,7 @@ paths:
     get:
       summary: Returns the configuration of the organization associated with the requesting user.
       responses:
-        '200': 
+        '200':
           description: OK
           content:
             application/json:
@@ -496,7 +496,7 @@ paths:
         '403':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
-          $ref: '#/components/responses/InternalServerError'      
+          $ref: '#/components/responses/InternalServerError'
       security:
         - contactTracer: []
         - admin: []
@@ -508,7 +508,7 @@ paths:
             schema:
               $ref: '#/components/schemas/orgConfiguration'
       responses:
-        '200': 
+        '200':
           description: OK
           content:
             application/json:
@@ -519,7 +519,7 @@ paths:
         - admin: []
 
   '/organization/cases':
-    get:
+    post:
       description: Gets a list of case records for the organization
       responses:
         '200':
@@ -573,7 +573,7 @@ paths:
             schema:
               type: object
               properties:
-                caseId: 
+                caseId:
                   $ref: '#/components/schemas/caseId'
                 externalId:
                   $ref : '#/components/schemas/externalId'
@@ -593,8 +593,8 @@ paths:
       security:
         - contactTracer: []
         - admin: []
-              
-    delete:
+
+    post:
       summary: Delete case record
       requestBody:
         content:
@@ -602,7 +602,7 @@ paths:
             schema:
               type: object
               properties:
-                caseId: 
+                caseId:
                   $ref: '#/components/schemas/caseId'
       responses:
         '200':
@@ -612,13 +612,13 @@ paths:
         '403':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
-          $ref: '#/components/responses/InternalServerError'        
+          $ref: '#/components/responses/InternalServerError'
       security:
         - contactTracer: []
         - admin: []
-  
+
   '/case/points':
-    get:
+    post:
       summary: Returns all points of concern for the provided case.
       requestBody:
         content:
@@ -626,7 +626,7 @@ paths:
             schema:
               type: object
               properties:
-                caseId: 
+                caseId:
                   $ref: '#/components/schemas/caseId'
       responses:
         '200':
@@ -639,7 +639,7 @@ paths:
                   concernPoints:
                     $ref: '#/components/schemas/concernPointDb'
               examples:
-                one: 
+                one:
                   $ref : '#/components/examples/concernPoints'
         '400':
           $ref: '#/components/responses/InvalidRequest'
@@ -704,7 +704,7 @@ paths:
       responses:
         '200':
           description: Patient case updated
-          content: 
+          content:
             application/json:
               schema:
                 type: object
@@ -729,10 +729,10 @@ paths:
             schema:
               type: object
               properties:
-                caseId: 
+                caseId:
                   $ref: '#/components/schemas/caseId'
       responses:
-        '200': 
+        '200':
           description: OK
           content:
             appliation/json:
@@ -750,7 +750,7 @@ paths:
       security:
       - contactTracer: []
       - admin: []
-                
+
   '/case/stage':
     post:
       summary: Updates the state of the case from unpublished to staging.
@@ -807,7 +807,7 @@ paths:
       security:
         - contactTracer: []
         - admin: []
-            
+
   '/point':
     put:
       summary: Updates an existing point of concern
@@ -817,7 +817,7 @@ paths:
             schema:
               $ref: '#/components/schemas/concernPointDb'
       responses:
-        '200': 
+        '200':
           description: 'OK'
           content:
             application/json:

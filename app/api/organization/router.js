@@ -40,7 +40,8 @@ server.get(
     true,
   ),
 );
-server.delete(
+
+server.post(
   '/organization/case',
   server.wrapAsync(
     async (req, res) => await controller.deleteOrganizationCase(req, res),

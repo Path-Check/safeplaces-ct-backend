@@ -74,7 +74,7 @@ describe('Case', () => {
     it('and return multiple case points', async () => {
       const results = await chai
         .request(server.app)
-        .get(`/case/points`)
+        .post(`/case/points`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send({ caseId: currentCase.caseId });
@@ -118,7 +118,7 @@ describe('Case', () => {
     it('and return points for all cases', async () => {
       const results = await chai
         .request(server.app)
-        .get(`/cases/points`)
+        .post(`/cases/points`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send({ caseIds: [caseOne.caseId, caseTwo.caseId, caseThree.caseId ]});
@@ -140,7 +140,7 @@ describe('Case', () => {
     it('and returns no points if no caseIds are passed', async () => {
       const results = await chai
         .request(server.app)
-        .get(`/cases/points`)
+        .post(`/cases/points`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send({ caseIds: []});
@@ -156,7 +156,7 @@ describe('Case', () => {
     it('and fails if caseIds are not passed', async () => {
       const results = await chai
         .request(server.app)
-        .get(`/cases/points`)
+        .post(`/cases/points`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send();
@@ -317,7 +317,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(requestParams);
-        
+
         result.error.should.be.false;
         result.should.have.status(200);
         result.body.should.be.a('object');
