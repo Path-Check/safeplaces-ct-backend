@@ -177,7 +177,7 @@ describe('Organization ', () => {
 
       const results = await chai
         .request(server.app)
-        .delete(`/organization/case`)
+        .post(`/organization/case`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);

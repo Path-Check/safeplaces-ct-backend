@@ -15,7 +15,7 @@ const uploadService = require('../../db/models/upload');
 
 chai.use(chaiHttp);
 
-describe('POST /case/points', () => {
+describe('POST /case/points/ingest', () => {
 
   let token, currentOrg, currentAccessCode;
 
@@ -54,7 +54,7 @@ describe('POST /case/points', () => {
   it('should fail for unauthorized clients', async () => {
     let result = await chai
       .request(server.app)
-      .post('/case/points')
+      .post('/case/points/ingest')
       .send();
     result.should.have.status(401);
   });
@@ -62,7 +62,7 @@ describe('POST /case/points', () => {
   it('should fail for malformed requests', async () => {
     let result = await chai
       .request(server.app)
-      .post('/case/points')
+      .post('/case/points/ingest')
       .set('Authorization', `Bearer ${token}`)
       .send({
         accessCode: "123456",
@@ -71,7 +71,7 @@ describe('POST /case/points', () => {
 
     result = await chai
       .request(server.app)
-      .post('/case/points')
+      .post('/case/points/ingest')
       .set('Authorization', `Bearer ${token}`)
       .send({
         caseId: 1,
@@ -82,7 +82,7 @@ describe('POST /case/points', () => {
   it('should fail for invalid access codes', async () => {
     let result = await chai
       .request(server.app)
-      .post('/case/points')
+      .post('/case/points/ingest')
       .set('Authorization', `Bearer ${token}`)
       .send({
         accessCode: "123456",
@@ -94,7 +94,7 @@ describe('POST /case/points', () => {
   it('should fail when consent is not granted', async () => {
     let result = await chai
       .request(server.app)
-      .post('/case/points')
+      .post('/case/points/ingest')
       .set('Authorization', `Bearer ${token}`)
       .send({
         accessCode: currentAccessCode.value,
@@ -110,13 +110,13 @@ describe('POST /case/points', () => {
 
     let result = await chai
       .request(server.app)
-      .post('/case/points')
+      .post('/case/points/ingest')
       .set('Authorization', `Bearer ${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: 1,
       });
-      
+
     result.should.have.status(202);
   });
 
@@ -133,13 +133,13 @@ describe('POST /case/points', () => {
 
     let result = await chai
       .request(server.app)
-      .post('/case/points')
+      .post('/case/points/ingest')
       .set('Authorization', `Bearer ${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: currentCase.caseId,
       });
-      
+
     result.should.have.status(200);
 
     chai.should().exist(result.body.concernPoints);
