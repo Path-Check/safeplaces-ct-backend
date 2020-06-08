@@ -14,14 +14,33 @@ Safeplaces is a toolkit for public health, built on top of data shared by users 
 The project is still under development and will reach a Minimum Viable Product (MVP) stage soon.  
 *Note*: There can be breaking changes to the developing code until the MVP is released.
 
+## Publishing Files
+
+Files can be published to either Google Cloud Storage (GCS) or AWS Simple Storage Service (S3). This preference is set via an environment variable. If not set, tests will default to local storage (write to disk) to pass. This variable is required in a production environment.
+
+```
+PUBLISH_STORAGE_TYPE=(gcs|aws)
+```
+
 ## Google Cloud Storage (GCS)
 
-To get tests to fully run you will need to add GCS credentials.  These credentials go into the environment variables. If these environment variables are not set, then it will simply write to disc so that the tests pass.
+The following environment variables are required:
 
 ```
 GOOGLE_APPLICATION_CREDENTIALS='google_service_account.json'
 GOOGLE_CLOUD_PROJECT=something
 GCLOUD_STORAGE_BUCKET=somethingOrOther
+```
+
+## AWS Simple Storage Service (S3)
+
+The following environment variables are required:
+
+```
+S3_BUCKET=bucket-name
+S3_REGION=region-name
+S3_ACCESS_KEY=something
+S3_SECRET_KEY=something-secret
 ```
 
 ## Deployment
@@ -158,8 +177,8 @@ docker run --rm --name safeplaces-expressjs --env-file=.env -p 3000:3000 safepla
 
 #### Deploy via docker-compose
 
- *Using docker-compose will bring a postgres server along with the application container* 
- 
+ *Using docker-compose will bring a postgres server along with the application container*
+
 Ensure to create application Environment variables  file .env from .env.template
 
 Ensure to create Postgres Environment variables file  .database.env from .database.env.template
