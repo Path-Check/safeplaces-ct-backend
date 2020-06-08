@@ -17,5 +17,18 @@ exports.seed = function (knex) {
           'https://api.something.give/safe_path/',
       });
 
+      await knex('organizations').insert({
+        id: 2,
+        name: 'Sith Organization'
+      });
+
+      await knex('settings').insert({
+        id: '2f7cd385-8d9d-494b-8223-8e4d40446b17',
+        organization_id: 2,
+        info_website_url:
+          'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
+        api_endpoint_url:
+          'https://api.something.give/safe_path/',
+      });
     });
 };
