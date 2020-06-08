@@ -1,5 +1,5 @@
 const geohash = require('ngeohash');
-const crypto = require("crypto");
+const crypto = require('crypto');
 const Promise = require('bluebird');
 
 /*
@@ -28,25 +28,26 @@ We use a scrypt hash with the following parameters:
 
 const encrypt = async (location, salt = 'salt', debug = false) => {
   const roundDownTo = roundTo => x => Math.floor(x / roundTo) * roundTo;
-  const roundDownTo5Minutes = roundDownTo(1000*60*5);
+  const roundDownTo5Minutes = roundDownTo(1000 * 60 * 5);
   const roundedTime = roundDownTo5Minutes(new Date(location.time));
   const hash = geohash.encode(location.latitude, location.longitude, 8); // precision of 8
   const secret = `${hash}${roundedTime}`;
 
   const options = {
-    N: 4096 // Only option that we might want to change.
+    N: 4096, // Only option that we might want to change.
   };
 
-  const derivedKey = await Promise.fromCallback(cb => crypto.scrypt(secret, salt, 8, options, cb));
+  const derivedKey = await Promise.fromCallback(cb =>
+    crypto.scrypt(secret, salt, 8, options, cb),
+  );
   if (derivedKey) {
-    const encodedString = derivedKey.toString('hex'); 
+    const encodedString = derivedKey.toString('hex');
     if (debug) {
       return { hash, secret, encodedString };
     }
     return { encodedString };
   }
 };
-
 
 /**
  * Add Product to order
@@ -61,5 +62,5 @@ const decryptHash = hash => {
 
 module.exports = {
   encrypt,
-  decryptHash
+  decryptHash,
 };

@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
-process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
+  process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
@@ -15,7 +15,6 @@ const mockData = require('../lib/mockData');
 chai.use(chaiHttp);
 
 describe('POST /access-code', () => {
-
   let token;
 
   before(async () => {
@@ -42,7 +41,8 @@ describe('POST /access-code', () => {
         sub: userParams.username,
         iat: ~~(Date.now() / 1000),
         exp:
-          ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
+          ~~(Date.now() / 1000) +
+          (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
       jwtSecret.secret,
     );
@@ -51,10 +51,7 @@ describe('POST /access-code', () => {
   });
 
   it('should fail for unauthorized clients', async () => {
-    let result = await chai
-      .request(server.app)
-      .post('/access-code')
-      .send();
+    let result = await chai.request(server.app).post('/access-code').send();
     result.should.have.status(401);
   });
 
@@ -62,7 +59,7 @@ describe('POST /access-code', () => {
     let result = await chai
       .request(server.app)
       .post('/access-code')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send();
     result.should.have.status(201);
 

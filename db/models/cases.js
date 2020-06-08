@@ -3,7 +3,6 @@ const BaseService = require('../common/service.js');
 const pointsService = require('./points');
 
 class Service extends BaseService {
-
   /**
    * Mark Case Published
    *
@@ -13,9 +12,9 @@ class Service extends BaseService {
    * @return {Array}
    */
   async publishCases(case_ids, organization_id) {
-    if (!case_ids) throw new Error('Case IDs are invalid')
-    if (!case_ids.length) throw new Error('Case IDs length is zero')
-    if (!organization_id) throw new Error('Organization ID is not valid')
+    if (!case_ids) throw new Error('Case IDs are invalid');
+    if (!case_ids.length) throw new Error('Case IDs length is zero');
+    if (!organization_id) throw new Error('Organization ID is not valid');
 
     const results = await this.table
       .whereIn('id', case_ids)
@@ -23,17 +22,19 @@ class Service extends BaseService {
       .where('state', 'staging');
     if (results.length === case_ids.length) {
       const updateResults = await this.table
-              .whereIn('id', case_ids)
-              .update({ state: 'published' })
-              .returning('*');
+        .whereIn('id', case_ids)
+        .update({ state: 'published' })
+        .returning('*');
       if (updateResults) {
         return this.table
-                .where('state', 'published')
-                .where('expires_at', '>', new Date())
-                .returning('*');
+          .where('state', 'published')
+          .where('expires_at', '>', new Date())
+          .returning('*');
       }
     }
-    throw new Error('Could not publish the case. Make sure all are moved into staging state.')
+    throw new Error(
+      'Could not publish the case. Make sure all are moved into staging state.',
+    );
   }
 
   /**
@@ -44,8 +45,10 @@ class Service extends BaseService {
    * @return {Object}
    */
   async consentToPublishing(case_id) {
-    const result = await this.updateOne(case_id, { consented_to_publishing_at: this.database.fn.now() });
-    if (result){
+    const result = await this.updateOne(case_id, {
+      consented_to_publishing_at: this.database.fn.now(),
+    });
+    if (result) {
       return this._mapCase(result);
     }
   }
@@ -92,10 +95,10 @@ class Service extends BaseService {
    * @return {Object}
    */
   async createCase(options = null) {
-    if (!options.organization_id) throw new Error('Organization ID is invalid')
-    if (!options.expires_at) throw new Error('Expires at Date is invalid')
+    if (!options.organization_id) throw new Error('Organization ID is invalid');
+    if (!options.expires_at) throw new Error('Expires at Date is invalid');
 
-    const caseId = await this.getNextId(options.organization_id)
+    const caseId = await this.getNextId(options.organization_id);
     if (caseId) {
       options.id = caseId;
       const cases = await this.create(options);
@@ -105,7 +108,7 @@ class Service extends BaseService {
       }
     }
 
-    throw new Error('Could not create the case.')
+    throw new Error('Could not create the case.');
   }
 
   /**
@@ -116,7 +119,10 @@ class Service extends BaseService {
    * @return {Array}
    */
   fetchAll(organization_id) {
-    return this.table.where({ organization_id }).orderBy('created_at', 'desc').returning('*');
+    return this.table
+      .where({ organization_id })
+      .orderBy('created_at', 'desc')
+      .returning('*');
   }
 
   /**
@@ -127,11 +133,11 @@ class Service extends BaseService {
    * @return {Array}
    */
   updateCasePublicationId(ids, publication_id) {
-    if (!ids) throw new Error('IDs are invalid')
-    if (!ids.length === 0) throw new Error('IDs have an invalid length')
-    if (!publication_id) throw new Error('Publication ID is invalid')
+    if (!ids) throw new Error('IDs are invalid');
+    if (!ids.length === 0) throw new Error('IDs have an invalid length');
+    if (!publication_id) throw new Error('Publication ID is invalid');
 
-    return this.table.whereIn('id', ids).update({ publication_id })
+    return this.table.whereIn('id', ids).update({ publication_id });
   }
 
   /**
@@ -142,13 +148,13 @@ class Service extends BaseService {
    * @return {Array}
    */
   async fetchCasePoints(case_id) {
-    if (!case_id) throw new Error('Case ID is invalid.')
+    if (!case_id) throw new Error('Case ID is invalid.');
 
-    const points = await pointsService.fetchRedactedPoints([case_id])
+    const points = await pointsService.fetchRedactedPoints([case_id]);
     if (points) {
-      return points
+      return points;
     }
-    return []
+    return [];
   }
 
   /**
@@ -159,13 +165,13 @@ class Service extends BaseService {
    * @return {Array}
    */
   async fetchCasesPoints(case_ids) {
-    if (!case_ids) throw new Error('Case IDs is invalid.')
+    if (!case_ids) throw new Error('Case IDs is invalid.');
 
-    const points = await pointsService.fetchRedactedPoints(case_ids)
+    const points = await pointsService.fetchRedactedPoints(case_ids);
     if (points) {
-      return points
+      return points;
     }
-    return []
+    return [];
   }
 
   /**
@@ -193,24 +199,24 @@ class Service extends BaseService {
    */
   async fetchAllPublishedPoints() {
     const points = await this.table
-              .select(
-                'cases.id AS caseId',
-                'publications.publish_date',
-                'points.id AS pointId',
-                'points.coordinates',
-                'points.time',
-                'points.hash',
-                'points.duration'
-              )
-              .join('points', 'cases.id', '=', 'points.case_id')
-              .join('publications', 'cases.publication_id', '=', 'publications.id')
-              .where('cases.state', 'published')
-              .where('cases.expires_at', '>', new Date())
-              .returning('*');
+      .select(
+        'cases.id AS caseId',
+        'publications.publish_date',
+        'points.id AS pointId',
+        'points.coordinates',
+        'points.time',
+        'points.hash',
+        'points.duration',
+      )
+      .join('points', 'cases.id', '=', 'points.case_id')
+      .join('publications', 'cases.publication_id', '=', 'publications.id')
+      .where('cases.state', 'published')
+      .where('cases.expires_at', '>', new Date())
+      .returning('*');
     if (points) {
       return pointsService._getRedactedPoints(points, true, false);
     }
-    return []
+    return [];
   }
 
   /**
@@ -221,8 +227,8 @@ class Service extends BaseService {
    * @return {Object}
    */
   async updateCaseExternalId(case_id, external_id) {
-    if (!case_id) throw new Error('ID is invalid')
-    if (!external_id) throw new Error('External ID is invalid')
+    if (!case_id) throw new Error('ID is invalid');
+    if (!external_id) throw new Error('External ID is invalid');
 
     const results = await this.updateOne(case_id, { external_id });
 
@@ -242,9 +248,12 @@ class Service extends BaseService {
    * @return {Array}
    */
   async getNextId(organization_id) {
-    const caseResults = await this.table.where({ organization_id }).orderBy('created_at', 'desc').first();
+    const caseResults = await this.table
+      .where({ organization_id })
+      .orderBy('created_at', 'desc')
+      .first();
     if (caseResults) {
-      return (caseResults.id + 1);
+      return caseResults.id + 1;
     }
     return 1;
   }
@@ -265,7 +274,7 @@ class Service extends BaseService {
     delete itm.created_at;
     delete itm.consented_to_publishing_at;
     delete itm.id;
-    return itm
+    return itm;
   }
 }
 

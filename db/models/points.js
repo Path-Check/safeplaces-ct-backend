@@ -2,7 +2,7 @@ const BaseService = require('../common/service.js');
 const Buffer = require('buffer').Buffer;
 
 const knex = require('../knex.js').private;
-const knexPostgis = require("knex-postgis");
+const knexPostgis = require('knex-postgis');
 const wkx = require('wkx');
 const geoHash = require('../../app/lib/geoHash');
 const transform = require('../../app/lib/pocTransform.js');
@@ -10,7 +10,6 @@ const transform = require('../../app/lib/pocTransform.js');
 const st = knexPostgis(knex);
 
 class Service extends BaseService {
-
   /**
    * Fetch All Points and run through Redaction.
    *
@@ -19,13 +18,13 @@ class Service extends BaseService {
    * @return {Array}
    */
   async fetchRedactedPoints(case_ids) {
-    if (!case_ids) throw new Error('Case IDs is invalid')
+    if (!case_ids) throw new Error('Case IDs is invalid');
 
-    const points = await this.table.whereIn('case_id', case_ids)
+    const points = await this.table.whereIn('case_id', case_ids);
     if (points) {
-      return this._getRedactedPoints(points)
+      return this._getRedactedPoints(points);
     }
-    throw new Error('Could not find redacted points.')
+    throw new Error('Could not find redacted points.');
   }
 
   async createRedactedPoint(caseId, point) {
@@ -38,9 +37,9 @@ class Service extends BaseService {
     };
     const points = await this.create(record);
     if (points) {
-      return this._getRedactedPoints(points).shift()
+      return this._getRedactedPoints(points).shift();
     }
-    throw new Error('Could not create hash.')
+    throw new Error('Could not create hash.');
   }
 
   async createPointsFromUpload(caseId, uploadedPoints) {
@@ -57,7 +56,7 @@ class Service extends BaseService {
         upload_id: uploadedPoints[0].upload_id,
         duration: point.duration,
         case_id: caseId,
-      }
+      };
     });
 
     const points = await this.create(records);
@@ -83,20 +82,17 @@ class Service extends BaseService {
       hash: null,
       coordinates: this.makeCoordinate(point.longitude, point.latitude),
       time: new Date(point.time),
-      duration: point.duration
+      duration: point.duration,
     };
     const points = await this.updateOne(point_id, record);
     if (points) {
-      return this._getRedactedPoints([points]).shift()
+      return this._getRedactedPoints([points]).shift();
     }
-    throw new Error('Could not create hash.')
+    throw new Error('Could not create hash.');
   }
 
   makeCoordinate(longitude, latitude) {
-    return st.setSRID(
-      st.makePoint(longitude, latitude),
-      4326
-    );
+    return st.setSRID(st.makePoint(longitude, latitude), 4326);
   }
 
   // private
@@ -113,16 +109,16 @@ class Service extends BaseService {
       let point = {};
       const b = new Buffer.from(p.coordinates, 'hex');
       const c = wkx.Geometry.parse(b);
-      point.coordinates = p.coordinates
+      point.coordinates = p.coordinates;
       point.longitude = c.x;
       point.longitude = c.x;
       point.latitude = c.y;
       point.time = new Date(p.time).getTime();
       point.hash = p.hash;
-      return point
+      return point;
     });
 
-    return transform.discreetToDuration(redactedPoints)
+    return transform.discreetToDuration(redactedPoints);
   }
 
   /**
@@ -140,15 +136,15 @@ class Service extends BaseService {
       let trail = {};
       const b = new Buffer.from(point.coordinates, 'hex');
       const c = wkx.Geometry.parse(b);
-      trail.publish_date = point.publish_date || null
-      trail.caseId = point.caseId || point.case_id || null
-      trail.pointId = point.pointId || point.id
+      trail.publish_date = point.publish_date || null;
+      trail.caseId = point.caseId || point.case_id || null;
+      trail.pointId = point.pointId || point.id;
       trail.longitude = c.x;
       trail.latitude = c.y;
       trail.duration = point.duration;
       if (includeHash) trail.hash = point.hash;
-      trail.time = (point.time.getTime() / 1000);
-      if (returnDateTime) trail.time = point.time
+      trail.time = point.time.getTime() / 1000;
+      if (returnDateTime) trail.time = point.time;
       redactedTrail.push(trail);
     });
 
@@ -167,14 +163,14 @@ class Service extends BaseService {
     if (!publication.end_date) throw new Error('End date is invalid');
 
     let cases = await this.table
-                  .select('case_id')
-                  .where('time', '>=', new Date(publication.start_date))
-                  .where('time', '<=', new Date(publication.end_date))
-                  .groupBy('case_id');
+      .select('case_id')
+      .where('time', '>=', new Date(publication.start_date))
+      .where('time', '<=', new Date(publication.end_date))
+      .groupBy('case_id');
     if (cases) {
-      return cases.map(c => c.case_id)
+      return cases.map(c => c.case_id);
     }
-    return []
+    return [];
   }
 
   /**
@@ -186,16 +182,16 @@ class Service extends BaseService {
    * @return {Array}
    */
   async insertRedactedTrailSet(trails, caseId) {
-    trails = transform.discreetToDuration(trails)
+    trails = transform.discreetToDuration(trails);
     const trailRecords = trails.map(trail => {
       return {
         hash: null,
         coordinates: this.makeCoordinate(trail.longitude, trail.latitude),
         time: new Date(trail.time * 1000), // Assumes time in epoch seconds
         case_id: caseId,
-        duration: trail.duration
-      }
-    })
+        duration: trail.duration,
+      };
+    });
 
     return this.create(trailRecords);
   }
@@ -211,15 +207,18 @@ class Service extends BaseService {
   async loadTestRedactedTrails(trails, caseId) {
     let trailRecords = [];
 
-    trails = transform.discreetToDuration(trails)
+    trails = transform.discreetToDuration(trails);
 
     let trail, record, hash;
-    for(trail of trails) {
+    for (trail of trails) {
       record = {};
-      hash = await geoHash.encrypt(trail)
+      hash = await geoHash.encrypt(trail);
       if (hash) {
-        record.hash = hash.encodedString
-        record.coordinates = this.makeCoordinate(trail.longitude, trail.latitude);
+        record.hash = hash.encodedString;
+        record.coordinates = this.makeCoordinate(
+          trail.longitude,
+          trail.latitude,
+        );
         record.time = new Date(trail.time * 1000); // Assumes time in epoch seconds
         record.case_id = caseId;
         record.duration = trail.duration;
@@ -227,7 +226,7 @@ class Service extends BaseService {
       }
     }
 
-    return trailRecords
+    return trailRecords;
   }
 
   /**
@@ -239,13 +238,14 @@ class Service extends BaseService {
    * @return {Object}
    */
   async fetchTestHash(longitude, latitude) {
-    const results = await this.raw(`SELECT ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}),4326) AS point, now() AS time`);
+    const results = await this.raw(
+      `SELECT ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}),4326) AS point, now() AS time`,
+    );
     if (results) {
       return results.rows[0];
     }
     return null;
   }
-
 }
 
 module.exports = new Service('points');

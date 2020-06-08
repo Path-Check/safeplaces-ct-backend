@@ -29,7 +29,7 @@ server.post(
   '/organization/case',
   server.wrapAsync(
     async (req, res) => await controller.createOrganizationCase(req, res),
-    true
+    true,
   ),
 );
 

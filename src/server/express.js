@@ -3,7 +3,7 @@ const http = require('http');
 const Promise = require('bluebird');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const errorHandler = require('./errorHandler')
+const errorHandler = require('./errorHandler');
 // const notFoundHandler = require('./notFoundHandler')
 
 const createError = require('http-errors');
@@ -42,7 +42,7 @@ class Server {
     this._app.use(function (req, res, next) {
       next(createError(404));
     }); // If we get to here then we obviously didn't find the route, so trigger error.
-    this._app.use(errorHandler) // Catch all for errors.
+    this._app.use(errorHandler); // Catch all for errors.
 
     // error handler
 
@@ -83,7 +83,6 @@ class Server {
 
     return Promise.fromCallback(cb => this._server.listen(port, cb));
   }
-
 
   close() {
     this._server.close();
