@@ -285,7 +285,7 @@ describe('Case', () => {
 
       const results = await chai
         .request(server.app)
-        .delete(`/case/point`)
+        .post(`/case/point/delete`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
@@ -637,7 +637,7 @@ describe('Case', () => {
 
       const results = await chai
         .request(server.app)
-        .delete(`/case`)
+        .post(`/case/delete`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
