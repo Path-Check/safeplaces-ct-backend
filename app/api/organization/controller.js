@@ -90,6 +90,8 @@ exports.fetchOrganizationCases = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
+  await organizations.cleanOutExpiredCases(organization_id)
+
   let cases = await organizations.getCases(organization_id);
   if (cases) {
     cases = cases.map(c => {

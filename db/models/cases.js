@@ -184,6 +184,22 @@ class Service extends BaseService {
   }
 
   /**
+   * Delete cases that have expired.
+   *
+   * @method deleteCasesPastRetention
+   * @param {Number} organization_id
+   * @return {Object}
+   */
+  async deleteCasesPastRetention(organization_id) {
+    if (!organization_id) throw new Error('Organization ID is invalid')
+
+    return this.table
+      .where({ 'organization_id': organization_id })
+      .where('expires_at', '<=', new Date())
+      .del();
+  }
+
+  /**
    * Fetch all points from cases that are published
    *
    * @method fetchAllPublishedPoints

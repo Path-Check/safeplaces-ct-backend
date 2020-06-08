@@ -674,4 +674,44 @@ describe('Case', () => {
     });
   });
 
+  describe('purge cases outside 30 day retention period for organization', () => {
+    before(async () => {
+      await casesService.deleteAllRows()
+      await pointsService.deleteAllRows()
+
+
+      // Add Case & Trails
+      let expires_at = new Date().getTime() - ((86400 * 10) * 1000);
+      const caseOne = await mockData.mockCase({ organization_id: currentOrg.id, state: 'published', expires_at: new Date(expires_at) })
+      let trailsParams = {
+        caseId: caseOne.caseId,
+        startAt: new Date().getTime() - ((86400 * 40) * 1000) // 40 days ago,
+      }
+      await mockData.mockTrails(10, 1800, trailsParams) // Create 
+      
+
+      // Add Case & Trails
+      expires_at = new Date().getTime() + ((86400 * 20) * 1000);
+      const caseTwo = await mockData.mockCase({ organization_id: currentOrg.id, state: 'published' })
+      trailsParams = {
+        caseId: caseTwo.caseId,
+        startAt: new Date().getTime() - ((86400 * 20) * 1000) // 40 days ago
+      }
+      await mockData.mockTrails(10, 1800, trailsParams) // Create 
+
+    })
+    it('return a 200', async () => {
+      const results = await chai
+        .request(server.app)
+        .get(`/organization/cases`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json');
+
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body.cases.should.be.a('array');
+      results.body.cases.length.should.equal(1);
+    });
+  });
+
 });
