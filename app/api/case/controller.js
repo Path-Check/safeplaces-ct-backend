@@ -12,6 +12,7 @@ const pointsService = require('../../../db/models/points');
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
 const writeToGCSBucket = require('../../lib/writeToGCSBucket');
+const writeToS3Bucket = require('../../lib/writeToS3Bucket');
 
 /**
  * @method fetchCasePoints
@@ -247,7 +248,7 @@ exports.publishCases = async (req, res) => {
   const { body: { caseIds }, user: { organization_id } } = req;
   let { query: { type } } = req;
 
-  type = type || 'file';
+  type = (type || process.env.PUBLISH_STORAGE_TYPE);
 
   if (!caseIds) throw new Error('Case IDs are invalid.')
   if (!organization_id) throw new Error('Organization ID is not valid.')
@@ -281,27 +282,37 @@ exports.publishCases = async (req, res) => {
               'Content-Length': data.length
             })
             .send(data)
+            return;
         } else {
           let pages = await publicationFiles.build(organization, publication, points)
 
-          if (process.env.NODE_ENV !== 'production') {
+          if (type ==='gcs') {
+            const results = await writeToGCSBucket(pages);
+            if (results) {
+              const cases = publishResults.map(itm => casesService._mapCase(itm));
+              res.status(200).json({ cases });
+              return;
+            }
+          } else if (type === 'aws') {
+            const results = await writeToS3Bucket(pages);
+            if (results) {
+              const cases = publishResults.map(itm => casesService._mapCase(itm));
+              res.status(200).json({ cases });
+              return;
+            }
+          } else if (process.env.NODE_ENV !== 'production') {
             if (type === 'json') {
               res.status(200).json(pages);
+              return;
             } else if (type === 'local') {
               const results = await writePublishedFiles(pages, '/tmp/trails')
               if (results) {
                 let cases = publishResults.map(itm => casesService._mapCase(itm))
                 res.status(200).json({ cases });
+                return;
               }
               throw new Error('Files could not be written.');
             }
-          }
-
-          // By default, write to GCS Bucket
-          const results = await writeToGCSBucket(pages)
-          if (results) {
-            let cases = publishResults.map(itm => casesService._mapCase(itm))
-            res.status(200).json({ cases });
           }
         }
         throw new Error('Files could not be written.');

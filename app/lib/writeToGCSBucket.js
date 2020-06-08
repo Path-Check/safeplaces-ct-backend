@@ -2,17 +2,16 @@
 const { Storage } = require('@google-cloud/storage');
 
 /**
- * 
+ *
  * Example of writing to a Google Cloud Storage (GCS) Bucket
- * 
+ *
  * This is simple logic that will save the published files that are needed
  * for the Mobile apps to download data from. You will want to create your own
- * logic here and save to a public location. Your organizations API Endpoint 
+ * logic here and save to a public location. Your organizations API Endpoint
  * should point to the directory that the safe_paths.json file is located in.
- * 
+ *
  * @method writePublishedFiles
- * @param {Object} pages 
- * @param {String} baseLocation 
+ * @param {Object} pages
  * @return {Boolean}
  */
 
@@ -22,7 +21,7 @@ module.exports = async (pages) => {
 
   const storage = new Storage();
   const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET);
-  
+
   const saveFile = (filename, contents) => {
     return new Promise((resolve, reject) => {
       const blob = bucket.file(filename);
@@ -36,9 +35,9 @@ module.exports = async (pages) => {
   }
 
   await saveFile(`safe_paths.json`, JSON.stringify(pages.cursor));
-  let page, filename;
-  for(page of pages.files) {
-    filename = page.page_name.split('/').pop();
+
+  for(let page of pages.files) {
+    const filename = page.page_name.split('/').pop();
     await saveFile(filename, JSON.stringify(page));
   }
   return true;
