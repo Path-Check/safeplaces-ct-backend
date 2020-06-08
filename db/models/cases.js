@@ -223,9 +223,8 @@ class Service extends BaseService {
   async updateCaseExternalId(case_id, external_id) {
     if (!case_id) throw new Error('ID is invalid')
     if (!external_id) throw new Error('External ID is invalid')
-
+    
     const results = await this.updateOne(case_id, { external_id });
-
     if (results) {
       return this._mapCase(results);
     }

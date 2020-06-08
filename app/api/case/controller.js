@@ -347,7 +347,6 @@ exports.updateOrganizationCase = async (req, res) => {
   if (!caseId) throw new Error('Case ID is missing.');
 
   const results = await casesService.updateCaseExternalId(caseId, externalId)
-
   if (results) {
     res.status(200).json({ case: results })
   } else {
