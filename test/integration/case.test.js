@@ -17,7 +17,7 @@ const pointsService = require('../../db/models/points');
 
 const jwtSecret = require('../../config/jwtConfig');
 
-const type = (process.env.GOOGLE_APPLICATION_CREDENTIALS) ? 'default' : 'local';
+const type = (process.env.PUBLISH_STORAGE_TYPE || 'local');
 
 chai.use(chaiHttp);
 
