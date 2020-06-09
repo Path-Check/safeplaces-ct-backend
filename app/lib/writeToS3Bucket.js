@@ -14,7 +14,8 @@ const S3 = require('aws-sdk/clients/s3');
  * @return {Boolean}
  */
 
-module.exports = async pages => {
+module.exports = async (pages) => {
+
   if (!process.env.S3_BUCKET) throw new Error('S3 bucket not set.');
   if (!process.env.S3_REGION) throw new Error('S3 region not set.');
   if (!process.env.S3_ACCESS_KEY) throw new Error('S3 access key not set.');
@@ -35,7 +36,8 @@ module.exports = async pages => {
       storage.upload(config, function (err, data) {
         if (err != null) {
           reject(err);
-        } else {
+        }
+        else {
           resolve(data);
         }
       });
@@ -44,7 +46,7 @@ module.exports = async pages => {
 
   await saveFile(`safe_paths.json`, JSON.stringify(pages.cursor));
 
-  for (let page of pages.files) {
+  for(let page of pages.files) {
     const filename = page.page_name.split('/').pop();
     await saveFile(filename, JSON.stringify(page));
   }

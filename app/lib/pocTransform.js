@@ -126,7 +126,7 @@ const durationPointToDiscreetPoints = durationPoint => {
       longitude: durationPoint.longitude,
       time: durationPoint.time + i * 5 * MINUTE,
       hash: durationPoint.hash,
-      publish_date: durationPoint.publish_date,
+      publish_date: durationPoint.publish_date
     };
   }
   return discreetPoints;
@@ -144,5 +144,5 @@ const roundDuration = durationArr => {
 
 module.exports = {
   discreetToDuration,
-  durationToDiscreet,
+  durationToDiscreet
 };

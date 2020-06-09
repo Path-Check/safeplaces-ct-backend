@@ -2,9 +2,10 @@ exports.seed = function (knex) {
   return knex('organizations')
     .del() // Deletes ALL existing entries
     .then(async function () {
+
       await knex('organizations').insert({
         id: 1,
-        name: 'Dev Organization',
+        name: 'Dev Organization'
       });
 
       await knex('settings').insert({
@@ -12,12 +13,13 @@ exports.seed = function (knex) {
         organization_id: 1,
         info_website_url:
           'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-        api_endpoint_url: 'https://api.something.give/safe_path/',
+        api_endpoint_url:
+          'https://api.something.give/safe_path/',
       });
 
       await knex('organizations').insert({
         id: 2,
-        name: 'Sith Organization',
+        name: 'Sith Organization'
       });
 
       await knex('settings').insert({
@@ -25,7 +27,8 @@ exports.seed = function (knex) {
         organization_id: 2,
         info_website_url:
           'https://www.who.int/emergencies/diseases/novel-coronavirus-2019',
-        api_endpoint_url: 'https://api.something.give/safe_path/',
+        api_endpoint_url:
+          'https://api.something.give/safe_path/',
       });
     });
 };
