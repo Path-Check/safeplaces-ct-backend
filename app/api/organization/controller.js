@@ -137,27 +137,3 @@ exports.createOrganizationCase = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
-/**
- * @method deleteOrganizationCase
- *
- * Delete case from Organization
- * Organization is pulled from the user.
- *
- */
-exports.deleteOrganizationCase = async (req, res) => {
-  const {
-    user: { organization_id },
-    body: { caseId }
-  } = req;
-
-  if (!organization_id) throw new Error('Organization ID is missing.');
-  if (!caseId) throw new Error('Case ID is missing.');
-
-  const results = await organizations.deleteCase(organization_id, caseId);
-  if (results) {
-    res.sendStatus(200);
-  } else {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};

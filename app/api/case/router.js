@@ -28,8 +28,8 @@ server.put(
   server.wrapAsync(async (req, res) => await controller.updateCasePoint(req, res), true),
 );
 
-server.delete(
-  '/case/point',
+server.post(
+  '/case/point/delete',
   server.wrapAsync(async (req, res) => await controller.deleteCasePoint(req, res), true),
 );
 
@@ -48,8 +48,8 @@ server.post(
   server.wrapAsync(async (req, res) => await controller.publishCases(req, res), true),
 );
 
-server.delete(
-  '/case',
+server.post(
+  '/case/delete',
   server.wrapAsync(async (req, res) => await controller.deleteCase(req, res), true),
 );
 
