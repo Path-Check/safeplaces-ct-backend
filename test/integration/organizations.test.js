@@ -16,7 +16,7 @@ const jwtSecret = require('../../config/jwtConfig');
 
 chai.use(chaiHttp);
 
-let currentOrg, caseToDelete, token;
+let currentOrg, token;
 
 describe('Organization ', () => {
   before(async () => {
@@ -52,9 +52,9 @@ describe('Organization ', () => {
       state: 'unpublished',
     };
 
-    await mockData.mockCase(caseParams);
-    await mockData.mockCase(caseParams);
-    caseToDelete = await mockData.mockCase(caseParams);
+    await mockData.mockCase(caseParams)
+    await mockData.mockCase(caseParams)
+    await mockData.mockCase(caseParams)
 
     token = jwt.sign(
       {
@@ -198,21 +198,6 @@ describe('Organization ', () => {
       firstChunk.state.should.be.a('string');
       firstChunk.should.have.property('updated_at');
       firstChunk.updated_at.should.be.a('string');
-    });
-
-    it('delete the record', async () => {
-      const newParams = {
-        caseId: caseToDelete.caseId,
-      };
-
-      const results = await chai
-        .request(server.app)
-        .post(`/organization/case`)
-        .set('Cookie', `access_token=${token}`)
-        .set('content-type', 'application/json')
-        .send(newParams);
-
-      results.should.have.status(200);
     });
   });
 

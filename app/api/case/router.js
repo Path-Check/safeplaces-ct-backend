@@ -43,12 +43,9 @@ server.put(
   ),
 );
 
-server.delete(
-  '/case/point',
-  server.wrapAsync(
-    async (req, res) => await controller.deleteCasePoint(req, res),
-    true,
-  ),
+server.post(
+  '/case/point/delete',
+  server.wrapAsync(async (req, res) => await controller.deleteCasePoint(req, res), true),
 );
 
 server.post(
@@ -75,12 +72,9 @@ server.post(
   ),
 );
 
-server.delete(
-  '/case',
-  server.wrapAsync(
-    async (req, res) => await controller.deleteCase(req, res),
-    true,
-  ),
+server.post(
+  '/case/delete',
+  server.wrapAsync(async (req, res) => await controller.deleteCase(req, res), true),
 );
 
 server.put(

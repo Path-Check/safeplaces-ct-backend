@@ -21,11 +21,16 @@ class Server {
       this._app.use(logger('dev'));
     }
 
+    const bodyParseJson = bodyParser.json({
+      type:'*/*',
+      limit: '50mb'
+    })
+    const bodyParseEncoded = bodyParser.urlencoded({ extended: false })
+
     this._app.use(cors());
-    this._app.use(express.json());
-    this._app.use(express.urlencoded({ extended: false }));
     this._app.use(cookieParser());
-    this._app.use(bodyParser.urlencoded({ extended: true }));
+    this._app.use(bodyParseJson);
+    this._app.use(bodyParseEncoded);
     this._app.use(
       expressSession({
         secret: 'keyboard cat',
@@ -43,33 +48,6 @@ class Server {
       next(createError(404));
     }); // If we get to here then we obviously didn't find the route, so trigger error.
     this._app.use(errorHandler); // Catch all for errors.
-
-    // error handler
-
-    // TODO: Move error handling into module...
-    // if (
-    //   this._app.get('env') === 'development' ||
-    //   this._app.get('env') === 'test'
-    // ) {
-    //   this._app.use(function (err, req, res) {
-    //     res.status(err.status || 500);
-    //     res.json({
-    //       message: err.message,
-    //       error: err,
-    //     });
-    //   });
-    // }
-
-    // // production error handler
-    // // no stacktraces leaked to user
-    // else {
-    //   this._app.use(function (err, req, res) {
-    //     res.status(err.status || 500);
-    //     res.json({
-    //       message: err.message,
-    //     });
-    //   });
-    // }
 
     this._server = http.createServer(this._app);
   }

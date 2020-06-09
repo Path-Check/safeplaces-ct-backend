@@ -129,6 +129,19 @@ class Service extends BaseService {
   }
 
   /**
+   * Clean out organizations cases that have expired.
+   *
+   * @method cleanOutExpiredCases
+   * @param {String} organization_id
+   * @return {Object}
+   */
+  async cleanOutExpiredCases(organization_id) {
+    if (!organization_id) throw new Error('Organization ID is invalid')
+
+    return casesService.deleteCasesPastRetention(organization_id)
+  }
+
+  /**
    * Delete Organization Case by ID
    *
    * @method deleteCase

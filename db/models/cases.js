@@ -190,6 +190,22 @@ class Service extends BaseService {
   }
 
   /**
+   * Delete cases that have expired.
+   *
+   * @method deleteCasesPastRetention
+   * @param {Number} organization_id
+   * @return {Object}
+   */
+  async deleteCasesPastRetention(organization_id) {
+    if (!organization_id) throw new Error('Organization ID is invalid')
+
+    return this.table
+      .where({ 'organization_id': organization_id })
+      .where('expires_at', '<=', new Date())
+      .del();
+  }
+
+  /**
    * Fetch all points from cases that are published
    *
    * @method fetchAllPublishedPoints
@@ -227,11 +243,10 @@ class Service extends BaseService {
    * @return {Object}
    */
   async updateCaseExternalId(case_id, external_id) {
-    if (!case_id) throw new Error('ID is invalid');
-    if (!external_id) throw new Error('External ID is invalid');
+    if (!case_id) throw new Error('ID is invalid')
+    if (!external_id) throw new Error('External ID is invalid')
 
     const results = await this.updateOne(case_id, { external_id });
-
     if (results) {
       return this._mapCase(results);
     }

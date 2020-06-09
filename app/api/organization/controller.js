@@ -103,6 +103,8 @@ exports.fetchOrganizationCases = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
+  await organizations.cleanOutExpiredCases(organization_id)
+
   let cases = await organizations.getCases(organization_id);
   if (cases) {
     cases = cases.map(c => {
@@ -138,11 +140,8 @@ exports.createOrganizationCase = async (req, res) => {
   const newCase = await cases.createCase({
     contact_tracer_id: id,
     organization_id,
-    expires_at: moment()
-      .startOf('day')
-      .add(organization.daysToRetainRecords, 'days')
-      .calendar(),
-    state: 'unpublished',
+    expires_at: moment().startOf('day').add(organization.daysToRetainRecords, 'days').format(),
+    state: 'unpublished'
   });
 
   if (newCase) {
@@ -152,26 +151,3 @@ exports.createOrganizationCase = async (req, res) => {
   }
 };
 
-/**
- * @method deleteOrganizationCase
- *
- * Delete case from Organization
- * Organization is pulled from the user.
- *
- */
-exports.deleteOrganizationCase = async (req, res) => {
-  const {
-    user: { organization_id },
-    body: { caseId },
-  } = req;
-
-  if (!organization_id) throw new Error('Organization ID is missing.');
-  if (!caseId) throw new Error('Case ID is missing.');
-
-  const results = await organizations.deleteCase(organization_id, caseId);
-  if (results) {
-    res.sendStatus(200);
-  } else {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};

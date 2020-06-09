@@ -284,7 +284,7 @@ describe('Case', () => {
 
       const results = await chai
         .request(server.app)
-        .delete(`/case/point`)
+        .post(`/case/point/delete`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
@@ -541,7 +541,7 @@ describe('Case', () => {
         seconds_apart: 1800,
       };
 
-      let invalidDate = moment().startOf('day').subtract(60, 'days').calendar(); // Two months ago
+      let invalidDate = moment().startOf('day').subtract(60, 'days').format(); // Two months ago
 
       await mockData.mockCaseAndTrails(
         _.extend(params, { state: 'published', expires_at: invalidDate }),
@@ -649,7 +649,7 @@ describe('Case', () => {
 
       const results = await chai
         .request(server.app)
-        .delete(`/case`)
+        .post(`/case/delete`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
@@ -683,6 +683,46 @@ describe('Case', () => {
       results.should.have.status(200);
       results.body.should.be.a('object');
       results.body.case.externalId.should.eq('an_external_id');
+    });
+  });
+
+  describe('purge cases outside 30 day retention period for organization', () => {
+    before(async () => {
+      await casesService.deleteAllRows()
+      await pointsService.deleteAllRows()
+
+
+      // Add Case & Trails
+      let expires_at = new Date().getTime() - ((86400 * 10) * 1000);
+      const caseOne = await mockData.mockCase({ organization_id: currentOrg.id, state: 'published', expires_at: new Date(expires_at) })
+      let trailsParams = {
+        caseId: caseOne.caseId,
+        startAt: new Date().getTime() - ((86400 * 40) * 1000) // 40 days ago,
+      }
+      await mockData.mockTrails(10, 1800, trailsParams) // Create
+
+
+      // Add Case & Trails
+      expires_at = new Date().getTime() + ((86400 * 20) * 1000);
+      const caseTwo = await mockData.mockCase({ organization_id: currentOrg.id, state: 'published' })
+      trailsParams = {
+        caseId: caseTwo.caseId,
+        startAt: new Date().getTime() - ((86400 * 20) * 1000) // 40 days ago
+      }
+      await mockData.mockTrails(10, 1800, trailsParams) // Create
+
+    })
+    it('return a 200', async () => {
+      const results = await chai
+        .request(server.app)
+        .get(`/organization/cases`)
+        .set('Cookie', `access_token=${token}`)
+        .set('content-type', 'application/json');
+
+      results.should.have.status(200);
+      results.body.should.be.a('object');
+      results.body.cases.should.be.a('array');
+      results.body.cases.length.should.equal(1);
     });
   });
 });
