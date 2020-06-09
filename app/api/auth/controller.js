@@ -23,7 +23,7 @@ exports.login = (req, res) => {
       jwtSecret.secret,
     );
     res
-      .status(200)
+      .status(204)
       .cookie('access_token', token, {
         expires: new Date(
           Date.now() + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60),
@@ -32,9 +32,7 @@ exports.login = (req, res) => {
         sameSite: 'strict',
         secure: process.env.NODE_ENV !== 'development', // Secure if not in development
       })
-      .json({
-        message: 'success',
-      });
+      .end();
   } else {
     res.status(401).json({ message: 'Invalid credentials' });
   }

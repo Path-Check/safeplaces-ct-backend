@@ -33,11 +33,7 @@ describe('POST /login', function () {
         password: 'password',
       })
       .end(function (err, res) {
-        expect(res.status).to.equal(200);
-
-        expect(res.body).to.be.an('object');
-        expect(res.body).to.haveOwnProperty('message');
-        expect(res.body.message).to.equal('success');
+        expect(res.status).to.equal(204);
 
         expect(res.header).to.haveOwnProperty('set-cookie');
 
