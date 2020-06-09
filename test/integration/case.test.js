@@ -533,7 +533,7 @@ describe('Case', () => {
         seconds_apart: 1800
       };
 
-      let invalidDate = moment().startOf('day').subtract(60, 'days').calendar(); // Two months ago
+      let invalidDate = moment().startOf('day').subtract(60, 'days').format(); // Two months ago
 
       await mockData.mockCaseAndTrails(_.extend(params, { state: 'published', expires_at: invalidDate }))
       caseTwo = await mockData.mockCaseAndTrails(_.extend(params, { state: 'staging', expires_at: null }))
@@ -687,8 +687,8 @@ describe('Case', () => {
         caseId: caseOne.caseId,
         startAt: new Date().getTime() - ((86400 * 40) * 1000) // 40 days ago,
       }
-      await mockData.mockTrails(10, 1800, trailsParams) // Create 
-      
+      await mockData.mockTrails(10, 1800, trailsParams) // Create
+
 
       // Add Case & Trails
       expires_at = new Date().getTime() + ((86400 * 20) * 1000);
@@ -697,7 +697,7 @@ describe('Case', () => {
         caseId: caseTwo.caseId,
         startAt: new Date().getTime() - ((86400 * 20) * 1000) // 40 days ago
       }
-      await mockData.mockTrails(10, 1800, trailsParams) // Create 
+      await mockData.mockTrails(10, 1800, trailsParams) // Create
 
     })
     it('return a 200', async () => {

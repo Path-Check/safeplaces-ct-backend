@@ -140,7 +140,7 @@ class MockData {
     };
     let pointsCase = await this.mockCase(caseParams);
     if (pointsCase) {
-      const trails = this._generateTrailsData(options.numberOfRecords, 300, options.startTime, true) 
+      const trails = this._generateTrailsData(options.numberOfRecords, 300, options.startTime, true)
       const results = await pointsService.loadTestRedactedTrails(
         trails,
         pointsCase.caseId
@@ -218,7 +218,7 @@ class MockData {
 
     const organization = await organizationService.fetchById(options.organization_id)
     if (organization) {
-      if (!params.expires_at) params.expires_at = moment().startOf('day').add(organization.daysToRetainRecords, 'days').calendar();
+      if (!params.expires_at) params.expires_at = moment().startOf('day').add(organization.daysToRetainRecords, 'days').format();
       const result = await casesService.createCase(params);
       if (result) {
         return result;
@@ -351,7 +351,7 @@ class MockData {
     final = final.concat(groupOne)
 
     // Start 5 minutes after the last trail point and add 100 random points in 5 min increments
-    const randomTrails = this._generateTrailsData(100, 300, (groupOne[4].time + 300000), false) 
+    const randomTrails = this._generateTrailsData(100, 300, (groupOne[4].time + 300000), false)
     final = final.concat(randomTrails)
 
     // Create another grouping for 45 min

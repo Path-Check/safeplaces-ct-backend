@@ -127,7 +127,7 @@ exports.createOrganizationCase = async (req, res) => {
   const newCase = await cases.createCase({
     contact_tracer_id: id,
     organization_id,
-    expires_at: moment().startOf('day').add(organization.daysToRetainRecords, 'days').calendar(),
+    expires_at: moment().startOf('day').add(organization.daysToRetainRecords, 'days').format(),
     state: 'unpublished'
   });
 
