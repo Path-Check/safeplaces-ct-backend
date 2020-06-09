@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
+process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
@@ -16,6 +16,7 @@ const uploadService = require('../../db/models/upload');
 chai.use(chaiHttp);
 
 describe('POST /case/points/ingest', () => {
+
   let token, currentOrg, currentAccessCode;
 
   before(async () => {
@@ -42,8 +43,7 @@ describe('POST /case/points/ingest', () => {
         sub: userParams.username,
         iat: ~~(Date.now() / 1000),
         exp:
-          ~~(Date.now() / 1000) +
-          (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
+          ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
       jwtSecret.secret,
     );
@@ -63,16 +63,16 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Cookie', `access_token=${token}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
-        accessCode: '123456',
+        accessCode: "123456",
       });
     result.should.have.status(400);
 
     result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Cookie', `access_token=${token}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
         caseId: 1,
       });
@@ -83,9 +83,9 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Cookie', `access_token=${token}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
-        accessCode: '123456',
+        accessCode: "123456",
         caseId: 1,
       });
     result.should.have.status(403);
@@ -95,7 +95,7 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Cookie', `access_token=${token}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: 1,
@@ -111,7 +111,7 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Cookie', `access_token=${token}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: 1,
@@ -125,7 +125,7 @@ describe('POST /case/points/ingest', () => {
 
     const currentCase = await mockData.mockCase({
       organization_id: currentOrg.id,
-      invalidated_at: new Date('2020-06-02T18:25:43.000Z'),
+      invalidated_at: new Date("2020-06-02T18:25:43.000Z"),
       state: 'unpublished',
     });
 
@@ -134,7 +134,7 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Cookie', `access_token=${token}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: currentCase.caseId,

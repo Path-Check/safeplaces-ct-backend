@@ -10,17 +10,13 @@ const cases = require('../../../db/models/cases');
  *
  */
 exports.fetchOrganizationById = async (req, res) => {
-  const {
-    user: { organization_id },
-  } = req;
+  const { user: { organization_id } } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
   if (organization) {
-    res
-      .status(200)
-      .json(_.pick(organization, ['id', 'name', 'completedOnboarding']));
+    res.status(200).json(_.pick(organization, ['id','name', 'completedOnboarding']));
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
   }
@@ -33,32 +29,26 @@ exports.fetchOrganizationById = async (req, res) => {
  *
  */
 exports.fetchOrganizationConfig = async (req, res) => {
-  const {
-    user: { organization_id },
-  } = req;
+  const { user: { organization_id } } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
 
   if (organization) {
-    res
-      .status(200)
-      .json(
-        _.pick(organization, [
-          'id',
-          'name',
-          'completedOnboarding',
-          'notificationThresholdPercent',
-          'notificationThresholdCount',
-          'daysToRetainRecords',
-          'regionCoordinates',
-          'apiEndpointUrl',
-          'referenceWebsiteUrl',
-          'infoWebsiteUrl',
-          'privacyPolicyUrl',
-        ]),
-      );
+    res.status(200).json(_.pick(organization, [
+      'id',
+      'name',
+      'completedOnboarding',
+      'notificationThresholdPercent',
+      'notificationThresholdCount',
+      'daysToRetainRecords',
+      'regionCoordinates',
+      'apiEndpointUrl',
+      'referenceWebsiteUrl',
+      'infoWebsiteUrl',
+      'privacyPolicyUrl',
+    ]));
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
   }
@@ -78,10 +68,7 @@ exports.updateOrganization = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const results = await organizations.updateOrganization(
-    organization_id,
-    organization,
-  );
+  const results = await organizations.updateOrganization(organization_id, organization);
   if (results) {
     res.status(200).json(results);
   } else {
@@ -98,7 +85,7 @@ exports.updateOrganization = async (req, res) => {
  */
 exports.fetchOrganizationCases = async (req, res) => {
   const {
-    user: { organization_id },
+    user: { organization_id }
   } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
@@ -109,10 +96,10 @@ exports.fetchOrganizationCases = async (req, res) => {
   if (cases) {
     cases = cases.map(c => {
       // delete c.organization_id
-      delete c.publication_id;
-      delete c.created_at;
-      return c;
-    });
+      delete c.publication_id
+      delete c.created_at
+      return c
+    })
     res.status(200).json({ cases });
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
@@ -128,14 +115,14 @@ exports.fetchOrganizationCases = async (req, res) => {
  */
 exports.createOrganizationCase = async (req, res) => {
   const {
-    user: { id, organization_id },
+    user: { id, organization_id }
   } = req;
 
   if (!id) throw new Error('User ID is missing.');
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
-  if (!organization) throw new Error('Organization could not be found.');
+  if (!organization) throw new Error('Organization could not be found.')
 
   const newCase = await cases.createCase({
     contact_tracer_id: id,
@@ -150,4 +137,3 @@ exports.createOrganizationCase = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-

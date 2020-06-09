@@ -1,3 +1,4 @@
+
 const { Storage } = require('@google-cloud/storage');
 
 /**
@@ -14,9 +15,9 @@ const { Storage } = require('@google-cloud/storage');
  * @return {Boolean}
  */
 
-module.exports = async pages => {
-  if (!process.env.GCLOUD_STORAGE_BUCKET)
-    throw new Error('Google Bucket not set.');
+module.exports = async (pages) => {
+
+  if (!process.env.GCLOUD_STORAGE_BUCKET) throw new Error('Google Bucket not set.')
 
   const storage = new Storage();
   const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET);
@@ -30,12 +31,12 @@ module.exports = async pages => {
         resolve(`https://storage.googleapis.com/${bucket.name}/${blob.name}`);
       });
       stream.end(Buffer.from(contents));
-    });
-  };
+    })
+  }
 
   await saveFile(`safe_paths.json`, JSON.stringify(pages.cursor));
 
-  for (let page of pages.files) {
+  for(let page of pages.files) {
     const filename = page.page_name.split('/').pop();
     await saveFile(filename, JSON.stringify(page));
   }

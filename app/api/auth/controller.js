@@ -22,18 +22,11 @@ exports.login = (req, res) => {
       },
       jwtSecret.secret,
     );
-    res
-      .status(204)
-      .cookie('access_token', token, {
-        expires: new Date(
-          Date.now() + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60),
-        ),
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: process.env.NODE_ENV !== 'development', // Secure if not in development
-      })
-      .end();
+    res.status(200).json({
+      token: token,
+      maps_api_key: process.env.SEED_MAPS_API_KEY,
+    });
   } else {
-    res.status(401).json({ message: 'Invalid credentials' });
+    res.status(401).json({ message: 'Invalid credentials.' });
   }
 };
