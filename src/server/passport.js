@@ -26,7 +26,7 @@ const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
     if (user) {
       done(null, user);
     } else {
-      done(new Error('User not found!'), false);
+      done(new Error('User not found'), false);
     }
   } catch (err) {
     done(err);
@@ -68,9 +68,8 @@ passport.use('ldap', new CustomStrategy(
   function(req, done) {
     /*
      * Filter will look like
-     * (&(cn={{username}})(password={{password}}))
+     * cn={{username}}
      * {{username}} will be replaced by the sent username
-     * {{password}} will be replaced by the sent password
      */
 
     let query =

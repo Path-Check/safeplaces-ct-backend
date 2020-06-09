@@ -4,10 +4,8 @@ const Promise = require('bluebird');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const errorHandler = require('./errorHandler')
-// const notFoundHandler = require('./notFoundHandler')
 
 const createError = require('http-errors');
-const expressSession = require('express-session');
 const cookieParser = require('cookie-parser');
 // const path = require('path');
 const logger = require('morgan');
@@ -31,15 +29,7 @@ class Server {
     this._app.use(cookieParser());
     this._app.use(bodyParseJson);
     this._app.use(bodyParseEncoded);
-    this._app.use(
-      expressSession({
-        secret: 'keyboard cat',
-        resave: true,
-        saveUninitialized: true,
-      }),
-    );
     this._app.use(passport.initialize());
-    this._app.use(passport.session());
 
     this._router = express.Router();
     this._app.use('/', this._router);
