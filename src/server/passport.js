@@ -41,7 +41,9 @@ const ldapClient = ldap.createClient({
 
 ldapClient.on('error', err => {
   if (err.message.startsWith('connect ECONNREFUSED')) {
-    throw new Error(`LDAP server not found at ${ldapServerUrl}. Please start a server to enable authentication. Please see README.md for more information.`);
+    throw new Error(
+      `LDAP server not found at ${ldapServerUrl}. Please start a server to enable authentication. Please see README.md for more information.`,
+    );
   } else {
     console.error(err);
   }
@@ -55,52 +57,56 @@ ldapClient.bind(process.env.LDAP_BIND, process.env.LDAP_PASS, err => {
  * Validate the filter
  */
 
-if (
-  process.env.LDAP_SEARCH.indexOf('{{username}}') === -1
-) {
+if (process.env.LDAP_SEARCH.indexOf('{{username}}') === -1) {
   throw new Error(
     'LDAP_FILTER environment variable must contain the keyword {{username}}. ' +
-    'These keywords will be replaced by the request details appropriately.'
-  )
+      'These keywords will be replaced by the request details appropriately.',
+  );
 }
 
-passport.use('ldap', new CustomStrategy(
-  function(req, done) {
+passport.use(
+  'ldap',
+  new CustomStrategy(function (req, done) {
     /*
      * Filter will look like
      * cn={{username}}
      * {{username}} will be replaced by the sent username
      */
 
-    let query =
-      process.env.LDAP_SEARCH
-      .replace(/{{username}}/g, req.body.username);
+    let query = process.env.LDAP_SEARCH.replace(
+      /{{username}}/g,
+      req.body.username,
+    );
 
-    ldapClient.search(query, {
-      filter: process.env.LDAP_FILTER,
-      scope: 'base',
-      // attributes: ['dn', 'sn', 'cn']
-    }, (err, res) => {
-      res.on('searchEntry', function(entry) {
-        // Compare the retrieved password and the sent password.
-        if (entry.object.userPassword !== req.body.password) {
+    ldapClient.search(
+      query,
+      {
+        filter: process.env.LDAP_FILTER,
+        scope: 'base',
+        // attributes: ['dn', 'sn', 'cn']
+      },
+      (err, res) => {
+        res.on('searchEntry', function (entry) {
+          // Compare the retrieved password and the sent password.
+          if (entry.object.userPassword !== req.body.password) {
+            return done(null, {});
+          }
+          return done(err, entry.object);
+        });
+        res.on('error', function (err) {
+          if (process.env.NODE_ENV === 'development') console.log(err.message);
           return done(null, {});
-        }
-        return done(err, entry.object);
-      });
-      res.on('error', function(err) {
-        if (process.env.NODE_ENV === 'development') console.log(err.message);
-        return done(null, {});
-      });
-    });
-  },
-));
+        });
+      },
+    );
+  }),
+);
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user);
 });
 
-passport.deserializeUser(function(user, done) {
+passport.deserializeUser(function (user, done) {
   done(null, user);
 });
 

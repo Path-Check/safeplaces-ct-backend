@@ -29,8 +29,7 @@ exports.fetchCasePoints = async (req, res) => {
 
   if (concernPoints) {
     res.status(200).json({ concernPoints });
-  }
-  else {
+  } else {
     throw new Error('Internal server error.');
   }
 };
@@ -53,8 +52,7 @@ exports.fetchCasesPoints = async (req, res) => {
 
   if (concernPoints) {
     res.status(200).json({ concernPoints });
-  }
-  else {
+  } else {
     throw new Error('Internal server error.');
   }
 };
@@ -97,7 +95,10 @@ exports.ingestUploadedPoints = async (req, res) => {
     return;
   }
 
-  const points = await pointsService.createPointsFromUpload(caseId, uploadedPoints);
+  const points = await pointsService.createPointsFromUpload(
+    caseId,
+    uploadedPoints,
+  );
 
   await uploadService.deletePoints(accessCode);
 
@@ -123,8 +124,7 @@ exports.createCasePoint = async (req, res) => {
 
   if (concernPoint) {
     res.status(200).json({ concernPoint });
-  }
-  else {
+  } else {
     throw new Error('Internal server error.');
   }
 };
@@ -136,7 +136,10 @@ exports.createCasePoint = async (req, res) => {
  *
  */
 exports.updateCasePoint = async (req, res) => {
-  const { body, body: { pointId } } = req;
+  const {
+    body,
+    body: { pointId },
+  } = req;
 
   if (!pointId) throw new Error('Point ID is not valid.');
   if (!body.latitude) throw new Error('Latitude is not valid.');
@@ -144,14 +147,13 @@ exports.updateCasePoint = async (req, res) => {
   if (!body.time) throw new Error('Latitude is not valid.');
   if (!body.duration) throw new Error('Duration is not valid.');
 
-  const params = _.pick(body, ['longitude','latitude','time','duration']);
+  const params = _.pick(body, ['longitude', 'latitude', 'time', 'duration']);
 
   const concernPoint = await pointsService.updateRedactedPoint(pointId, params);
 
   if (concernPoint) {
     res.status(200).json({ concernPoint });
-  }
-  else {
+  } else {
     throw new Error('Internal server error.');
   }
 };
@@ -165,14 +167,13 @@ exports.updateCasePoint = async (req, res) => {
 exports.deleteCasePoint = async (req, res) => {
   const { pointId } = req.body;
 
-  if (!pointId) throw new Error('Case ID is not valid.')
+  if (!pointId) throw new Error('Case ID is not valid.');
 
   const caseResults = await pointsService.deleteWhere({ id: pointId });
 
   if (caseResults) {
     res.sendStatus(200);
-  }
-  else {
+  } else {
     throw new Error('Internal server error.');
   }
 };
@@ -192,9 +193,8 @@ exports.consentToPublish = async (req, res) => {
   const caseResult = await casesService.consentToPublishing(caseId);
 
   if (caseResult) {
-    res.status(200).json({ case: caseResult })
-  }
-  else {
+    res.status(200).json({ case: caseResult });
+  } else {
     throw new Error('Internal server error.');
   }
 };
@@ -214,8 +214,7 @@ exports.setCaseToStaging = async (req, res) => {
 
   if (caseResults) {
     res.status(200).json({ case: caseResults });
-  }
-  else {
+  } else {
     throw new Error('Internal server error.');
   }
 };
@@ -245,26 +244,36 @@ exports.setCaseToStaging = async (req, res) => {
  *
  */
 exports.publishCases = async (req, res) => {
-  const { body: { caseIds }, user: { organization_id } } = req;
-  let { query: { type } } = req;
+  const {
+    body: { caseIds },
+    user: { organization_id },
+  } = req;
+  let {
+    query: { type },
+  } = req;
 
-  type = (type || process.env.PUBLISH_STORAGE_TYPE);
+  type = type || process.env.PUBLISH_STORAGE_TYPE;
 
-  if (!caseIds) throw new Error('Case IDs are invalid.')
-  if (!organization_id) throw new Error('Organization ID is not valid.')
+  if (!caseIds) throw new Error('Case IDs are invalid.');
+  if (!organization_id) throw new Error('Organization ID is not valid.');
 
   const organization = await organizationsService.fetchById(organization_id);
   if (organization) {
-    const publishResults = await casesService.publishCases(caseIds, organization.id);
+    const publishResults = await casesService.publishCases(
+      caseIds,
+      organization.id,
+    );
 
     const publicationParams = {
       organization_id: organization.id,
-      publish_date: Math.floor(new Date().getTime() / 1000)
-    }
+      publish_date: Math.floor(new Date().getTime() / 1000),
+    };
     const publication = await publicationsService.insert(publicationParams);
     if (publication) {
-
-      const casesUpdateResults = await casesService.updateCasePublicationId(caseIds, publication.id);
+      const casesUpdateResults = await casesService.updateCasePublicationId(
+        caseIds,
+        publication.id,
+      );
       if (!casesUpdateResults) {
         throw new Error('Internal server error.');
       }
@@ -274,29 +283,42 @@ exports.publishCases = async (req, res) => {
 
       if (points && points.length > 0) {
         if (type === 'zip' && process.env.NODE_ENV !== 'production') {
-          let data = await publicationFiles.buildAndZip(organization, publication, points)
-          res.status(200)
+          let data = await publicationFiles.buildAndZip(
+            organization,
+            publication,
+            points,
+          );
+          res
+            .status(200)
             .set({
               'Content-Type': 'application/octet-stream',
               'Content-Disposition': `attachment; filename="${publication.id}.zip"`,
-              'Content-Length': data.length
+              'Content-Length': data.length,
             })
-            .send(data)
-            return;
+            .send(data);
+          return;
         } else {
-          let pages = await publicationFiles.build(organization, publication, points)
+          let pages = await publicationFiles.build(
+            organization,
+            publication,
+            points,
+          );
 
-          if (type ==='gcs') {
+          if (type === 'gcs') {
             const results = await writeToGCSBucket(pages);
             if (results) {
-              const cases = publishResults.map(itm => casesService._mapCase(itm));
+              const cases = publishResults.map(itm =>
+                casesService._mapCase(itm),
+              );
               res.status(200).json({ cases });
               return;
             }
           } else if (type === 'aws') {
             const results = await writeToS3Bucket(pages);
             if (results) {
-              const cases = publishResults.map(itm => casesService._mapCase(itm));
+              const cases = publishResults.map(itm =>
+                casesService._mapCase(itm),
+              );
               res.status(200).json({ cases });
               return;
             }
@@ -305,9 +327,11 @@ exports.publishCases = async (req, res) => {
               res.status(200).json(pages);
               return;
             } else if (type === 'local') {
-              const results = await writePublishedFiles(pages, '/tmp/trails')
+              const results = await writePublishedFiles(pages, '/tmp/trails');
               if (results) {
-                let cases = publishResults.map(itm => casesService._mapCase(itm))
+                let cases = publishResults.map(itm =>
+                  casesService._mapCase(itm),
+                );
                 res.status(200).json({ cases });
                 return;
               }
@@ -339,8 +363,7 @@ exports.deleteCase = async (req, res) => {
 
   if (caseResults) {
     res.sendStatus(200);
-  }
-  else {
+  } else {
     throw new Error('Internal server error.');
   }
 };
@@ -357,10 +380,10 @@ exports.updateOrganizationCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is missing.');
 
-  const results = await casesService.updateCaseExternalId(caseId, externalId)
+  const results = await casesService.updateCaseExternalId(caseId, externalId);
   if (results) {
-    res.status(200).json({ case: results })
+    res.status(200).json({ case: results });
   } else {
-    res.status(500).json({ message: 'Internal Server Error'})
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };

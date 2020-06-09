@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
-process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
+  process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
@@ -19,9 +19,8 @@ chai.use(chaiHttp);
 let currentOrg, token;
 
 describe('Organization ', () => {
-
   before(async () => {
-    await mockData.clearMockData()
+    await mockData.clearMockData();
 
     let orgParams = {
       name: 'My Example Organization',
@@ -30,8 +29,8 @@ describe('Organization ', () => {
       notification_threshold_count: 6,
       days_to_retain_records: 14,
       region_coordinates: {
-        "ne": { "latitude": 20.312764055951195, "longitude": -70.45445121262883 },
-        "sw": { "latitude": 17.766025040122642, "longitude": -75.49442923997258 },
+        ne: { latitude: 20.312764055951195, longitude: -70.45445121262883 },
+        sw: { latitude: 17.766025040122642, longitude: -75.49442923997258 },
       },
       api_endpoint_url: 'http://api.sample.com',
       reference_website_url: 'http://reference.sample.com',
@@ -50,19 +49,20 @@ describe('Organization ', () => {
 
     const caseParams = {
       organization_id: currentOrg.id,
-      state: 'unpublished'
+      state: 'unpublished',
     };
 
-    await mockData.mockCase(caseParams)
-    await mockData.mockCase(caseParams)
-    await mockData.mockCase(caseParams)
+    await mockData.mockCase(caseParams);
+    await mockData.mockCase(caseParams);
+    await mockData.mockCase(caseParams);
 
     token = jwt.sign(
       {
         sub: newUserParams.username,
         iat: ~~(Date.now() / 1000),
         exp:
-          ~~(Date.now() / 1000) + (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
+          ~~(Date.now() / 1000) +
+          (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
       jwtSecret.secret,
     );
@@ -84,7 +84,9 @@ describe('Organization ', () => {
       results.should.have.status(200);
       results.body.name.should.equal(currentOrg.name);
       results.body.id.should.equal(currentOrg.id);
-      results.body.completedOnboarding.should.equal(currentOrg.completedOnboarding);
+      results.body.completedOnboarding.should.equal(
+        currentOrg.completedOnboarding,
+      );
     });
 
     it('fetch the configuration using http', async () => {
@@ -97,35 +99,53 @@ describe('Organization ', () => {
       results.should.have.status(200);
       results.body.id.should.equal(currentOrg.id);
       results.body.name.should.equal(currentOrg.name);
-      results.body.notificationThresholdPercent.should.equal(currentOrg.notificationThresholdPercent);
-      results.body.notificationThresholdCount.should.equal(currentOrg.notificationThresholdCount);
-      results.body.daysToRetainRecords.should.equal(currentOrg.daysToRetainRecords);
-      results.body.regionCoordinates.ne.latitude.should.equal(currentOrg.regionCoordinates.ne.latitude);
-      results.body.regionCoordinates.ne.longitude.should.equal(currentOrg.regionCoordinates.ne.longitude);
-      results.body.regionCoordinates.sw.latitude.should.equal(currentOrg.regionCoordinates.sw.latitude);
-      results.body.regionCoordinates.sw.longitude.should.equal(currentOrg.regionCoordinates.sw.longitude);
+      results.body.notificationThresholdPercent.should.equal(
+        currentOrg.notificationThresholdPercent,
+      );
+      results.body.notificationThresholdCount.should.equal(
+        currentOrg.notificationThresholdCount,
+      );
+      results.body.daysToRetainRecords.should.equal(
+        currentOrg.daysToRetainRecords,
+      );
+      results.body.regionCoordinates.ne.latitude.should.equal(
+        currentOrg.regionCoordinates.ne.latitude,
+      );
+      results.body.regionCoordinates.ne.longitude.should.equal(
+        currentOrg.regionCoordinates.ne.longitude,
+      );
+      results.body.regionCoordinates.sw.latitude.should.equal(
+        currentOrg.regionCoordinates.sw.latitude,
+      );
+      results.body.regionCoordinates.sw.longitude.should.equal(
+        currentOrg.regionCoordinates.sw.longitude,
+      );
       results.body.apiEndpointUrl.should.equal(currentOrg.apiEndpointUrl);
-      results.body.referenceWebsiteUrl.should.equal(currentOrg.referenceWebsiteUrl);
+      results.body.referenceWebsiteUrl.should.equal(
+        currentOrg.referenceWebsiteUrl,
+      );
       results.body.privacyPolicyUrl.should.equal(currentOrg.privacyPolicyUrl);
       results.body.infoWebsiteUrl.should.equal(currentOrg.infoWebsiteUrl);
-      results.body.completedOnboarding.should.equal(currentOrg.completedOnboarding);
+      results.body.completedOnboarding.should.equal(
+        currentOrg.completedOnboarding,
+      );
     });
 
     it('update the record', async () => {
       const newParams = {
-        name: "Some Health Authority",
+        name: 'Some Health Authority',
         notificationThresholdPercent: 66,
         notificationThresholdCount: 6,
         daysToRetainRecords: 14,
         regionCoordinates: {
-          ne: { "latitude": 20.312764055951195, "longitude": -70.45445121262883},
-          sw: { "latitude": 17.766025040122642, "longitude": -75.49442923997258}
+          ne: { latitude: 20.312764055951195, longitude: -70.45445121262883 },
+          sw: { latitude: 17.766025040122642, longitude: -75.49442923997258 },
         },
-        apiEndpointUrl: "https://s3.aws.com/bucket_name/safepaths.json",
-        referenceWebsiteUrl: "http://cdc.gov",
-        infoWebsiteUrl: "http://cdc.gov",
-        privacyPolicyUrl: "https://superprivate.com",
-        completedOnboarding: true
+        apiEndpointUrl: 'https://s3.aws.com/bucket_name/safepaths.json',
+        referenceWebsiteUrl: 'http://cdc.gov',
+        infoWebsiteUrl: 'http://cdc.gov',
+        privacyPolicyUrl: 'https://superprivate.com',
+        completedOnboarding: true,
       };
 
       const results = await chai
@@ -139,13 +159,23 @@ describe('Organization ', () => {
       results.body.should.be.a('object');
       results.body.name.should.equal(newParams.name);
       results.body.infoWebsiteUrl.should.equal(newParams.infoWebsiteUrl);
-      results.body.referenceWebsiteUrl.should.equal(newParams.referenceWebsiteUrl);
+      results.body.referenceWebsiteUrl.should.equal(
+        newParams.referenceWebsiteUrl,
+      );
       results.body.apiEndpointUrl.should.equal(newParams.apiEndpointUrl);
-      results.body.notificationThresholdPercent.should.equal(newParams.notificationThresholdPercent);
-      results.body.notificationThresholdCount.should.equal(newParams.notificationThresholdCount);
-      results.body.daysToRetainRecords.should.equal(newParams.daysToRetainRecords);
+      results.body.notificationThresholdPercent.should.equal(
+        newParams.notificationThresholdPercent,
+      );
+      results.body.notificationThresholdCount.should.equal(
+        newParams.notificationThresholdCount,
+      );
+      results.body.daysToRetainRecords.should.equal(
+        newParams.daysToRetainRecords,
+      );
       results.body.privacyPolicyUrl.should.equal(newParams.privacyPolicyUrl);
-      results.body.completedOnboarding.should.equal(newParams.completedOnboarding);
+      results.body.completedOnboarding.should.equal(
+        newParams.completedOnboarding,
+      );
     });
 
     it('fetch the organizations cases', async () => {
@@ -161,18 +191,17 @@ describe('Organization ', () => {
       results.body.cases.should.be.a('array');
       results.body.cases.length.should.equal(3);
 
-      const firstChunk = results.body.cases.shift()
+      const firstChunk = results.body.cases.shift();
       firstChunk.should.have.property('id');
-      firstChunk.id.should.be.a('number')
+      firstChunk.id.should.be.a('number');
       firstChunk.should.have.property('state');
-      firstChunk.state.should.be.a('string')
+      firstChunk.state.should.be.a('string');
       firstChunk.should.have.property('updated_at');
-      firstChunk.updated_at.should.be.a('string')
+      firstChunk.updated_at.should.be.a('string');
     });
   });
 
   describe('create a case', () => {
-
     it('returns a 200', async () => {
       const results = await chai
         .request(server.app)

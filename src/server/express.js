@@ -3,7 +3,7 @@ const http = require('http');
 const Promise = require('bluebird');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const errorHandler = require('./errorHandler')
+const errorHandler = require('./errorHandler');
 
 const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
@@ -20,10 +20,10 @@ class Server {
     }
 
     const bodyParseJson = bodyParser.json({
-      type:'*/*',
-      limit: '50mb'
-    })
-    const bodyParseEncoded = bodyParser.urlencoded({ extended: false })
+      type: '*/*',
+      limit: '50mb',
+    });
+    const bodyParseEncoded = bodyParser.urlencoded({ extended: false });
 
     this._app.use(cors());
     this._app.use(cookieParser());
@@ -37,7 +37,7 @@ class Server {
     this._app.use(function (req, res, next) {
       next(createError(404));
     }); // If we get to here then we obviously didn't find the route, so trigger error.
-    this._app.use(errorHandler) // Catch all for errors.
+    this._app.use(errorHandler); // Catch all for errors.
 
     this._server = http.createServer(this._app);
   }
@@ -51,7 +51,6 @@ class Server {
 
     return Promise.fromCallback(cb => this._server.listen(port, cb));
   }
-
 
   close() {
     this._server.close();
