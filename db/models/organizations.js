@@ -1,8 +1,34 @@
 const _ = require('lodash');
 const { v4: uuidv4 } = require('uuid');
+
 const BaseService = require('../common/service.js');
+
 const settingsService = require('./settings.js');
 const casesService = require('./cases.js');
+const publicService = require('./publicOrganizations.js');
+
+const settingsFields = [
+  'info_website_url',
+  'reference_website_url',
+  'api_endpoint_url',
+  'privacy_policy_url',
+  'region_coordinates',
+  'notification_threshold_percent',
+  'notification_threshold_count',
+  'chunking_in_seconds',
+  'days_to_retain_records'
+];
+
+const publicFields = [
+  'name',
+  'info_website_url',
+  'reference_website_url',
+  'api_endpoint_url',
+  'privacy_policy_url',
+  'region_coordinates',
+  'notification_threshold_percent',
+  'notification_threshold_count',
+];
 
 class Service extends BaseService {
 
@@ -46,29 +72,26 @@ class Service extends BaseService {
    * @method createOrganization
    * @param {Object} organization
    * @param {Object} organization.name
-   * @return {Array}
+   * @return {Object}
    */
   async createOrganization(organization) {
     if (!organization.name) throw new Error('Organization Name was not valid');
 
-    const validSettings = [
-      'info_website_url',
-      'reference_website_url',
-      'api_endpoint_url',
-      'region_coordinates',
-      'notification_threshold_percent',
-      'notification_threshold_count',
-      'chunking_in_seconds',
-      'days_to_retain_records'
-    ]
-
     const results = await this.create(_.pick(organization, ['id', 'name']));
+
     if (results) {
-      const paramsSettings = _.pick(organization, validSettings)
-      const settingsResults = await settingsService.create(_.extend({ id: uuidv4(), organization_id: results[0].id }, paramsSettings));
-      if (settingsResults) {
-        return this.fetchById(results[0].id)
-      }
+      const id = results[0].id;
+
+      // Create settings record
+      await settingsService.create(_.extend(
+        { id: uuidv4(), organization_id: id },
+        _.pick(organization, settingsFields)
+      ));
+
+      // Create public record
+      await publicService.createOrUpdate(id, _.pick(organization, publicFields));
+
+      return this.fetchById(id);
     }
   }
 
@@ -78,7 +101,7 @@ class Service extends BaseService {
    * @method updateOrganization
    * @param {String} id
    * @param {Object} params
-   * @return {Array}
+   * @return {Object}
    */
   async updateOrganization(id, params) {
     if (!id) throw new Error('Organization ID was not valid');
@@ -88,15 +111,11 @@ class Service extends BaseService {
     const orgResults = await this.updateOne(id, _.pick(mappedParams, ['name', 'completed_onboarding']));
 
     if (orgResults) {
-      const paramsSettings = _.omit(mappedParams, ['name', 'completed_onboarding']);
-      const settingsResults = await settingsService.updateByOrganizationId(id, paramsSettings);
-
-      if (settingsResults) {
-        return await this.fetchById(id)
-      }
+      await settingsService.updateByOrganizationId(id, _.pick(mappedParams, settingsFields));
+      await publicService.createOrUpdate(id, _.pick(mappedParams, publicFields));
     }
 
-    throw new Error('Internal server errror.')
+    return await this.fetchById(id);
   }
 
   /**

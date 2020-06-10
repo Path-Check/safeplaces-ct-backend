@@ -6,6 +6,7 @@ const randomCoordinates = require('random-coordinates');
 const sinon = require('sinon');
 
 const organizationService = require('../../db/models/organizations');
+const publicOrganizationService = require('../../db/models/publicOrganizations');
 const settingsService = require('../../db/models/settings');
 const usersService = require('../../db/models/users');
 const pointsService = require('../../db/models/points');
@@ -73,21 +74,42 @@ class MockData {
   async mockOrganization(options = {}) {
     if (options.id) throw new Error('ID is not needed.');
     if (!options.name) throw new Error('Authority Name must be provided');
-    if (!options.info_website_url) throw new Error('Info Website must be provided');
 
     const coords = randomCoordinates({ fixed: 5 }).split(',');
 
-    let params = {
-      info_website_url: 'https://www.wowza.com/',
+    const org = _.extend({
       reference_website_url: 'https://reference.wowza.com/',
       api_endpoint_url: 'https://api.wowza.com/safe_paths/',
+      privacy_policy_url: 'https://privacy.wowza.com/safe_paths/',
       region_coordinates: { latitude: coords[0], longitude: coords[1] }
+    }, options);
+
+    let publicOrg = {};
+
+    try {
+      sinon.restoreObject(publicOrganizationService);
+    } catch (error) {
+      // no-op
     }
 
-    const results = await organizationService.createOrganization(_.extend(params, options));
+    sinon.stub(publicOrganizationService, 'create').callsFake((params) => {
+      publicOrg = params;
+      return publicOrg;
+    });
+
+    sinon.stub(publicOrganizationService, 'updateOne').callsFake((id, params) => {
+      if (id === publicOrg.id) {
+        publicOrg = params;
+      }
+      return publicOrg;
+    });
+
+    const results = await organizationService.createOrganization(org);
+
     if (results) {
       return results;
     }
+
     throw new Error('Problem adding the organization.');
   }
 
