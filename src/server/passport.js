@@ -35,11 +35,13 @@ const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
 
 passport.use('jwt', jwtStrategy);
 
+console.log('[LDAP] CreateClient')
 const ldapClient = ldap.createClient({
   url: ldapServerUrl,
 });
 
 ldapClient.on('error', err => {
+  console.log('[LDAP] on Error', err)
   if (err.message.startsWith('connect ECONNREFUSED')) {
     throw new Error(`LDAP server not found at ${ldapServerUrl}. Please start a server to enable authentication. Please see README.md for more information.`);
   } else {
@@ -48,6 +50,7 @@ ldapClient.on('error', err => {
 });
 
 ldapClient.bind(process.env.LDAP_BIND, process.env.LDAP_PASS, err => {
+  console.log('[LDAP] bind outside')
   if (err) console.log(err);
 });
 
@@ -58,6 +61,7 @@ ldapClient.bind(process.env.LDAP_BIND, process.env.LDAP_PASS, err => {
 if (
   process.env.LDAP_SEARCH.indexOf('{{username}}') === -1
 ) {
+  console.log('[LDAP] error thrown')
   throw new Error(
     'LDAP_FILTER environment variable must contain the keyword {{username}}. ' +
     'These keywords will be replaced by the request details appropriately.'
@@ -72,6 +76,8 @@ passport.use('ldap', new CustomStrategy(
      * {{username}} will be replaced by the sent username
      * {{password}} will be replaced by the sent password
      */
+    
+    console.log('[LDAP] custom strategy')
 
     let query =
       process.env.LDAP_SEARCH

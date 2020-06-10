@@ -62,7 +62,6 @@ const durationToDiscreet = durationArr => {
   durationArrMerged = roundDuration(durationArrMerged);
 
   for (i = 0; i < durationArrMerged.length; i++) {
-    // console.log('durationArrMerged: ', durationArrMerged[i])
     discreetArr = [
       ...discreetArr,
       ...durationPointToDiscreetPoints(durationArrMerged[i]),
