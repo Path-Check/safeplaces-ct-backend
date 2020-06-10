@@ -361,6 +361,6 @@ exports.updateOrganizationCase = async (req, res) => {
   if (results) {
     res.status(200).json({ case: results })
   } else {
-    res.status(500).json({ message: 'Internal Server Error'})
+    throw new Error('Internal server error.');
   }
 };

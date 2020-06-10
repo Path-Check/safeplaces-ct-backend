@@ -17,9 +17,8 @@ exports.fetchOrganizationById = async (req, res) => {
   const organization = await organizations.fetchById(organization_id);
   if (organization) {
     res.status(200).json(_.pick(organization, ['id','name', 'completedOnboarding']));
-  } else {
-    res.status(500).json({ message: 'Internal Server Error' });
   }
+  throw new Error('Internal server error.');
 };
 
 /**
@@ -49,9 +48,8 @@ exports.fetchOrganizationConfig = async (req, res) => {
       'infoWebsiteUrl',
       'privacyPolicyUrl',
     ]));
-  } else {
-    res.status(500).json({ message: 'Internal Server Error' });
   }
+  throw new Error('Internal server error.');
 };
 
 /**
@@ -71,9 +69,8 @@ exports.updateOrganization = async (req, res) => {
   const results = await organizations.updateOrganization(organization_id, organization);
   if (results) {
     res.status(200).json(results);
-  } else {
-    res.status(500).json({ message: 'Internal Server Error' });
   }
+  throw new Error('Internal server error.');
 };
 
 /**
@@ -101,9 +98,8 @@ exports.fetchOrganizationCases = async (req, res) => {
       return c
     })
     res.status(200).json({ cases });
-  } else {
-    res.status(500).json({ message: 'Internal Server Error' });
   }
+  throw new Error('Internal server error.');
 };
 
 /**
@@ -133,7 +129,6 @@ exports.createOrganizationCase = async (req, res) => {
 
   if (newCase) {
     res.status(200).json(newCase);
-  } else {
-    res.status(500).json({ message: 'Internal Server Error' });
   }
+  throw new Error('Internal server error.');
 };
