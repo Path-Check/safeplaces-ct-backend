@@ -195,7 +195,7 @@ exports.consentToPublish = async (req, res) => {
     res.status(200).json({ case: caseResult })
   }
   else {
-    throw new Error(`Could not set content to publishing for case id ${caseId}.`);
+    throw new Error(`Could not set consent to publishing for case id ${caseId}.`);
   }
 };
 
