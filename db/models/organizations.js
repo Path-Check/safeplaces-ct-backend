@@ -21,6 +21,7 @@ const settingsFields = [
 
 const publicFields = [
   'name',
+  'external_id',
   'info_website_url',
   'reference_website_url',
   'api_endpoint_url',
@@ -47,6 +48,7 @@ class Service extends BaseService {
                 'organizations.id AS id',
                 'organizations.name',
                 'organizations.completed_onboarding',
+                'organizations.external_id',
                 'settings.info_website_url',
                 'settings.reference_website_url',
                 'settings.api_endpoint_url',
@@ -77,7 +79,11 @@ class Service extends BaseService {
   async createOrganization(organization) {
     if (!organization.name) throw new Error('Organization Name was not valid');
 
-    const results = await this.create(_.pick(organization, ['id', 'name']));
+    if (organization.external_id == null) {
+      organization.external_id = uuidv4();
+    }
+
+    const results = await this.create(_.pick(organization, ['id', 'external_id', 'name']));
 
     if (results) {
       const id = results[0].id;
@@ -108,9 +114,15 @@ class Service extends BaseService {
     if (!params) throw new Error('Params were not valid');
 
     const mappedParams = this._reverseMap(params);
-    const orgResults = await this.updateOne(id, _.pick(mappedParams, ['name', 'completed_onboarding']));
+    let orgResults = await this.updateOne(id, _.pick(mappedParams, ['name', 'completed_onboarding']));
 
     if (orgResults) {
+      // If external_id doesn't exist yet, assign one for public record creation
+      if (orgResults.external_id == null) {
+        mappedParams.external_id = uuidv4();
+        orgResults = await this.updateOne(id, _.pick(mappedParams, ['external_id']));
+      }
+
       await settingsService.updateByOrganizationId(id, _.pick(mappedParams, settingsFields));
       await publicService.createOrUpdate(id, _.pick(mappedParams, publicFields));
     }
@@ -175,6 +187,7 @@ class Service extends BaseService {
    _map(itm) {
       return {
         id: itm.id,
+        externalId: itm.external_id,
         name: itm.name,
         infoWebsiteUrl: itm.info_website_url || '',
         referenceWebsiteUrl: itm.reference_website_url || '',

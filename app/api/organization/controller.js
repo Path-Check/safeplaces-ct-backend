@@ -16,7 +16,7 @@ exports.fetchOrganizationById = async (req, res) => {
 
   const organization = await organizations.fetchById(organization_id);
   if (organization) {
-    res.status(200).json(_.pick(organization, ['id','name', 'completedOnboarding']));
+    res.status(200).json(_.pick(organization, ['id', 'externalId', 'name', 'completedOnboarding']));
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
   }
@@ -38,6 +38,7 @@ exports.fetchOrganizationConfig = async (req, res) => {
   if (organization) {
     res.status(200).json(_.pick(organization, [
       'id',
+      'externalId',
       'name',
       'completedOnboarding',
       'notificationThresholdPercent',
