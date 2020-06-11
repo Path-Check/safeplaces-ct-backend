@@ -1,7 +1,7 @@
 
 # Safeplaces Backend Examples
 
-This repository holds an example backend for [Safeplaces API specification](https://github.com/Path-Check/safeplaces-frontend/blob/dev_mvp/Safe-Places-Server.md).
+This repository holds an example backend for [Safeplaces API specification](https://github.com/Path-Check/safeplaces-backend/blob/dev/oas3.yaml).
 
 Safeplaces is a toolkit for public health, built on top of data shared by users of [Private Kit](https://github.com/tripleblindmarket/covid-safe-paths).
 
@@ -16,7 +16,7 @@ The project is still under development and will reach a Minimum Viable Product (
 
 ## Accessing Uploaded Data From Clients
 
-[Safeplaces Ingest](https://github.com/Path-Check/safeplaces-backend-ingest) is a supporting backend service used by clients to upload data which is then ingested by this service. In order to interact with the upload database, the following environment variables must be set:
+[Safeplaces Ingest](https://github.com/Path-Check/safeplaces-backend-ingest) is a supporting backend service used by clients (including the SafePaths app) to upload data, which is then ingested by this service. In order to interact with the upload database, the following environment variables must be set:
 
 ```
 DB_HOST_PUB=upload_db_host
@@ -121,8 +121,22 @@ npm start
 
 #### Setup Database
 
-1. Create databases and users mentioned exported in your environment.
+1. Create the database exported in your environment.
+```
+createdb safeplaces
+```
+1. Create the user exported in your environment.
+```
+psql=# CREATE USER safepaths_user
+```
 1. Grant database user superuser privilege to the database to create POSTGIS extension and setup other tables. Reduce this privilege later to just create and modify tables or tuples in this database after you run the migration for the first time.
+```
+ALTER USER safepaths_user WITH SUPERUSER
+```
+After migration:
+```
+ALTER USER safepaths_user WITH NOSUPERUSER
+```
 1. Install [PostGIS extension](https://postgis.net/install/).
 
 #### Knex migrations and seed the database
@@ -136,15 +150,13 @@ npm install knex -g
 Run migrations
 
 ```
-knex migrate:latest --env test
-knex migrate:latest --env development
+npm run migrate:up
 ```
 
 Seed the database
 
 ```
-knex seed:run --env test
-knex seed:run --env development
+npm run seed
 ```
 
 #### Mocha unit tests
@@ -155,10 +167,16 @@ Install mocha globally.
 npm install mocha -g
 ```
 
-Run testing through mocha to see if unit tests pass
+Run tests to ensure they pass
 
 ```
-mocha
+npm test
+```
+
+#### Start the server
+
+```
+npm start
 ```
 
 ### Deploy using Docker
