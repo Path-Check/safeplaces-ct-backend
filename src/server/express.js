@@ -6,13 +6,11 @@ const boom = require('boom');
 const bodyParser = require('body-parser');
 const expressLogger = require('../logger/express');
 const errorHandler = require('./errorHandler');
+const notFoundHandler = require('./notFoundHandler');
 const responseTimeHandler = require('./responseTimeHandler');
 
-const createError = require('http-errors');
 const expressSession = require('express-session');
 const cookieParser = require('cookie-parser');
-// const path = require('path');
-// const logger = require('morgan');
 const passport = require('./passport');
 
 class Server {
@@ -46,9 +44,7 @@ class Server {
     this._app.use('/', this._router);
 
     process.nextTick(() => {
-      this._app.use(function (req, res, next) {
-        next(createError(404));
-      });
+      this._app.use(notFoundHandler());
       this._app.use(errorHandler())
     })
 
