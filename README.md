@@ -14,6 +14,17 @@ Safeplaces is a toolkit for public health, built on top of data shared by users 
 The project is still under development and will reach a Minimum Viable Product (MVP) stage soon.  
 *Note*: There can be breaking changes to the developing code until the MVP is released.
 
+## Accessing Uploaded Data From Clients
+
+[Safeplaces Ingest](https://github.com/Path-Check/safeplaces-backend-ingest) is a supporting backend service used by clients to upload data which is then ingested by this service. In order to interact with the upload database, the following environment variables must be set:
+
+```
+DB_HOST_PUB=upload_db_host
+DB_NAME_PUB=upload_db_name
+DB_USER_PUB=uploa_db_user
+DB_PASS_PUB=upload_db_password
+```
+
 ## Publishing Files
 
 Files can be published to either Google Cloud Storage (GCS) or AWS Simple Storage Service (S3). This preference is set via an environment variable. If not set, tests will default to local storage (write to disk) to pass. This variable is required in a production environment.
@@ -22,21 +33,23 @@ Files can be published to either Google Cloud Storage (GCS) or AWS Simple Storag
 PUBLISH_STORAGE_TYPE=(gcs|aws)
 ```
 
-## Google Cloud Storage (GCS)
+#### Google Cloud Storage (GCS)
 
-The following environment variables are required:
+The following environment variables are required to upload files to GCS:
 
 ```
+PUBLISH_STORAGE_TYPE=gcs
 GOOGLE_APPLICATION_CREDENTIALS='google_service_account.json'
 GOOGLE_CLOUD_PROJECT=something
 GCLOUD_STORAGE_BUCKET=somethingOrOther
 ```
 
-## AWS Simple Storage Service (S3)
+#### AWS Simple Storage Service (S3)
 
-The following environment variables are required:
+The following environment variables are required to upload files to AWS:
 
 ```
+PUBLISH_STORAGE_TYPE=aws
 S3_BUCKET=bucket-name
 S3_REGION=region-name
 S3_ACCESS_KEY=something
