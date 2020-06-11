@@ -84,6 +84,7 @@ describe('Organization ', () => {
       results.should.have.status(200);
       results.body.name.should.equal(currentOrg.name);
       results.body.id.should.equal(currentOrg.id);
+      results.body.externalId.should.equal(currentOrg.externalId);
       results.body.completedOnboarding.should.equal(currentOrg.completedOnboarding);
     });
 
@@ -96,6 +97,7 @@ describe('Organization ', () => {
 
       results.should.have.status(200);
       results.body.id.should.equal(currentOrg.id);
+      results.body.externalId.should.equal(currentOrg.externalId);
       results.body.name.should.equal(currentOrg.name);
       results.body.notificationThresholdPercent.should.equal(currentOrg.notificationThresholdPercent);
       results.body.notificationThresholdCount.should.equal(currentOrg.notificationThresholdCount);
@@ -137,6 +139,8 @@ describe('Organization ', () => {
 
       results.should.have.status(200);
       results.body.should.be.a('object');
+      results.body.id.should.equal(currentOrg.id);
+      results.body.externalId.should.equal(currentOrg.externalId);
       results.body.name.should.equal(newParams.name);
       results.body.infoWebsiteUrl.should.equal(newParams.infoWebsiteUrl);
       results.body.referenceWebsiteUrl.should.equal(newParams.referenceWebsiteUrl);
