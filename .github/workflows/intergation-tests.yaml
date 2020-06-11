@@ -66,11 +66,10 @@ jobs:
           node-version: '13.x'
       - run: |
           echo $TESTS_ENV | base64 --decode --ignore-garbage > .env
-      - run: source .env
       - run: npm install
       - run: npm install -g knex
       - run: npm run build --if-present
-      - run: npm test
+      - run: source .env && npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
