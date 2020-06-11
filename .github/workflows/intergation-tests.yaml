@@ -35,7 +35,7 @@ env:
   CONTAINER_NAME: ${{ secrets.XP_TEST_CONTAINER_NAME }}
   NAMESPACE: ${{ secrets.GKE_NAMESPACE }}
   NODE_ENV: test
-  DB_HOST: postgres
+  DB_HOST: localhost
   DB_NAME: postgres
   DB_PASS: postgres
   DB_USER: postgres
@@ -77,6 +77,6 @@ jobs:
       - run: npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: postgres
+          POSTGRES_HOST: localhost
           # The default PostgreSQL port
           POSTGRES_PORT: 5432
