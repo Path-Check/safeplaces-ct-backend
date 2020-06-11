@@ -40,9 +40,9 @@ env:
   LDAP_PORT: ${{ secrets.LDAP_PORT }}
   LDAP_PASS: ${{ secrets.LDAP_PASS }}
   LDAP_ORG: ${{ secrets.LDAP_ORG }}
-  LDAP_BIND: ${{ secrets.LDAP_BIND }}
-  LDAP_SEARCH: ${{ secrets.LDAP_SEARCH }}
-  LDAP_FILTER: ${{ secrets.LDAP_FILTER }}
+  LDAP_BIND: 'cn=admin,dc=covidsafepaths,dc=org'
+  LDAP_SEARCH: 'cn={{username}}, dc=covidsafepaths, dc=org'
+  LDAP_FILTER: '(objectClass=*)'
 
 jobs:
   run-integration-tests:
@@ -75,7 +75,7 @@ jobs:
       - run: npm install
       - run: npm install -g knex
       - run: npm run build --if-present
-      - run : echo $LDAP_BIND | base64 --decode --ignore-garbage > .env && npm test
+      - run : npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
