@@ -34,11 +34,7 @@ env:
   DEPLOYMENT_NAME: ${{ secrets.XP_TEST_DEPLOYMENT_NAME }}
   CONTAINER_NAME: ${{ secrets.XP_TEST_CONTAINER_NAME }}
   NAMESPACE: ${{ secrets.GKE_NAMESPACE }}
-  NODE_ENV: test
-  DB_HOST: localhost
-  DB_NAME: spl
-  DB_PASS: postgres
-  DB_USER: postgres
+
 
 jobs:
   run-integration-tests:
@@ -68,6 +64,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '13.x'
+      - run: |
+        echo $TESTS_ENV | base64 --decode --ignore-garbage > .env
       - run: npm install
       - run: npm install -g knex
       - run: npm run build --if-present
