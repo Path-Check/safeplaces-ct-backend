@@ -36,7 +36,7 @@ env:
   NAMESPACE: ${{ secrets.GKE_NAMESPACE }}
   NODE_ENV: test
   DB_HOST: localhost
-  DB_NAME: postgres
+  DB_NAME: spl
   DB_PASS: postgres
   DB_USER: postgres
 
@@ -50,10 +50,11 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgres
+        image: bitnami/postgresql:latest
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: postgres
+          POSTGRESQL_DATABASE: spl
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
