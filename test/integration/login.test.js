@@ -36,7 +36,6 @@ describe('POST /login', function() {
         password: 'password',
       })
       .end(function(err, res) {
-        console.log(res.body);
         expect(res.status).to.equal(200);
         expect(res.body).to.be.an('object');
         expect(res.body).to.haveOwnProperty('token');
