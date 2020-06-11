@@ -29,7 +29,13 @@ env:
   DB_PASS: postgres
   DB_USER: postgres
   NODE_ENV: test
-
+  JWT_EXP: 3600
+  DB_HOST_PUB: localhost
+  DB_USER_PUB: postgres
+  DB_NAME_PUB: spl
+  DB_PASS_PUB: postgres
+  JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+  SEED_MAPS_API_KEY: ${{ secrets.TEST_SEED_MAPS_API_KEY }}
 
 jobs:
   run-integration-tests:
@@ -64,7 +70,6 @@ jobs:
       - run: npm install
       - run: npm install -g knex
       - run: npm run build --if-present
-      - run: source .env && npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
