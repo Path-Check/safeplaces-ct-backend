@@ -19,6 +19,7 @@ on:
   push:
     branches:
       - tests
+      - dev-fix-newman
     # paths:
     #   - 'expressjs/**/**'
 
