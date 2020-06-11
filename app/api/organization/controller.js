@@ -17,8 +17,9 @@ exports.fetchOrganizationById = async (req, res) => {
   const organization = await organizations.fetchById(organization_id);
   if (organization) {
     res.status(200).json(_.pick(organization, ['id','name', 'completedOnboarding']));
+  } else {
+    throw new Error(`Could not fetch organization by id ${organization_id}.`);
   }
-  throw new Error('Internal server error.');
 };
 
 /**
@@ -33,7 +34,6 @@ exports.fetchOrganizationConfig = async (req, res) => {
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
-
   if (organization) {
     res.status(200).json(_.pick(organization, [
       'id',
@@ -48,8 +48,9 @@ exports.fetchOrganizationConfig = async (req, res) => {
       'infoWebsiteUrl',
       'privacyPolicyUrl',
     ]));
+  } else {
+    throw new Error(`Could not fetch organization config by users org id ${organization_id}.`);
   }
-  throw new Error('Internal server error.');
 };
 
 /**
@@ -69,8 +70,9 @@ exports.updateOrganization = async (req, res) => {
   const results = await organizations.updateOrganization(organization_id, organization);
   if (results) {
     res.status(200).json(results);
+  } else {
+    throw new Error(`Could not update organization by users org id ${organization_id} and paramaters.`);
   }
-  throw new Error('Internal server error.');
 };
 
 /**
@@ -98,8 +100,9 @@ exports.fetchOrganizationCases = async (req, res) => {
       return c
     })
     res.status(200).json({ cases });
+  } else {
+    throw new Error(`Could not fetch organization cases by users org id ${organization_id}.`);
   }
-  throw new Error('Internal server error.');
 };
 
 /**
@@ -129,6 +132,7 @@ exports.createOrganizationCase = async (req, res) => {
 
   if (newCase) {
     res.status(200).json(newCase);
+  } else {
+    throw new Error(`Could not create case by users org id ${organization_id}.`);
   }
-  throw new Error('Internal server error.');
 };
