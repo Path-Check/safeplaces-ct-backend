@@ -1,0 +1,82 @@
+# This workflow will build a docker container, publish it to Google Container Registry, and deploy it to GKE when a release is created
+#
+# To configure this workflow:
+#
+# 1. Ensure that your repository contains the necessary configuration for your Google Kubernetes Engine cluster, including deployment.yml, kustomization.yml, service.yml, etc.
+#
+# 2. Set up secrets in your workspace: GKE_PROJECT with the name of the project, GKE_EMAIL with the service account email, GKE_KEY with the Base64 encoded JSON service account key (https://github.com/GoogleCloudPlatform/github-actions/tree/docs/service-account-key/setup-gcloud#inputs).
+#
+# 3. Change the values for the GKE_ZONE, GKE_CLUSTER, IMAGE, REGISTRY_HOSTNAME and DEPLOYMENT_NAME environment variables (below).
+
+name: Run Integration tests
+
+on:
+  pull_request:
+    branches:
+      - dev
+    # paths:
+    #   - 'expressjs/**/**'
+  push:
+    branches:
+      - dev-add-tests
+    # paths:
+    #   - 'expressjs/**/**'
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+  GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
+  GITHUB_SHA: ${{ github.sha }}
+  GKE_ZONE: ${{ secrets.GKE_ZONE }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  IMAGE: safeplaces-be-express-test
+  REGISTRY_HOSTNAME: gcr.io
+  DEPLOYMENT_NAME: ${{ secrets.XP_TEST_DEPLOYMENT_NAME }}
+  CONTAINER_NAME: ${{ secrets.XP_TEST_CONTAINER_NAME }}
+  NAMESPACE: ${{ secrets.GKE_NAMESPACE }}
+  NODE_ENV: test
+  DB_HOST: postgres
+  DB_NAME: postgres
+  DB_PASS: postgres
+  DB_USER: postgres
+
+jobs:
+  run-integration-tests:
+    name: Running Test Integrations
+    runs-on: ubuntu-latest
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+            # Maps tcp port 5432 on service container to the host
+            - 5432:5432
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: '13.x'
+      - run: npm install
+      - run: npm install -g knex
+      - run: npm run build --if-present
+      - run: npm test
+        env:
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: postgres
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
