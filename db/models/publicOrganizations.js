@@ -11,7 +11,7 @@ class Service extends BaseService {
     if (existing) {
       return this.updateOne(id, params);
     } else {
-      params = _.extend(params, { id, external_id: uuidv4(), });
+      params = _.extend({ id, external_id: uuidv4() }, params);
       return this.create(params);
     }
   }
