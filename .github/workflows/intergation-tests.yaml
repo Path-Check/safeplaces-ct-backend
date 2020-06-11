@@ -34,8 +34,8 @@ env:
   DB_USER_PUB: postgres
   DB_NAME_PUB: spl
   DB_PASS_PUB: postgres
-  JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
-  SEED_MAPS_API_KEY: ${{ secrets.TEST_SEED_MAPS_API_KEY }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  SEED_MAPS_API_KEY: ${{ secrets.SEED_MAPS_API_KEY }}
 
 jobs:
   run-integration-tests:
