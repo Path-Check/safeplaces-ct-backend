@@ -36,6 +36,13 @@ env:
   DB_PASS_PUB: postgres
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   SEED_MAPS_API_KEY: ${{ secrets.SEED_MAPS_API_KEY }}
+  LDAP_HOST: ${{ secrets.LDAP_HOST }}
+  LDAP_PORT: ${{ secrets.LDAP_PORT }}
+  LDAP_PASS: ${{ secrets.LDAP_PASS }}
+  LDAP_ORG: ${{ secrets.LDAP_ORG }}
+  LDAP_BIND: ${{ secrets.LDAP_BIND }}
+  LDAP_SEARCH: ${{ secrets.LDAP_SEARCH }}
+  LDAP_FILTER: ${{ secrets.LDAP_FILTER }}
 
 jobs:
   run-integration-tests:
