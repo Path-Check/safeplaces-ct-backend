@@ -41,7 +41,7 @@ exports.fetchOrganizationConfig = async (req, res) => {
       'name',
       'completedOnboarding',
       'notificationThresholdPercent',
-      'notificationThresholdCount',
+      'notificationThresholdTimeline',
       'daysToRetainRecords',
       'regionCoordinates',
       'apiEndpointUrl',

@@ -97,7 +97,7 @@ class PublicationFiles {
       privacy_policy_url: organization.privacyPolicyUrl,
       reference_website_url: organization.referenceWebsiteUrl,
       notification_threshold_percent: organization.notificationThresholdPercent,
-      notification_threshold_count: organization.notificationThresholdCount
+      notification_threshold_timeframe: organization.notificationThresholdTimeline
     }
   }
 
