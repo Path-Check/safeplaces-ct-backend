@@ -431,7 +431,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-
+        
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
 
       results.error.should.be.false;
@@ -445,7 +445,7 @@ describe('Case', () => {
 
       firstChunk.should.have.property('name');
       firstChunk.should.have.property('notification_threshold_percent');
-      firstChunk.should.have.property('notification_threshold_count');
+      firstChunk.should.have.property('notification_threshold_timeframe');
       firstChunk.should.have.property('concern_point_hashes');
       firstChunk.should.have.property('info_website_url');
       firstChunk.should.have.property('publish_date_utc');

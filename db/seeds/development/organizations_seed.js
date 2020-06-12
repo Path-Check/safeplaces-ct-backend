@@ -17,7 +17,7 @@ exports.seed = function (knex) {
         api_endpoint_url:
           'https://storage.googleapis.com/staging-spl-ha/',
         notification_threshold_percent: 66,
-        notification_threshold_count: 6,
+        notification_threshold_timeframe: 30,
         reference_website_url: 'https://www.who.int/',
         privacy_policy_url: 'https://www.who.int/about/who-we-are/privacy-policy'
       });
@@ -36,7 +36,7 @@ exports.seed = function (knex) {
         api_endpoint_url:
           'https://storage.googleapis.com/staging-spl-ha/',
         notification_threshold_percent: 66,
-        notification_threshold_count: 6,
+        notification_threshold_timeframe: 30,
         reference_website_url: 'https://www.who.int/',
         privacy_policy_url: 'https://www.who.int/about/who-we-are/privacy-policy'
       });
