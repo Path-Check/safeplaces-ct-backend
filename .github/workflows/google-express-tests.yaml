@@ -88,6 +88,7 @@ jobs:
           gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $GKE_PROJECT
           kubectl config set-context --current --namespace=${NAMESPACE}
           ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$GKE_PROJECT/$IMAGE:$GITHUB_SHA || cd base/env/test
+          cd ../../../
           ./kustomize build base/env/test | kubectl apply -f - --namespace=${NAMESPACE}
           kubectl rollout status deployment $DEPLOYMENT_NAME --namespace ${NAMESPACE}
           kubectl get services -o wide
