@@ -9,6 +9,9 @@ const LENGTH = 6;
 class Service extends BaseService {
 
   async create(attempts) {
+    // Cleanup old records
+    await this._deleteExpired();
+
     // Try to generate a unique code a maximum number of times before aborting
     attempts = (attempts || 10);
 
@@ -61,6 +64,10 @@ class Service extends BaseService {
     }
 
     return value;
+  }
+
+  _deleteExpired() {
+    return this.table.whereRaw("created_at < NOW() - INTERVAL '2 hours'").del();
   }
 
 }
