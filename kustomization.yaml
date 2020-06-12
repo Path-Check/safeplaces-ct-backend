@@ -4,3 +4,5 @@ resources:
 - base/deployment.yml
 images:
 - name: gcr.io/PROJECT_ID/IMAGE:TAG
+  newName: gcr.io/es-internals/safeplaces-be-express-test
+  newTag: latest
