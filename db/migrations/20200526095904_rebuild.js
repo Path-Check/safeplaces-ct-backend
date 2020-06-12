@@ -50,7 +50,7 @@ function buildUsers(knex) {
     table.timestamp('updated_at').defaultTo(knex.fn.now());
     table.timestamp('created_at').defaultTo(knex.fn.now());
   }).then(() => knex.raw(onUpdateTrigger('users')));
-  
+
 }
 
 function buildPublications(knex) {
@@ -72,9 +72,9 @@ function buildCases(knex) {
     EXCEPTION
         WHEN duplicate_object THEN null;
     END $$;
-    
+
     CREATE TABLE cases(
-      id INT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       organization_id INT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
       publication_id INT REFERENCES publications(id) ON DELETE CASCADE,
       state state_type NOT NULL,
@@ -111,4 +111,3 @@ exports.up = function (knex) {
 exports.down = function () {
   // Nothing to really do...
 };
-
