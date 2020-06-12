@@ -57,7 +57,7 @@ class BaseService {
   }
 
   raw(string) {
-    return knex[this._scope].raw(string);
+    return this.database.raw(string);
   }
 
   get database() {
