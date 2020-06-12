@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
+const { uploadService } = require('@sublet/data-layer');
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
@@ -11,7 +12,6 @@ const jwtSecret = require('../../config/jwtConfig');
 
 const server = require('../../app');
 const mockData = require('../lib/mockData');
-const uploadService = require('../../db/models/upload');
 
 chai.use(chaiHttp);
 

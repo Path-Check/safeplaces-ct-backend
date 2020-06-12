@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
+const { caseService, pointService } = require('@sublet/data-layer');
 const _ = require('lodash');
 const moment = require('moment')
 const chai = require('chai');
@@ -12,8 +13,6 @@ const jwt = require('jsonwebtoken');
 const mockData = require('../lib/mockData');
 
 const server = require('../../app');
-const casesService = require('../../db/models/cases');
-const pointsService = require('../../db/models/points');
 
 const jwtSecret = require('../../config/jwtConfig');
 
@@ -56,7 +55,7 @@ describe('Case', () => {
   describe('fetch case points', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows()
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -100,7 +99,7 @@ describe('Case', () => {
     let caseOne, caseTwo, caseThree;
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows()
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -168,7 +167,7 @@ describe('Case', () => {
   describe('add a single point on a case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows()
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -213,8 +212,8 @@ describe('Case', () => {
   describe('update a point on a case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows()
+      await pointService.deleteAllRows()
 
       let params = {
         organization_id: currentOrg.id,
@@ -263,8 +262,8 @@ describe('Case', () => {
   describe('delete a point on a case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows()
+      await pointService.deleteAllRows()
 
       let params = {
         organization_id: currentOrg.id,
@@ -297,7 +296,7 @@ describe('Case', () => {
   describe('consent to publishing case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows()
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -334,7 +333,7 @@ describe('Case', () => {
   describe('move a case to staging', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows()
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -376,8 +375,8 @@ describe('Case', () => {
     let caseOne, caseTwo, caseThree
 
     beforeEach(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows()
+      await pointService.deleteAllRows()
 
       let params = {
         organization_id: currentOrg.id,
@@ -477,8 +476,8 @@ describe('Case', () => {
     let newCase
 
     beforeEach(async () => {
-      await casesService.deleteAllRows();
-      await pointsService.deleteAllRows();
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
 
       let params = {
         organization_id: currentOrg.id,
@@ -524,8 +523,8 @@ describe('Case', () => {
     let caseTwo, caseThree
 
     beforeEach(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows()
+      await pointService.deleteAllRows()
 
       let params = {
         organization_id: currentOrg.id,
@@ -585,8 +584,8 @@ describe('Case', () => {
     let caseOneInvalid, caseTwo, caseThree
 
     beforeEach(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows()
+      await pointService.deleteAllRows()
 
       let params = {
         organization_id: currentOrg.id,
@@ -621,7 +620,7 @@ describe('Case', () => {
   describe('delete a case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows()
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -676,8 +675,8 @@ describe('Case', () => {
 
   describe('purge cases outside 30 day retention period for organization', () => {
     before(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows()
+      await pointService.deleteAllRows()
 
 
       // Add Case & Trails

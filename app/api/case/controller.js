@@ -1,14 +1,14 @@
 // app/api/case/controller.js
 
+const { 
+  accessCodeService,
+  caseService,
+  organizationService,
+  pointService,
+  publicationService,
+  uploadService
+} = require('@sublet/data-layer');
 const _ = require('lodash');
-
-const casesService = require('../../../db/models/cases');
-const organizationsService = require('../../../db/models/organizations');
-const publicationsService = require('../../../db/models/publications');
-const accessCodesService = require('../../../db/models/accessCodes');
-const uploadService = require('../../../db/models/upload');
-const pointsService = require('../../../db/models/points');
-
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
 const writeToGCSBucket = require('../../lib/writeToGCSBucket');
@@ -25,7 +25,7 @@ exports.fetchCasePoints = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.');
 
-  const concernPoints = await casesService.fetchCasePoints(caseId);
+  const concernPoints = await caseService.fetchCasePoints(caseId);
 
   if (concernPoints) {
     res.status(200).json({ concernPoints });
@@ -49,7 +49,7 @@ exports.fetchCasesPoints = async (req, res) => {
     return;
   }
 
-  const concernPoints = await casesService.fetchCasesPoints(caseIds);
+  const concernPoints = await caseService.fetchCasesPoints(caseIds);
 
   if (concernPoints) {
     res.status(200).json({ concernPoints });
@@ -74,7 +74,7 @@ exports.ingestUploadedPoints = async (req, res) => {
     return;
   }
 
-  const accessCode = await accessCodesService.find({ value: codeValue });
+  const accessCode = await accessCodeService.find({ value: codeValue });
 
   // Check access code validity
   if (!accessCode) {
@@ -97,7 +97,7 @@ exports.ingestUploadedPoints = async (req, res) => {
     return;
   }
 
-  const points = await pointsService.createPointsFromUpload(caseId, uploadedPoints);
+  const points = await pointService.createPointsFromUpload(caseId, uploadedPoints);
 
   await uploadService.deletePoints(accessCode);
 
@@ -119,7 +119,7 @@ exports.createCasePoint = async (req, res) => {
   if (!point.time) throw new Error('Latitude is not valid.');
   if (!point.duration) throw new Error('Duration is not valid.');
 
-  const concernPoint = await casesService.createCasePoint(caseId, point);
+  const concernPoint = await caseService.createCasePoint(caseId, point);
 
   if (concernPoint) {
     res.status(200).json({ concernPoint });
@@ -146,7 +146,7 @@ exports.updateCasePoint = async (req, res) => {
 
   const params = _.pick(body, ['longitude','latitude','time','duration']);
 
-  const concernPoint = await pointsService.updateRedactedPoint(pointId, params);
+  const concernPoint = await pointService.updateRedactedPoint(pointId, params);
 
   if (concernPoint) {
     res.status(200).json({ concernPoint });
@@ -167,7 +167,7 @@ exports.deleteCasePoint = async (req, res) => {
 
   if (!pointId) throw new Error('Case ID is not valid.')
 
-  const caseResults = await pointsService.deleteWhere({ id: pointId });
+  const caseResults = await pointService.deleteWhere({ id: pointId });
 
   if (caseResults) {
     res.sendStatus(200);
@@ -189,7 +189,7 @@ exports.consentToPublish = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.');
 
-  const caseResult = await casesService.consentToPublishing(caseId);
+  const caseResult = await caseService.consentToPublishing(caseId);
 
   if (caseResult) {
     res.status(200).json({ case: caseResult })
@@ -210,7 +210,7 @@ exports.setCaseToStaging = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.');
 
-  const caseResults = await casesService.moveToStaging(caseId);
+  const caseResults = await caseService.moveToStaging(caseId);
 
   if (caseResults) {
     res.status(200).json({ case: caseResults });
@@ -253,24 +253,24 @@ exports.publishCases = async (req, res) => {
   if (!caseIds) throw new Error('Case IDs are invalid.')
   if (!organization_id) throw new Error('Organization ID is not valid.')
 
-  const organization = await organizationsService.fetchById(organization_id);
+  const organization = await organizationService.fetchById(organization_id);
   if (organization) {
-    const publishResults = await casesService.publishCases(caseIds, organization.id);
+    const publishResults = await caseService.publishCases(caseIds, organization.id);
 
     const publicationParams = {
       organization_id: organization.id,
       publish_date: Math.floor(new Date().getTime() / 1000)
     }
-    const publication = await publicationsService.insert(publicationParams);
+    const publication = await publicationService.insert(publicationParams);
     if (publication) {
 
-      const casesUpdateResults = await casesService.updateCasePublicationId(caseIds, publication.id);
+      const casesUpdateResults = await caseService.updateCasePublicationId(caseIds, publication.id);
       if (!casesUpdateResults) {
         throw new Error('Internal server error.');
       }
 
       // Everything has been published and assigned...pull all published points.
-      const points = await casesService.fetchAllPublishedPoints();
+      const points = await caseService.fetchAllPublishedPoints();
 
       if (points && points.length > 0) {
         if (type === 'zip' && process.env.NODE_ENV !== 'production') {
@@ -289,14 +289,14 @@ exports.publishCases = async (req, res) => {
           if (type ==='gcs') {
             const results = await writeToGCSBucket(pages);
             if (results) {
-              const cases = publishResults.map(itm => casesService._mapCase(itm));
+              const cases = publishResults.map(itm => caseService._mapCase(itm));
               res.status(200).json({ cases });
               return;
             }
           } else if (type === 'aws') {
             const results = await writeToS3Bucket(pages);
             if (results) {
-              const cases = publishResults.map(itm => casesService._mapCase(itm));
+              const cases = publishResults.map(itm => caseService._mapCase(itm));
               res.status(200).json({ cases });
               return;
             }
@@ -307,7 +307,7 @@ exports.publishCases = async (req, res) => {
             } else if (type === 'local') {
               const results = await writePublishedFiles(pages, '/tmp/trails')
               if (results) {
-                let cases = publishResults.map(itm => casesService._mapCase(itm))
+                let cases = publishResults.map(itm => caseService._mapCase(itm))
                 res.status(200).json({ cases });
                 return;
               }
@@ -335,7 +335,7 @@ exports.deleteCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.');
 
-  const caseResults = await casesService.deleteWhere({ id: caseId });
+  const caseResults = await caseService.deleteWhere({ id: caseId });
 
   if (caseResults) {
     res.sendStatus(200);
@@ -357,7 +357,7 @@ exports.updateOrganizationCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is missing.');
 
-  const results = await casesService.updateCaseExternalId(caseId, externalId)
+  const results = await caseService.updateCaseExternalId(caseId, externalId)
   if (results) {
     res.status(200).json({ case: results })
   } else {

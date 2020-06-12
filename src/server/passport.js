@@ -1,8 +1,8 @@
+const { userService } = require('@sublet/data-layer');
 const passport = require('passport');
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwtSecret = require('../../config/jwtConfig');
-const users = require('../../db/models/users');
 const ldap = require('ldapjs');
 const CustomStrategy = require('passport-custom').Strategy;
 
@@ -22,7 +22,7 @@ const jwtStrategy = new JWTstrategy(opts, async (jwt_payload, done) => {
       return done(new Error('Token Expired'), false);
     }
 
-    const user = await users.findOne({ username: sub });
+    const user = await userService.findOne({ username: sub });
     if (user) {
       done(null, user);
     } else {
