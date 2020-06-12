@@ -32,6 +32,7 @@
     "aws-sdk": "^2.692.0",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.7.2",
+    "boom": "^7.3.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -52,7 +53,10 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "pg": "^8.0.2",
+    "response-time": "^2.3.2",
     "sinon": "^9.0.2",
+    "winston": "2.4.4",
+    "winston-papertrail": "^1.0.5",
     "wkx": "^0.5.0"
   },
   "devDependencies": {
