@@ -95,14 +95,10 @@ class Service extends BaseService {
     if (!options.organization_id) throw new Error('Organization ID is invalid')
     if (!options.expires_at) throw new Error('Expires at Date is invalid')
 
-    const caseId = await this.getNextId(options.organization_id)
-    if (caseId) {
-      options.id = caseId;
-      const cases = await this.create(options);
+    const cases = await this.create(options);
 
-      if (cases) {
-        return this._mapCase(cases.shift());
-      }
+    if (cases) {
+      return this._mapCase(cases.shift());
     }
 
     throw new Error('Could not create the case.')
@@ -239,7 +235,7 @@ class Service extends BaseService {
   async updateCaseExternalId(case_id, external_id) {
     if (!case_id) throw new Error('ID is invalid')
     if (!external_id) throw new Error('External ID is invalid')
-    
+
     const results = await this.updateOne(case_id, { external_id });
     if (results) {
       return this._mapCase(results);
@@ -247,22 +243,6 @@ class Service extends BaseService {
   }
 
   // private
-
-  /**
-   * Get ID for next Case
-   *
-   * @private
-   * @method getNextId
-   * @param {String} organization_id
-   * @return {Array}
-   */
-  async getNextId(organization_id) {
-    const caseResults = await this.table.where({ organization_id }).orderBy('created_at', 'desc').first();
-    if (caseResults) {
-      return (caseResults.id + 1);
-    }
-    return 1;
-  }
 
   _mapCase(itm) {
     itm.caseId = itm.id;
