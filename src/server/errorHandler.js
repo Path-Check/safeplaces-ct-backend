@@ -9,6 +9,9 @@ const errorHandler = () => {
       errorCode = err.output.statusCode
       errorMessage = err.output.payload.message
     }
+    if (process.env.NODE_ENV === 'production') {
+      errorMessage = 'Internal server error'
+    }
 
     let response = { message: `${errorCode} - ${errorMessage}` }
     if (process.env.NODE_ENV !== 'production') {
