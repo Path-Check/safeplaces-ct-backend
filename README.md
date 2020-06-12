@@ -1,7 +1,7 @@
 
 # Safeplaces Backend Examples
 
-This repository holds an example backend for [Safeplaces API specification](https://github.com/Path-Check/safeplaces-frontend/blob/dev_mvp/Safe-Places-Server.md).
+This repository holds an example backend for [Safeplaces API specification](https://github.com/Path-Check/safeplaces-backend/blob/dev/oas3.yaml).
 
 Safeplaces is a toolkit for public health, built on top of data shared by users of [Private Kit](https://github.com/tripleblindmarket/covid-safe-paths).
 
@@ -14,6 +14,17 @@ Safeplaces is a toolkit for public health, built on top of data shared by users 
 The project is still under development and will reach a Minimum Viable Product (MVP) stage soon.  
 *Note*: There can be breaking changes to the developing code until the MVP is released.
 
+## Accessing Uploaded Data From Clients
+
+[Safeplaces Ingest](https://github.com/Path-Check/safeplaces-backend-ingest) is a supporting backend service used by clients (including the SafePaths app) to upload data, which is then ingested by this service. In order to interact with the upload database, the following environment variables must be set:
+
+```
+DB_HOST_PUB=upload_db_host
+DB_NAME_PUB=upload_db_name
+DB_USER_PUB=uploa_db_user
+DB_PASS_PUB=upload_db_password
+```
+
 ## Publishing Files
 
 Files can be published to either Google Cloud Storage (GCS) or AWS Simple Storage Service (S3). This preference is set via an environment variable. If not set, tests will default to local storage (write to disk) to pass. This variable is required in a production environment.
@@ -22,21 +33,23 @@ Files can be published to either Google Cloud Storage (GCS) or AWS Simple Storag
 PUBLISH_STORAGE_TYPE=(gcs|aws)
 ```
 
-## Google Cloud Storage (GCS)
+#### Google Cloud Storage (GCS)
 
-The following environment variables are required:
+The following environment variables are required to upload files to GCS:
 
 ```
+PUBLISH_STORAGE_TYPE=gcs
 GOOGLE_APPLICATION_CREDENTIALS='google_service_account.json'
 GOOGLE_CLOUD_PROJECT=something
 GCLOUD_STORAGE_BUCKET=somethingOrOther
 ```
 
-## AWS Simple Storage Service (S3)
+#### AWS Simple Storage Service (S3)
 
-The following environment variables are required:
+The following environment variables are required to upload files to AWS:
 
 ```
+PUBLISH_STORAGE_TYPE=aws
 S3_BUCKET=bucket-name
 S3_REGION=region-name
 S3_ACCESS_KEY=something
@@ -108,8 +121,22 @@ npm start
 
 #### Setup Database
 
-1. Create databases and users mentioned exported in your environment.
+1. Create the database exported in your environment.
+```
+createdb safeplaces
+```
+1. Create the user exported in your environment.
+```
+psql=# CREATE USER safepaths_user
+```
 1. Grant database user superuser privilege to the database to create POSTGIS extension and setup other tables. Reduce this privilege later to just create and modify tables or tuples in this database after you run the migration for the first time.
+```
+ALTER USER safepaths_user WITH SUPERUSER
+```
+After migration:
+```
+ALTER USER safepaths_user WITH NOSUPERUSER
+```
 1. Install [PostGIS extension](https://postgis.net/install/).
 
 #### Knex migrations and seed the database
@@ -123,15 +150,13 @@ npm install knex -g
 Run migrations
 
 ```
-knex migrate:latest --env test
-knex migrate:latest --env development
+npm run migrate:up
 ```
 
 Seed the database
 
 ```
-knex seed:run --env test
-knex seed:run --env development
+npm run seed
 ```
 
 #### Mocha unit tests
@@ -142,10 +167,16 @@ Install mocha globally.
 npm install mocha -g
 ```
 
-Run testing through mocha to see if unit tests pass
+Run tests to ensure they pass
 
 ```
-mocha
+npm test
+```
+
+#### Start the server
+
+```
+npm start
 ```
 
 ### Deploy using Docker
