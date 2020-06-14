@@ -27,7 +27,7 @@ describe('Organization ', () => {
       name: 'My Example Organization',
       info_website_url: 'http://sample.com',
       notification_threshold_percent: 66,
-      notification_threshold_count: 6,
+      notification_threshold_timeframe: 30,
       days_to_retain_records: 14,
       region_coordinates: {
         "ne": { "latitude": 20.312764055951195, "longitude": -70.45445121262883 },
@@ -94,13 +94,13 @@ describe('Organization ', () => {
         .get(`/organization/configuration`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json');
-
+        
       results.should.have.status(200);
       results.body.id.should.equal(currentOrg.id);
       results.body.externalId.should.equal(currentOrg.externalId);
       results.body.name.should.equal(currentOrg.name);
       results.body.notificationThresholdPercent.should.equal(currentOrg.notificationThresholdPercent);
-      results.body.notificationThresholdCount.should.equal(currentOrg.notificationThresholdCount);
+      results.body.notificationThresholdTimeline.should.equal(currentOrg.notificationThresholdTimeline);
       results.body.daysToRetainRecords.should.equal(currentOrg.daysToRetainRecords);
       results.body.regionCoordinates.ne.latitude.should.equal(currentOrg.regionCoordinates.ne.latitude);
       results.body.regionCoordinates.ne.longitude.should.equal(currentOrg.regionCoordinates.ne.longitude);
@@ -117,7 +117,7 @@ describe('Organization ', () => {
       const newParams = {
         name: "Some Health Authority",
         notificationThresholdPercent: 66,
-        notificationThresholdCount: 6,
+        notificationThresholdTimeline: 30,
         daysToRetainRecords: 14,
         regionCoordinates: {
           ne: { "latitude": 20.312764055951195, "longitude": -70.45445121262883},
@@ -146,7 +146,7 @@ describe('Organization ', () => {
       results.body.referenceWebsiteUrl.should.equal(newParams.referenceWebsiteUrl);
       results.body.apiEndpointUrl.should.equal(newParams.apiEndpointUrl);
       results.body.notificationThresholdPercent.should.equal(newParams.notificationThresholdPercent);
-      results.body.notificationThresholdCount.should.equal(newParams.notificationThresholdCount);
+      results.body.notificationThresholdTimeline.should.equal(newParams.notificationThresholdTimeline);
       results.body.daysToRetainRecords.should.equal(newParams.daysToRetainRecords);
       results.body.privacyPolicyUrl.should.equal(newParams.privacyPolicyUrl);
       results.body.completedOnboarding.should.equal(newParams.completedOnboarding);

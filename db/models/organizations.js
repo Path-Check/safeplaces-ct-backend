@@ -14,7 +14,7 @@ const settingsFields = [
   'privacy_policy_url',
   'region_coordinates',
   'notification_threshold_percent',
-  'notification_threshold_count',
+  'notification_threshold_timeframe',
   'chunking_in_seconds',
   'days_to_retain_records'
 ];
@@ -28,7 +28,7 @@ const publicFields = [
   'privacy_policy_url',
   'region_coordinates',
   'notification_threshold_percent',
-  'notification_threshold_count',
+  'notification_threshold_timeframe',
 ];
 
 class Service extends BaseService {
@@ -54,7 +54,7 @@ class Service extends BaseService {
                 'settings.api_endpoint_url',
                 'settings.region_coordinates',
                 'settings.notification_threshold_percent',
-                'settings.notification_threshold_count',
+                'settings.notification_threshold_timeframe',
                 'settings.chunking_in_seconds',
                 'settings.days_to_retain_records',
                 'settings.privacy_policy_url'
@@ -195,7 +195,7 @@ class Service extends BaseService {
         privacyPolicyUrl: itm.privacy_policy_url || '',
         regionCoordinates: itm.region_coordinates,
         notificationThresholdPercent: itm.notification_threshold_percent,
-        notificationThresholdCount: itm.notification_threshold_count,
+        notificationThresholdTimeline: itm.notification_threshold_timeframe,
         chunkingInSeconds: itm.chunking_in_seconds,
         daysToRetainRecords: itm.days_to_retain_records,
         completedOnboarding: itm.completed_onboarding
@@ -221,7 +221,7 @@ class Service extends BaseService {
        privacy_policy_url: itm.privacyPolicyUrl,
        region_coordinates: itm.regionCoordinates,
        notification_threshold_percent: itm.notificationThresholdPercent,
-       notification_threshold_count: itm.notificationThresholdCount,
+       notification_threshold_timeframe: itm.notificationThresholdTimeline,
        chunking_in_seconds: itm.chunkingInSeconds,
        days_to_retain_records: itm.daysToRetainRecords,
        completed_onboarding: itm.completedOnboarding
