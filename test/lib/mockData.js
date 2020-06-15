@@ -1,3 +1,4 @@
+const db = require('../../app/lib/db');
 const {
   accessCodeService,
   caseService,
@@ -8,7 +9,7 @@ const {
   settingService,
   uploadService,
   userService
-} = require('@sublet/data-layer');
+} = require('../../app/lib/db');
 
 const _ = require('lodash')
 const moment = require('moment');
@@ -25,6 +26,7 @@ class MockData {
    * Clear out Mock Data
    */
   async clearMockData() {
+    await accessCodeService.deleteAllRows();
     await organizationService.deleteAllRows();
     await settingService.deleteAllRows();
     await userService.deleteAllRows();

@@ -3,31 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "migrate:up": "knex migrate:latest --knexfile node_modules/@sublet/data-layer/knexfile.js",
-    "migrate:down": "knex migrate:rollback",
-    "seed:dev": "knex --knexfile node_modules/@sublet/data-layer/knexfile.js --env development seed:run",
-    "seed:test": "knex --knexfile node_modules/@sublet/data-layer/knexfile.js --env test seed:run",
     "start": "node ./bin/www",
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
-    "pretest": "npm run migrate:up --env test && npm run seed:test",
-    "test": "nyc --reporter=html --reporter=text mocha test/**/*.* --exit",
-    "posttest": "npm run seed:dev",
-    "test:int": "mocha test/integration/*.* --exit",
-    "test:unit": "mocha test/unit/*.* --exit",
-    "test:all": "mocha test/**/*.* --exit",
-    "format": "prettier --write **/*.{js,json}",
     "ldap:build": "cd ldapjs && npm install",
     "ldap:start": "cd ldapjs && npm start"
   },
-  "pre-commit": [
-    "format",
-    "lint",
-    "test"
-  ],
   "dependencies": {
     "@google-cloud/storage": "^5.0.1",
-    "@sublet/data-layer": "0.0.3",
+    "@sublet/data-layer": "file:../safeplaces-data-layer/dist",
     "adm-zip": "^0.4.14",
     "atob": "^2.1.2",
     "aws-sdk": "^2.692.0",

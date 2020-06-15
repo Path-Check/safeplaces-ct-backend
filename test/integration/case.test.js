@@ -2,7 +2,7 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
-const { caseService, pointService } = require('@sublet/data-layer');
+const { caseService, pointService } = require('../../app/lib/db');
 const _ = require('lodash');
 const moment = require('moment')
 const chai = require('chai');

@@ -1,7 +1,7 @@
 const { 
   caseService,
   organizationService,
-} = require('@sublet/data-layer');
+} = require('../../lib/db');
 const _ = require('lodash');
 const moment = require('moment');
 

@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test';
 
 const expect = require('chai').expect;
-const { caseService } = require('@sublet/data-layer');
+const { caseService } = require('../../app/lib/db');
 
 let currentCase
 

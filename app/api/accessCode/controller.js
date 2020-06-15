@@ -1,4 +1,4 @@
-const { accessCodeService } = require('@sublet/data-layer');
+const { accessCodeService } = require('../../lib/db');
 
 /**
  * @method generate

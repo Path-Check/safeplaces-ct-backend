@@ -7,7 +7,7 @@ const {
   pointService,
   publicationService,
   uploadService
-} = require('@sublet/data-layer');
+} = require('../../lib/db');;
 const _ = require('lodash');
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');

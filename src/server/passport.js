@@ -1,4 +1,4 @@
-const { userService } = require('@sublet/data-layer');
+const { userService } = require('../../app/lib/db');
 const passport = require('passport');
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
