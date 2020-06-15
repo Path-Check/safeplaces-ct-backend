@@ -19,6 +19,11 @@ server.post(
 );
 
 server.post(
+  '/case/points/delete',
+  server.wrapAsync(async (req, res) => await controller.deleteCasePoints(req, res), true),
+);
+
+server.post(
   '/case/point',
   server.wrapAsync(async (req, res) => await controller.createCasePoint(req, res), true),
 );
