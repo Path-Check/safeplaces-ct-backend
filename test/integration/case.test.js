@@ -294,6 +294,42 @@ describe('Case', () => {
     });
   });
 
+  describe('delete all points on a case', () => {
+    before(async () => {
+      await casesService.deleteAllRows()
+
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'published'
+      };
+      currentCase = await mockData.mockCase(caseParams)
+
+      // Add Trails
+      let trailsParams = {
+        caseId: currentCase.caseId
+      }
+      await mockData.mockTrails(10, 1800, trailsParams) // Generate 10 trails 30 min apart
+    });
+
+    it('deletes all points', async () => {
+      let points = await casesService.fetchCasePoints(currentCase.caseId);
+      points.length.should.not.equal(0);
+
+      const results = await chai
+        .request(server.app)
+        .post(`/case/points/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send({ caseId: currentCase.caseId });
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+
+      points = await casesService.fetchCasePoints(currentCase.caseId);
+      points.length.should.equal(0);
+    });
+  });
+
   describe('consent to publishing case', () => {
 
     before(async () => {
@@ -431,7 +467,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-        
+
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
 
       results.error.should.be.false;
