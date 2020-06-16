@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Safe Places Configuration",
+  "description": "The configuration file consumed by the Safe Places server",
+  "type": "object",
+  "properties": {
+    "allowedOrigins": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

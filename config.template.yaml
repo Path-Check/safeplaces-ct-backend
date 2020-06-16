@@ -1,0 +1,8 @@
+---
+allowedOrigins:
+  - http://localhost:3000
+  - http://localhost:3001
+  - http://localhost:5000
+  - https://zeus.safeplaces.extremesolution.com
+  - https://hermes.safeplaces.extremesolution.com
+  - https://safeplaces.extremesolution.com

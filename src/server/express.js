@@ -1,3 +1,5 @@
+const BYPASS_CORS = process.env.BYPASS_CORS || 'false';
+
 const express = require('express');
 const http = require('http');
 const Promise = require('bluebird');
@@ -12,6 +14,7 @@ const responseTimeHandler = require('./responseTimeHandler');
 const expressSession = require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('./passport');
+const config = require('../../tools/config').get();
 
 class Server {
   constructor() {
@@ -23,7 +26,16 @@ class Server {
     })
     const bodyParseEncoded = bodyParser.urlencoded({ extended: false })
 
-    this._app.use(cors());
+    this._app.use(cors({
+      origin: (origin, callback) => {
+        if (BYPASS_CORS === 'true') return callback(null, true);
+        if (config.allowedOrigins.indexOf(origin) !== -1) {
+          return callback(null, true);
+        }
+
+        return callback(new Error('Not allowed by CORS'));
+      }
+    }));
     this._app.use(cookieParser());
     this._app.use(expressLogger()); // Log Request
     this._app.use(bodyParseJson);

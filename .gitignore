@@ -3,6 +3,10 @@
 .idea/
 .vscode/
 
+# Configuration, non-template files
+config.yml
+config.yaml
+
 # Logs
 logs
 *.log
@@ -67,7 +71,6 @@ node_modules/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
 .env
 .envrc
 .git.env
