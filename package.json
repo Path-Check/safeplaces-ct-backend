@@ -11,7 +11,7 @@
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
     "pretest": "knex migrate:latest && knex seed:run --env test",
-    "test": "nyc --reporter=html --reporter=text mocha test/**/*.* --exit",
+    "test": "cross-env BYPASS_CORS=true nyc --reporter=html --reporter=text mocha test/**/*.* --exit",
     "posttest": "knex seed:run --env development",
     "test:int": "mocha test/integration/*.* --exit",
     "test:unit": "mocha test/unit/*.* --exit",
@@ -28,13 +28,16 @@
   "dependencies": {
     "@google-cloud/storage": "^5.0.1",
     "adm-zip": "^0.4.14",
+    "ajv": "^6.12.2",
     "atob": "^2.1.2",
     "aws-sdk": "^2.692.0",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.7.2",
+    "body-parser": "^1.19.0",
     "boom": "^7.3.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
     "express": "~4.16.1",
@@ -58,7 +61,9 @@
     "sinon": "^9.0.2",
     "winston": "2.4.4",
     "winston-papertrail": "^1.0.5",
-    "wkx": "^0.5.0"
+    "wkx": "^0.5.0",
+    "yaml": "^1.10.0",
+    "yargs": "^15.3.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
