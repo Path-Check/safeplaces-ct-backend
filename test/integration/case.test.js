@@ -578,7 +578,8 @@ describe('Case', () => {
     });
   });
 
-  describe('honors expires at on previously published case', () => {
+  describe('honors expires at on previously published case', function () {
+    this.timeout(5000);
 
     let caseTwo, caseThree
 
