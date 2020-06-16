@@ -44,6 +44,7 @@
     "jszip": "^3.4.0",
     "knex": "^0.20.15",
     "knex-postgis": "^0.12.0",
+    "ldap-escape": "^2.0.4",
     "ldapjs": "^1.0.2",
     "moment": "~2.19.3",
     "morgan": "~1.9.1",
