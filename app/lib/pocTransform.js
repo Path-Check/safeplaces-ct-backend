@@ -125,7 +125,7 @@ const durationPointToDiscreetPoints = durationPoint => {
       longitude: durationPoint.longitude,
       time: durationPoint.time + i * 5 * MINUTE,
       hash: durationPoint.hash,
-      publish_date: durationPoint.publish_date
+      publishDate: durationPoint.publishDate
     };
   }
   return discreetPoints;
