@@ -99,6 +99,11 @@ class Service extends BaseService {
     );
   }
 
+  deleteIds(ids) {
+    if (!ids) throw new Error('Invalid point ids');
+    return this.table.whereIn('id', ids).del();
+  }
+
   // private
 
   /**
@@ -140,15 +145,16 @@ class Service extends BaseService {
       let trail = {};
       const b = new Buffer.from(point.coordinates, 'hex');
       const c = wkx.Geometry.parse(b);
-      trail.publish_date = point.publish_date || null
-      trail.caseId = point.caseId || point.case_id || null
-      trail.pointId = point.pointId || point.id
+      trail.id = point.id;
+      trail.publish_date = point.publish_date || null;
+      trail.caseId = point.caseId || point.case_id || null;
+      trail.pointId = point.pointId || point.id;
       trail.longitude = c.x;
       trail.latitude = c.y;
       trail.duration = point.duration;
       if (includeHash) trail.hash = point.hash;
       trail.time = (point.time.getTime() / 1000);
-      if (returnDateTime) trail.time = point.time
+      if (returnDateTime) trail.time = point.time;
       redactedTrail.push(trail);
     });
 
