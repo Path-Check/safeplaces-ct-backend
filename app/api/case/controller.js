@@ -107,18 +107,20 @@ exports.ingestUploadedPoints = async (req, res) => {
 /**
  * @method deleteCasePoints
  *
- * Deletes all points of concern for the provided case.
+ * Deletes the given points of concern.
  *
  */
 exports.deleteCasePoints = async (req, res) => {
-  const { caseId } = req.body;
+  const { pointIds } = req.body;
 
-  if (caseId ==  null) {
+  if (pointIds ==  null || !_.isArray(pointIds)) {
     res.status(400).send();
     return;
   }
 
-  await pointService.deleteWhere({ case_id: caseId });
+  if (pointIds.length > 0) {
+    await pointService.deleteIds(pointIds);
+  }
 
   res.status(200).send();
 };
