@@ -1,127 +1,330 @@
 {
-  "info": {
-    "_postman_id": "79ee301a-c9f8-42e5-a6a0-3552bad34e68",
-    "name": "PQA Safe Places - Backend",
-    "description": "The Safe Places API Specification",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "001 Safe Places Login",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "id": "3f67bfc1-daa5-4a68-a1ca-9568946495c8",
-            "exec": [
-              "var response = JSON.parse(responseBody);\r",
-              "\r",
-              "if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
-              "    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-              "    var token = response.token;\r",
-              "    if (tests[\"Token is not empty\"] = token.length > 0) {\r",
-              "        pm.environment.set(\"token\", token);\r",
-              "    }\r",
-              "}\r",
-              "\r",
-              "pm.test(\"Check maps_api_key \", function () {\r",
-              "    pm.expect(response.maps_api_key).to.eql(\"AIzaSyBvm-T7hqlAtAcQqPy0nOS1CSmXJQeZSPI\");\r",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "auth": {
-          "type": "noauth"
-        },
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/login",
-          "host": ["{{baseUrl}}"],
-          "path": ["login"],
-          "query": [
-            {
-              "key": "",
-              "value": "",
-              "disabled": true
-            },
-            {
-              "key": "",
-              "value": "",
-              "disabled": true
-            }
-          ]
-        },
-        "description": "This is the beginning of a user interaction with the tool page. They must be authenticated, but the authentication will be saved using a cookie for future sessions.\r\nCredentials will be controlled and issued by the server implementor."
-      },
-      "response": [
-        {
-          "name": "Untitled Response",
-          "originalRequest": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\",\n    \"code\": \"<string>\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/login2",
-              "host": ["{{baseUrl}}"],
-              "path": ["login2"]
-            }
-          },
-          "status": "Created",
-          "code": 201,
-          "_postman_previewlanguage": "text",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "text/plain"
-            }
-          ],
-          "cookie": [],
-          "body": ""
-        }
-      ]
-    }
-  ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "id": "c5d691e6-3d81-441b-96ec-0bdaae9821de",
-        "type": "text/javascript",
-        "exec": [""]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "id": "ba4008a7-027a-4e96-b73c-4d1f6e768c03",
-        "type": "text/javascript",
-        "exec": [""]
-      }
-    }
-  ],
-  "variable": [
-    {
-      "id": "9c2d444f-1d0a-4ed6-b692-155b3cdbcff0",
-      "key": "baseUrl",
-      "value": "/",
-      "type": "string"
-    }
-  ],
-  "protocolProfileBehavior": {}
+	"info": {
+		"_postman_id": "44425862-6042-428a-8737-a73491b6eb81",
+		"name": "Safe Places - Nest Js Backend copy",
+		"description": "The Safe Places API Specification",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "452e3fd6-760e-4717-ad91-b41fd5d938b2",
+						"exec": [
+							"var response = JSON.parse(responseBody);\r",
+							"\r",
+							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
+							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
+							"    var token = response.token;\r",
+							"    if (tests[\"Token is not empty\"] = token.length > 0) {\r",
+							"        pm.environment.set(\"token\", token);\r",
+							"    }\r",
+							"}\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"spladmin\",\n    \"password\": \"password\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\",\n    \"code\": \"<string>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login2"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "organization/case",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8422cfa1-17f0-4295-a430-ab7a6dd2f238",
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//var count = Object.keys(jsonData.data[0].trail).length;\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - identifier \", function () {\r",
+							"    pm.expect(jsonData.state).to.eql(\"unpublished\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - external_id \", function () {\r",
+							"    pm.expect(jsonData.external_id).not.to.eql(\"\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check organization - caseId \", function () {\r",
+							"    pm.expect(jsonData.caseId).not.to.eql(\"\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - updatedAt \", function () {\r",
+							"    pm.expect(jsonData.updatedAt).not.to.eql(\"\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - expiresAt \", function () {\r",
+							"    pm.expect(jsonData.expiresAt).not.to.eql(\"\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - externalId \", function () {\r",
+							"    pm.expect(jsonData.externalId).not.to.eql(\"\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check organization - contactTracerId \", function () {\r",
+							"    pm.expect(jsonData.contactTracerId).not.to.eql(\"\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/organization/case",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"organization",
+						"case"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "\"<boolean>\""
+				},
+				{
+					"name": "An intial \"tester\" (password: \"tester54321\") user is created.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "access-code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f870b8cd-46e3-4319-b87f-a179028e04bb",
+						"exec": [
+							"var jsonData = pm.response.json(); \r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check accessCode \", function () {\r",
+							"    pm.expect(jsonData.accessCode).not.to.eql(\"\");\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"code\", jsonData.accessCode);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"spladmin\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/access-code",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"access-code"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Untitled Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/validate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"validate"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"id": "baseUrl",
+			"key": "baseUrl",
+			"value": "/",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
 }

@@ -7,7 +7,7 @@ const {
   pointService,
   publicationService,
   uploadService
-} = require('../../lib/db');;
+} = require('../../../app/lib/db');
 const _ = require('lodash');
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
@@ -31,7 +31,7 @@ exports.fetchCasePoints = async (req, res) => {
     res.status(200).json({ concernPoints });
   }
   else {
-    throw new Error('Internal server error.');
+    throw new Error(`Concern points could not be found for case id ${caseId}`);
   }
 };
 
@@ -55,7 +55,7 @@ exports.fetchCasesPoints = async (req, res) => {
     res.status(200).json({ concernPoints });
   }
   else {
-    throw new Error('Internal server error.');
+    throw new Error(`Concern points could not be found for case id ${JSON.stringify(caseIds)}`);
   }
 };
 
@@ -105,6 +105,25 @@ exports.ingestUploadedPoints = async (req, res) => {
 };
 
 /**
+ * @method deleteCasePoints
+ *
+ * Deletes all points of concern for the provided case.
+ *
+ */
+exports.deleteCasePoints = async (req, res) => {
+  const { caseId } = req.body;
+
+  if (caseId ==  null) {
+    res.status(400).send();
+    return;
+  }
+
+  await pointService.deleteWhere({ case_id: caseId });
+
+  res.status(200).send();
+};
+
+/**
  * @method createCasePoint
  *
  * Creates a new point of concern to be associated with the case.
@@ -125,7 +144,7 @@ exports.createCasePoint = async (req, res) => {
     res.status(200).json({ concernPoint });
   }
   else {
-    throw new Error('Internal server error.');
+    throw new Error(`Concern point could not be created for case ${caseId} using point data.`);
   }
 };
 
@@ -152,7 +171,7 @@ exports.updateCasePoint = async (req, res) => {
     res.status(200).json({ concernPoint });
   }
   else {
-    throw new Error('Internal server error.');
+    throw new Error(`Concern point could not be updated for point ${pointId} using point data.`);
   }
 };
 
@@ -165,7 +184,7 @@ exports.updateCasePoint = async (req, res) => {
 exports.deleteCasePoint = async (req, res) => {
   const { pointId } = req.body;
 
-  if (!pointId) throw new Error('Case ID is not valid.')
+  if (!pointId) throw new Error('Point ID is not valid.')
 
   const caseResults = await pointService.deleteWhere({ id: pointId });
 
@@ -173,7 +192,7 @@ exports.deleteCasePoint = async (req, res) => {
     res.sendStatus(200);
   }
   else {
-    throw new Error('Internal server error.');
+    throw new Error(`Concern point could not be deleted for point ${pointId}.`);
   }
 };
 
@@ -195,7 +214,7 @@ exports.consentToPublish = async (req, res) => {
     res.status(200).json({ case: caseResult })
   }
   else {
-    throw new Error('Internal server error.');
+    throw new Error(`Could not set consent to publishing for case id ${caseId}.`);
   }
 };
 
@@ -216,7 +235,7 @@ exports.setCaseToStaging = async (req, res) => {
     res.status(200).json({ case: caseResults });
   }
   else {
-    throw new Error('Internal server error.');
+    throw new Error(`Could not set case to staging for case id ${caseId}.`);
   }
 };
 
@@ -266,7 +285,7 @@ exports.publishCases = async (req, res) => {
 
       const casesUpdateResults = await caseService.updateCasePublicationId(caseIds, publication.id);
       if (!casesUpdateResults) {
-        throw new Error('Internal server error.');
+        throw new Error(`Could not set case to staging for case id ${JSON.stringify(caseIds)} and publication ${publication.id}.`);
       }
 
       // Everything has been published and assigned...pull all published points.
@@ -292,6 +311,8 @@ exports.publishCases = async (req, res) => {
               const cases = publishResults.map(itm => caseService._mapCase(itm));
               res.status(200).json({ cases });
               return;
+            } else {
+              throw new Error(`Could not write to GCS Bucket.`);
             }
           } else if (type === 'aws') {
             const results = await writeToS3Bucket(pages);
@@ -299,6 +320,8 @@ exports.publishCases = async (req, res) => {
               const cases = publishResults.map(itm => caseService._mapCase(itm));
               res.status(200).json({ cases });
               return;
+            } else {
+              throw new Error(`Could not write to S3 Bucket.`);
             }
           } else if (process.env.NODE_ENV !== 'production') {
             if (type === 'json') {
@@ -311,17 +334,19 @@ exports.publishCases = async (req, res) => {
                 res.status(200).json({ cases });
                 return;
               }
-              throw new Error('Files could not be written.');
+              throw new Error('Files could not be written to /tmp/trails folder.');
             }
           }
         }
         throw new Error('Files could not be written.');
       }
       throw new Error('No points returned after cases were published.');
+    } else {
+      throw new Error('Publication could not be generated using organization and publish date.');
     }
-    throw new Error('Publication could not be generated.');
+  } else {
+    throw new Error(`Organization could not be found by id ${organization_id}`);
   }
-  throw new Error('Internal server error');
 };
 
 /**
@@ -341,7 +366,7 @@ exports.deleteCase = async (req, res) => {
     res.sendStatus(200);
   }
   else {
-    throw new Error('Internal server error.');
+    throw new Error(`Could not delete case id ${caseId}.`);
   }
 };
 
@@ -361,6 +386,6 @@ exports.updateOrganizationCase = async (req, res) => {
   if (results) {
     res.status(200).json({ case: results })
   } else {
-    res.status(500).json({ message: 'Internal Server Error'})
+    throw new Error(`Could not update case id ${caseId} with external id ${externalId}.`);
   }
 };

@@ -1,4 +1,4 @@
-const { accessCodeService } = require('../../lib/db');
+const { accessCodeService } = require('../../../app/lib/db');
 
 /**
  * @method generate

@@ -293,6 +293,42 @@ describe('Case', () => {
     });
   });
 
+  describe('delete all points on a case', () => {
+    before(async () => {
+      await caseService.deleteAllRows()
+
+      const caseParams = {
+        organization_id: currentOrg.id,
+        state: 'published'
+      };
+      currentCase = await mockData.mockCase(caseParams)
+
+      // Add Trails
+      let trailsParams = {
+        caseId: currentCase.caseId
+      }
+      await mockData.mockTrails(10, 1800, trailsParams) // Generate 10 trails 30 min apart
+    });
+
+    it('deletes all points', async () => {
+      let points = await caseService.fetchCasePoints(currentCase.caseId);
+      points.length.should.not.equal(0);
+
+      const results = await chai
+        .request(server.app)
+        .post(`/case/points/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send({ caseId: currentCase.caseId });
+        
+      results.error.should.be.false;
+      results.should.have.status(200);
+
+      points = await caseService.fetchCasePoints(currentCase.caseId);
+      points.length.should.equal(0);
+    });
+  });
+
   describe('consent to publishing case', () => {
 
     before(async () => {
@@ -444,7 +480,7 @@ describe('Case', () => {
 
       firstChunk.should.have.property('name');
       firstChunk.should.have.property('notification_threshold_percent');
-      firstChunk.should.have.property('notification_threshold_count');
+      firstChunk.should.have.property('notification_threshold_timeframe');
       firstChunk.should.have.property('concern_point_hashes');
       firstChunk.should.have.property('info_website_url');
       firstChunk.should.have.property('publish_date_utc');

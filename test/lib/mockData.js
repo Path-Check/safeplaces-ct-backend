@@ -1,4 +1,3 @@
-const db = require('../../app/lib/db');
 const {
   accessCodeService,
   caseService,
@@ -440,7 +439,6 @@ class MockData {
         upload_id: uploadId,
         coordinates: dbData.point,
         time: dbData.time,
-        hash: "test",
       }
       final.push(entry);
     }

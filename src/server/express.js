@@ -2,24 +2,20 @@ const express = require('express');
 const http = require('http');
 const Promise = require('bluebird');
 const cors = require('cors');
+const boom = require('boom');
 const bodyParser = require('body-parser');
-const errorHandler = require('./errorHandler')
-// const notFoundHandler = require('./notFoundHandler')
+const expressLogger = require('../logger/express');
+const errorHandler = require('./errorHandler');
+const notFoundHandler = require('./notFoundHandler');
+const responseTimeHandler = require('./responseTimeHandler');
 
-const createError = require('http-errors');
 const expressSession = require('express-session');
 const cookieParser = require('cookie-parser');
-// const path = require('path');
-const logger = require('morgan');
 const passport = require('./passport');
 
 class Server {
   constructor() {
     this._app = express();
-
-    if (process.env.NODE_ENV !== 'test') {
-      this._app.use(logger('dev'));
-    }
 
     const bodyParseJson = bodyParser.json({
       type:'*/*',
@@ -29,6 +25,7 @@ class Server {
 
     this._app.use(cors());
     this._app.use(cookieParser());
+    this._app.use(expressLogger()); // Log Request
     this._app.use(bodyParseJson);
     this._app.use(bodyParseEncoded);
     this._app.use(
@@ -41,13 +38,15 @@ class Server {
     this._app.use(passport.initialize());
     this._app.use(passport.session());
 
+    this._app.use(responseTimeHandler())
+    
     this._router = express.Router();
     this._app.use('/', this._router);
 
-    this._app.use(function (req, res, next) {
-      next(createError(404));
-    }); // If we get to here then we obviously didn't find the route, so trigger error.
-    this._app.use(errorHandler) // Catch all for errors.
+    process.nextTick(() => {
+      this._app.use(notFoundHandler());
+      this._app.use(errorHandler())
+    })
 
     this._server = http.createServer(this._app);
   }
@@ -105,12 +104,12 @@ class Server {
       if (validate) {
         passport.authenticate('jwt', { session: false }, (err, user) => {
           if (err) {
-            return res.status(500).json({ message: err.message });
+            throw new Error(err.message);
           } else if (user) {
             req.user = user;
             fn(req, res, next).catch(next);
           } else {
-            return res.status(401).send('Unauthorized');
+            throw boom.unauthorized('Unauthorized');
           }
         })(req, res, next);
       } else {

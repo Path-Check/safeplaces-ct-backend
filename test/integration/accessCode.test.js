@@ -58,7 +58,7 @@ describe('POST /access-code', () => {
     result.should.have.status(401);
   });
 
-  it.only('should create a new access code', async () => {
+  it('should create a new access code', async () => {
     let result = await chai
       .request(server.app)
       .post('/access-code')

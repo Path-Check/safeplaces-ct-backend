@@ -70,6 +70,7 @@ node_modules/
 .env
 .env
 .envrc
+.git.env
 
 # remove newman results
 tests/tests/newman/*.html

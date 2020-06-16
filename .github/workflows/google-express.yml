@@ -15,6 +15,7 @@ on:
     branches:
       - dev
       - PLACES-243
+      - jh-logging
 
 
 # Environment variables available to all jobs and steps in this workflow

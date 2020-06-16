@@ -1,7 +1,7 @@
 const { 
   caseService,
   organizationService,
-} = require('../../lib/db');
+} = require('../../../app/lib/db');
 const _ = require('lodash');
 const moment = require('moment');
 
@@ -20,7 +20,7 @@ exports.fetchOrganizationById = async (req, res) => {
   if (organization) {
     res.status(200).json(_.pick(organization, ['id', 'externalId', 'name', 'completedOnboarding']));
   } else {
-    res.status(500).json({ message: 'Internal Server Error' });
+    throw new Error(`Could not fetch organization by id ${organization_id}.`);
   }
 };
 
@@ -44,7 +44,7 @@ exports.fetchOrganizationConfig = async (req, res) => {
       'name',
       'completedOnboarding',
       'notificationThresholdPercent',
-      'notificationThresholdCount',
+      'notificationThresholdTimeline',
       'daysToRetainRecords',
       'regionCoordinates',
       'apiEndpointUrl',
@@ -53,7 +53,7 @@ exports.fetchOrganizationConfig = async (req, res) => {
       'privacyPolicyUrl',
     ]));
   } else {
-    res.status(500).json({ message: 'Internal Server Error' });
+    throw new Error(`Could not fetch organization config by users org id ${organization_id}.`);
   }
 };
 
@@ -75,7 +75,7 @@ exports.updateOrganization = async (req, res) => {
   if (results) {
     res.status(200).json(results);
   } else {
-    res.status(500).json({ message: 'Internal Server Error' });
+    throw new Error(`Could not update organization by users org id ${organization_id} and paramaters.`);
   }
 };
 
@@ -105,7 +105,7 @@ exports.fetchOrganizationCases = async (req, res) => {
     })
     res.status(200).json({ cases });
   } else {
-    res.status(500).json({ message: 'Internal Server Error' });
+    throw new Error(`Could not fetch organization cases by users org id ${organization_id}.`);
   }
 };
 
@@ -137,6 +137,6 @@ exports.createOrganizationCase = async (req, res) => {
   if (newCase) {
     res.status(200).json(newCase);
   } else {
-    res.status(500).json({ message: 'Internal Server Error' });
+    throw new Error(`Could not create case by users org id ${organization_id}.`);
   }
 };
