@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# knex --knexfile /app/knexfile.js migrate:latest --env test
-knex --knexfile /app/knexfile.js migrate:latest --env development
+knex --knexfile /app/knexfile.js migrate:latest --env $NODE_ENV
 
-# knex --knexfile /app/knexfile.js seed:run --env test
-knex --knexfile /app/knexfile.js seed:run --env development
+if [ $NODE_ENV = "development" ]; then
+  knex --knexfile /app/knexfile.js seed:run --env $NODE_ENV
+fi
 
 exec "$@"
