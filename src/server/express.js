@@ -28,12 +28,13 @@ class Server {
 
     this._app.use(cors({
       origin: (origin, callback) => {
-        if (BYPASS_CORS === 'true') return callback(null, true);
+        return callback(null, true);
+        /*if (BYPASS_CORS === 'true') return callback(null, true);
         if (config.allowedOrigins.indexOf(origin) !== -1) {
           return callback(null, true);
         }
 
-        return callback(new Error('Not allowed by CORS'));
+        return callback(new Error('Not allowed by CORS'));*/
       }
     }));
     this._app.use(cookieParser());
