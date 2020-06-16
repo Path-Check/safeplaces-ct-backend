@@ -4,6 +4,7 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwtSecret = require('../../config/jwtConfig');
 const users = require('../../db/models/users');
 const ldap = require('ldapjs');
+const ldapEscape = require('ldap-escape');
 const CustomStrategy = require('passport-custom').Strategy;
 
 const ldapServerUrl = `ldap://${process.env.LDAP_HOST}:${process.env.LDAP_PORT}`;
@@ -59,7 +60,7 @@ ldapClient.bind(process.env.LDAP_BIND, process.env.LDAP_PASS, err => {
  */
 
 if (
-  process.env.LDAP_SEARCH.indexOf('{{username}}') === -1
+  process.env.LDAP_FILTER.indexOf('{{username}}') === -1
 ) {
   console.log('[LDAP] error thrown')
   throw new Error(
@@ -72,21 +73,21 @@ passport.use('ldap', new CustomStrategy(
   function(req, done) {
     /*
      * Filter will look like
-     * (&(cn={{username}})(password={{password}}))
+     * (&(cn={{username}})(objectClass=person))
      * {{username}} will be replaced by the sent username
-     * {{password}} will be replaced by the sent password
      */
     
     console.log('[LDAP] custom strategy')
 
-    let query =
-      process.env.LDAP_SEARCH
-      .replace(/{{username}}/g, req.body.username);
+    const filter =
+      process.env.LDAP_FILTER
+      .replace(/{{username}}/g, ldapEscape.filter`${req.body.username}`);
+
+    const query = process.env.LDAP_SEARCH;
 
     ldapClient.search(query, {
-      filter: process.env.LDAP_FILTER,
+      filter,
       scope: 'base',
-      // attributes: ['dn', 'sn', 'cn']
     }, (err, res) => {
       res.on('searchEntry', function(entry) {
         // Compare the retrieved password and the sent password.
