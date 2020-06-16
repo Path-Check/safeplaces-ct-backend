@@ -294,7 +294,7 @@ describe('Case', () => {
     });
   });
 
-  describe('delete all points on a case', () => {
+  describe('delete points on a case', () => {
     before(async () => {
       await casesService.deleteAllRows()
 
@@ -311,22 +311,45 @@ describe('Case', () => {
       await mockData.mockTrails(10, 1800, trailsParams) // Generate 10 trails 30 min apart
     });
 
-    it('deletes all points', async () => {
+    it('fails when request is malformed', async () => {
+      let results = await chai
+        .request(server.app)
+        .post(`/case/points/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send();
+      results.error.should.not.be.false;
+      results.should.have.status(400);
+
+      results = await chai
+        .request(server.app)
+        .post(`/case/points/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send({ pointIds: 'invalid' });
+      results.error.should.not.be.false;
+      results.should.have.status(400);
+    });
+
+    it('deletes points', async () => {
       let points = await casesService.fetchCasePoints(currentCase.caseId);
-      points.length.should.not.equal(0);
+      const initialLength = points.length;
+      initialLength.should.be.greaterThan(3);
+
+      const deletedPoints = _.sampleSize(points, 3);
 
       const results = await chai
         .request(server.app)
         .post(`/case/points/delete`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
-        .send({ caseId: currentCase.caseId });
+        .send({ pointIds: _.map(deletedPoints, point => point.id) });
 
       results.error.should.be.false;
       results.should.have.status(200);
 
       points = await casesService.fetchCasePoints(currentCase.caseId);
-      points.length.should.equal(0);
+      points.length.should.equal(initialLength - deletedPoints.length);
     });
   });
 
@@ -555,7 +578,8 @@ describe('Case', () => {
     });
   });
 
-  describe('honors expires at on previously published case', () => {
+  describe('honors expires at on previously published case', function () {
+    this.timeout(5000);
 
     let caseTwo, caseThree
 
