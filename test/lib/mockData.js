@@ -25,7 +25,6 @@ class MockData {
    * Clear out Mock Data
    */
   async clearMockData() {
-    await accessCodeService.deleteAllRows();
     await organizationService.deleteAllRows();
     await settingService.deleteAllRows();
     await userService.deleteAllRows();
@@ -306,7 +305,7 @@ class MockData {
     try {
       sinon.restoreObject(accessCodeService);
     } catch (error) {
-      // no-op
+      // no-opconsole.log(error)
     }
 
     sinon.stub(accessCodeService, 'create').returns(mockCode);
