@@ -22,7 +22,7 @@ class PublicationFiles {
    * @return {Object}
    */
   async build(organization, record, trails) {
-    if (!organization.apiEndpointUrl) throw new Error('Your API endpoint is invalid.') 
+    if (!organization.apiEndpointUrl) throw new Error('Your API endpoint is invalid.')
 
     let endpoint = organization.apiEndpointUrl
     if (endpoint.substr((endpoint.length - 1), 1) !== '/') {
@@ -38,6 +38,7 @@ class PublicationFiles {
     const files = trailsChunked.map(chunk => {
       const newHeader = _.clone(header)
       newHeader.concern_point_hashes = this._getPointHashes(chunk)
+      if (process.env.HASHING_TEST) newHeader.points_for_test = chunk.trails
       newHeader.page_name = this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
       return newHeader;
     })
@@ -46,7 +47,7 @@ class PublicationFiles {
   }
 
   /**
-   * 
+   *
    * Build Publication File Content and return zip file Buffer.
    *
    * @method build
@@ -55,12 +56,12 @@ class PublicationFiles {
    * @param {Array[Trails]} trails
    * @return {<Promise>ZipFile}
    */
-  
+
   async buildAndZip(organization, record, trails) {
     const pages = await this.build(organization, record, trails)
     if (pages) {
       const zip = new AdmZip();
-  
+
       let filename;
       zip.addFile("instructions.txt", "Place all files in the `trails` folder onto your web server.");
       zip.addFile('trails/', Buffer.from(''));
@@ -78,7 +79,7 @@ class PublicationFiles {
   // private
 
   /**
-   * 
+   *
    * Fetch Header
    *
    * @method _getHeader
@@ -86,7 +87,7 @@ class PublicationFiles {
    * @param {Object} record
    * @return {Object}
    */
-  
+
   _getHeader(organization, record) {
     return {
       version: "1.0",
@@ -102,14 +103,14 @@ class PublicationFiles {
   }
 
   /**
-   * 
+   *
    * Transform from duration to discreet and build hashes.
    *
    * @method _transformAndHash
    * @param {Array[Trails]} trails
    * @return {Array[HashedTrails]}
    */
-  
+
   async _transformAndHash(trails) {
     trails = transform.durationToDiscreet(trails)
 
@@ -119,7 +120,8 @@ class PublicationFiles {
     for(trail of trails) {
       hash = await geoHash.encrypt(trail)
       if (hash) {
-        trail.hash = hash.encodedString
+        trail.hash = hash.encodedString;
+        trail.secret = hash.secret;
         trailRecords.push(trail);
       }
     }
@@ -165,7 +167,7 @@ class PublicationFiles {
 
   /**
    * Build pages based on chunking time.
-   * Remember, the time we are looking at is the Published time for the case, not the time 
+   * Remember, the time we are looking at is the Published time for the case, not the time
    * of the point.
    *
    * @private
@@ -201,7 +203,7 @@ class PublicationFiles {
     }
 
     // Get Publication dates, and sort them.
-    let publicationDates = [...new Set(trails.map(trail => new Date(trail.publish_date).getTime()))];
+    let publicationDates = [...new Set(trails.map(trail => new Date(trail.publishDate).getTime()))];
     publicationDates = publicationDates.sort((a,b) => (a.time > b.time) ? 1 : ((b.time > a.time) ? -1 : 0)).reverse(); // Assure they are sorted properly.
 
     // Goto 1 second before Midnight of the most recent publication
@@ -227,12 +229,12 @@ class PublicationFiles {
       if (lastPublicationTimestamp >= endTimestamp) break;
     }
 
-    // Find Trails. We are checking the publish time of the publication that is associated with the 
+    // Find Trails. We are checking the publish time of the publication that is associated with the
     // case and therefore the trail.
     // Remove any empty groups that don't have any trails associated with them.
     groups = groups.map(group => {
       group.trails = trails.filter(trail => {
-        const publishDateTs = new Date(trail.publish_date).getTime();
+        const publishDateTs = new Date(trail.publishDate).getTime();
         if (publishDateTs <= group.startTimestamp && publishDateTs >= group.endTimestamp) {
           return true;
         }

@@ -26,7 +26,7 @@ We use a scrypt hash with the following parameters:
  * @return {String}
  */
 
-const encrypt = async (location, salt = 'salt', debug = false) => {
+const encrypt = async (location, salt = 'salt') => {
   const roundDownTo = roundTo => x => Math.floor(x / roundTo) * roundTo;
   const roundDownTo5Minutes = roundDownTo(1000*60*5);
   const roundedTime = roundDownTo5Minutes(new Date(location.time));
@@ -40,10 +40,7 @@ const encrypt = async (location, salt = 'salt', debug = false) => {
   const derivedKey = await Promise.fromCallback(cb => crypto.scrypt(secret, salt, 8, options, cb));
   if (derivedKey) {
     const encodedString = derivedKey.toString('hex'); 
-    if (debug) {
-      return { hash, secret, encodedString };
-    }
-    return { encodedString };
+    return { hash, secret, encodedString };
   }
 };
 
