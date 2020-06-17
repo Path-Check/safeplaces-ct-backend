@@ -38,6 +38,7 @@ class PublicationFiles {
     const files = trailsChunked.map(chunk => {
       const newHeader = _.clone(header)
       newHeader.concern_point_hashes = this._getPointHashes(chunk)
+      if (['production','staging'].indexOf(process.env.NODE_ENV) < 0) newHeader.points_for_test = chunk
       newHeader.page_name = this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
       return newHeader;
     })
@@ -119,7 +120,8 @@ class PublicationFiles {
     for(trail of trails) {
       hash = await geoHash.encrypt(trail)
       if (hash) {
-        trail.hash = hash.encodedString
+        trail.hash = hash.encodedString;
+        trail.secret = hash.secret;
         trailRecords.push(trail);
       }
     }

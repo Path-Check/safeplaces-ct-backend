@@ -490,7 +490,6 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
 
       results.error.should.be.false;
@@ -508,6 +507,9 @@ describe('Case', () => {
       firstChunk.should.have.property('concern_point_hashes');
       firstChunk.should.have.property('info_website_url');
       firstChunk.should.have.property('publish_date_utc');
+      if (['production','staging'].indexOf(process.env.NODE_ENV) < 0) {
+        firstChunk.should.have.property('points_for_test');
+      }
       firstChunk.name.should.equal(currentOrg.name);
       firstChunk.info_website_url.should.equal(currentOrg.infoWebsiteUrl);
 
