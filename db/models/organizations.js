@@ -141,7 +141,7 @@ class Service extends BaseService {
   async getCases(id) {
     const results = await casesService.fetchAll(id)
     if (results) {
-      return results
+      return results;
     }
     throw new Error('Internal server errror.')
   }

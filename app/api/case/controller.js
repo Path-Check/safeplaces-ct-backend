@@ -97,11 +97,32 @@ exports.ingestUploadedPoints = async (req, res) => {
     return;
   }
 
-  const points = await pointsService.createPointsFromUpload(caseId, uploadedPoints);
+  const concernPoints = await pointsService.createPointsFromUpload(caseId, uploadedPoints);
 
   await uploadService.deletePoints(accessCode);
 
-  res.status(200).json({ concernPoints: points });
+  res.status(200).json({ concernPoints });
+};
+
+/**
+ * @method deleteCasePoints
+ *
+ * Deletes the given points of concern.
+ *
+ */
+exports.deleteCasePoints = async (req, res) => {
+  const { pointIds } = req.body;
+
+  if (pointIds ==  null || !_.isArray(pointIds)) {
+    res.status(400).send();
+    return;
+  }
+
+  if (pointIds.length > 0) {
+    await pointsService.deleteIds(pointIds);
+  }
+
+  res.status(200).send();
 };
 
 /**
@@ -255,7 +276,7 @@ exports.publishCases = async (req, res) => {
 
   const organization = await organizationsService.fetchById(organization_id);
   if (organization) {
-    const publishResults = await casesService.publishCases(caseIds, organization.id);
+    const cases = await casesService.publishCases(caseIds, organization.id);
 
     const publicationParams = {
       organization_id: organization.id,
@@ -289,7 +310,6 @@ exports.publishCases = async (req, res) => {
           if (type ==='gcs') {
             const results = await writeToGCSBucket(pages);
             if (results) {
-              const cases = publishResults.map(itm => casesService._mapCase(itm));
               res.status(200).json({ cases });
               return;
             } else {
@@ -298,7 +318,6 @@ exports.publishCases = async (req, res) => {
           } else if (type === 'aws') {
             const results = await writeToS3Bucket(pages);
             if (results) {
-              const cases = publishResults.map(itm => casesService._mapCase(itm));
               res.status(200).json({ cases });
               return;
             } else {
@@ -311,7 +330,6 @@ exports.publishCases = async (req, res) => {
             } else if (type === 'local') {
               const results = await writePublishedFiles(pages, '/tmp/trails')
               if (results) {
-                let cases = publishResults.map(itm => casesService._mapCase(itm))
                 res.status(200).json({ cases });
                 return;
               }
