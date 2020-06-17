@@ -493,6 +493,7 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
+
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
 
       results.error.should.be.false;
