@@ -38,7 +38,7 @@ class PublicationFiles {
     const files = trailsChunked.map(chunk => {
       const newHeader = _.clone(header)
       newHeader.concern_point_hashes = this._getPointHashes(chunk)
-      if (['production','staging'].indexOf(process.env.NODE_ENV) < 0) newHeader.points_for_test = chunk
+      if (process.env.HASHING_TEST) newHeader.points_for_test = chunk.trails
       newHeader.page_name = this._apiEndpointPage.replace('[PAGE]', `${chunk.startTimestamp}_${chunk.endTimestamp}`)
       return newHeader;
     })
