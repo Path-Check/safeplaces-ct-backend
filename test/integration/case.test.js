@@ -143,7 +143,7 @@ describe('Case', () => {
         .post(`/cases/points`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
-        .send({ caseIds: []});
+        .send({ caseIds: [] });
 
       results.error.should.be.false;
       results.should.have.status(200);
@@ -383,6 +383,8 @@ describe('Case', () => {
         result.body.should.have.property('case');
         result.body.case.should.be.a('object');
         result.body.case.should.have.property('caseId');
+        result.body.case.should.have.property('externalId');
+        result.body.case.should.have.property('contactTracerId');
         result.body.case.should.have.property('state');
         result.body.case.should.have.property('updatedAt');
         result.body.case.should.have.property('expiresAt');
@@ -470,6 +472,7 @@ describe('Case', () => {
 
       results.body.cases.forEach(c => {
         c.should.have.property('caseId');
+        c.should.have.property('externalId');
         c.should.have.property('contactTracerId');
         c.state.should.be.equal('published');
         c.should.have.property('state');
@@ -499,7 +502,7 @@ describe('Case', () => {
 
       results.body.files.should.be.a('array');
 
-      const firstChunk = results.body.files.shift()
+      const firstChunk = results.body.files.shift();
       firstChunk.should.be.a('object');
 
       firstChunk.should.have.property('name');
