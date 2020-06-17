@@ -41,7 +41,7 @@ env:
   LDAP_PASS: ${{ secrets.LDAP_PASS }}
   LDAP_ORG: ${{ secrets.LDAP_ORG }}
   LDAP_BIND: 'cn=admin,dc=covidsafepaths,dc=org'
-  LDAP_SEARCH: 'cn={{username}}, dc=covidsafepaths, dc=org'
+  LDAP_SEARCH: 'dc=covidsafepaths, dc=org'
   LDAP_FILTER: '(&(objectClass=person)(cn={{username}}))'
 
 jobs:
