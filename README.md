@@ -256,7 +256,7 @@ Should respond with:
 ```
 
 ## Production and Staging Deployments
-This section of the readme will detail configuration of deployed environments. In our sample application, we support the deployment of a staging and production environment.
+This section of the readme will detail configuration of deployed environments. In our sample application, we support the deployment of a staging and production version of the application.
 
 #### Staging
 The staging deployment is based off of the `staging` branch. This environment is used by QA, product, and development teams to validate functionality before releasing to the general public.
@@ -275,7 +275,7 @@ Backend API (this repo): https://yoda.spl.extremesolution.com/
 Ingest Service: https://obiwan.spl.extremesolution.com/
 
 ### Database Configuration
-Database configuration will be the same in each version of the hosted application.
+Databases for the staging and production version of the application will be configured similarly. Each environment will use its own database.
 
 Both the Backend API (this repo) and the Ingest service make use of their own PostgreSQL databases. The Backend API will need the ability to read and write to both its database and the Ingest database. The following environment variables will need to be set on the server hosting the Backend API:
 ```
