@@ -78,7 +78,6 @@ jobs:
       - run: npm install
       - run: npm run ldap:build
       - run: |
-          echo $LDAP_BIND &&
           npm run ldap:start &
           echo $TESTS_ENV | base64 --decode --ignore-garbage > .env &&
           source .env && npm test
