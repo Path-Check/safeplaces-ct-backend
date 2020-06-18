@@ -40,7 +40,6 @@ env:
   TESTS_ENV: ${{ secrets.TESTS_ENV }}
   LDAP_HOST: '34.68.153.208' 
   LDAP_PORT: 389
-  LDAP_PASS: safepaths
   LDAP_ORG: "dc=covidsafepaths,dc=org"
   LDAP_BIND: "cn=admin,dc=covidsafepaths,dc=org"
   LDAP_SEARCH: "cn={{username}}, dc=covidsafepaths, dc=org"
