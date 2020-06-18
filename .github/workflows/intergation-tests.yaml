@@ -78,6 +78,8 @@ jobs:
       - run: npm run build --if-present
       - run: |
           echo $LDAP_HOST | base64 --decode --ignore-garbage > .env
+      - run: |
+          source .env
       - run : npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
