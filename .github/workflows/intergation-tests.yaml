@@ -75,6 +75,8 @@ jobs:
       - run: npm install
       - run: npm install -g knex
       - run: npm run build --if-present
+      - run: |
+          echo $LDAP_HOST | base64 --decode --ignore-garbage > .env
       - run : npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
