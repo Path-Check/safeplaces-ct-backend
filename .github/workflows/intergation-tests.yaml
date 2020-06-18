@@ -38,12 +38,12 @@ env:
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   SEED_MAPS_API_KEY: ${{ secrets.SEED_MAPS_API_KEY }}
   TESTS_ENV: ${{ secrets.TESTS_ENV }}
-  LDAP_HOST: '0.0.0.0'
-  LDAP_PORT: 389
+  LDAP_HOST: localhost
+  LDAP_PORT: 6379
   LDAP_PASS: ${{ secrets.LDAP_PASS }}
   LDAP_ORG: 'dc=covidsafepaths, dc=org'
   LDAP_BIND: 'cn=admin, dc=covidsafepaths, dc=org'
-  LDAP_SEARCH: 'cn={{username}}, dc=covidsafepaths, dc=org'
+  LDAP_SEARCH: 'dc=covidsafepaths, dc=org'
   LDAP_FILTER: '(&(objectClass=person)(cn={{username}}))'
 
 jobs:
@@ -74,13 +74,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '13.x'
-      - run: npm install
       - run: npm install -g knex
-      - run: npm run build --if-present
+      - run: npm install
+      - run: npm run ldap:build
       - run: sudo npm run ldap:start &
       - run: |
           echo $TESTS_ENV | base64 --decode --ignore-garbage > .env
-      - run : source .env && npm test
+      - run: source .env && npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
