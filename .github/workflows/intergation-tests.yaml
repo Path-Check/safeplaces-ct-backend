@@ -37,6 +37,13 @@ env:
   DB_PASS_PUB: postgres
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   SEED_MAPS_API_KEY: ${{ secrets.SEED_MAPS_API_KEY }}
+  LDAP_HOST: '34.68.153.208'
+  LDAP_PORT: ${{ secrets.LDAP_PORT }}
+  LDAP_PASS: ${{ secrets.LDAP_PASS }}
+  LDAP_ORG: ${{ secrets.LDAP_ORG }}
+  LDAP_BIND: 'cn=admin,dc=covidsafepaths,dc=org'
+  LDAP_SEARCH: 'dc=covidsafepaths, dc=org'
+  LDAP_FILTER: '(&(objectClass=person)(cn={{username}}))'
 
 jobs:
   run-integration-tests:
@@ -69,13 +76,9 @@ jobs:
       - run: npm install
       - run: npm install -g knex
       - run: npm run build --if-present
-      # - run: |
-      #     echo $LDAP_HOST | base64 --decode --ignore-garbage > .env
-      # - run: |
-      #     source .env
-      - run : |
-          node ldapjs/index.js &
-      - run : npm test
+      - run: |
+          echo $LDAP_HOST | base64 --decode --ignore-garbage > .env
+      - run : source .env && npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
