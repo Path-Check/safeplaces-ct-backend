@@ -19,6 +19,7 @@ on:
   push:
     branches:
       - dev-add-tests
+      - PLACES-338
     # paths:
     #   - 'expressjs/**/**'
 
