@@ -81,7 +81,6 @@ jobs:
           sudo npm run ldap:start &
           echo $TESTS_ENV | base64 --decode --ignore-garbage > .env &&
           source .env && npm test
-      - run:
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
