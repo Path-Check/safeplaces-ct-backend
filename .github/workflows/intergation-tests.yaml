@@ -72,6 +72,7 @@ jobs:
       - run: npm run build --if-present
       - run: |
           echo $TESTS_ENV | base64 --decode --ignore-garbage > .env
+      - run: cat .env
       - run : source .env && npm test
         env:
           # The hostname used to communicate with the PostgreSQL service container
