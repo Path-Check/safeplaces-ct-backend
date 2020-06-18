@@ -38,7 +38,7 @@ env:
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   SEED_MAPS_API_KEY: ${{ secrets.SEED_MAPS_API_KEY }}
   TESTS_ENV: ${{ secrets.TESTS_ENV }}
-  LDAP_HOST: '127.0.0.1' 
+  LDAP_HOST: '34.68.153.208' 
   LDAP_PORT: 389
   LDAP_PASS: safepaths
   LDAP_ORG: "dc=covidsafepaths,dc=org"
