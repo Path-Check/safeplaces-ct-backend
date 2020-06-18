@@ -64,8 +64,8 @@ jobs:
           POSTGRESQL_POSTGRES_PASSWORD: postgres
 
         ports:
-            # Maps tcp port 5432 on service container to the host
-            - 5432:5432
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
 
     steps:
       - name: Checkout
@@ -77,10 +77,11 @@ jobs:
       - run: npm install -g knex
       - run: npm install
       - run: npm run ldap:build
-      - run: sudo npm run ldap:start &
       - run: |
-          echo $TESTS_ENV | base64 --decode --ignore-garbage > .env
-      - run: source .env && npm test
+          sudo npm run ldap:start &
+          echo $TESTS_ENV | base64 --decode --ignore-garbage > .env &&
+          source .env && npm test
+      - run:
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
