@@ -41,10 +41,10 @@ env:
   LDAP_HOST: '34.68.153.208' 
   LDAP_PORT: 389
   LDAP_PASS: ${{ secrets.LDAP_PASS }}
-  LDAP_ORG: "dc=covidsafepaths,dc=org"
-  LDAP_BIND: "cn=admin,dc=covidsafepaths,dc=org"
-  LDAP_SEARCH: "cn={{username}}, dc=covidsafepaths, dc=org"
-  LDAP_FILTER: "(&(objectClass=person)(cn={{username}}))"
+  LDAP_ORG: 'dc=covidsafepaths,dc=org'
+  LDAP_BIND: 'cn=admin,dc=covidsafepaths,dc=org'
+  LDAP_SEARCH: 'cn={{username}}, dc=covidsafepaths, dc=org'
+  LDAP_FILTER: '(&(objectClass=person)(cn={{username}}))'
 
 jobs:
   run-integration-tests:
