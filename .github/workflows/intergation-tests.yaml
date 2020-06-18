@@ -38,7 +38,7 @@ env:
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   SEED_MAPS_API_KEY: ${{ secrets.SEED_MAPS_API_KEY }}
   TESTS_ENV: ${{ secrets.TESTS_ENV }}
-  LDAP_HOST: '34.68.153.208' 
+  LDAP_HOST: 'localhost'
   LDAP_PORT: 389
   LDAP_PASS: ${{ secrets.LDAP_PASS }}
   LDAP_ORG: 'dc=covidsafepaths,dc=org'
@@ -77,7 +77,7 @@ jobs:
       - run: npm install
       - run: npm install -g knex
       - run: npm run build --if-present
-      - run: npm run ldap:start &
+      - run: sudo npm run ldap:start &
       - run: |
           echo $TESTS_ENV | base64 --decode --ignore-garbage > .env
       - run : source .env && npm test
