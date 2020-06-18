@@ -26,8 +26,6 @@ function parseJwt(token) {
 }
 
 describe('POST /login', function() {
-  this.timeout(10000);
-
   it('should login on user creds and return map api key', function(done) {
     chai
       .request(server.app)
