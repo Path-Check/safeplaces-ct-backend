@@ -1,5 +1,6 @@
-const BaseService = require('../common/service.js');
+const _ = require('lodash');
 
+const BaseService = require('../common/service.js');
 const pointsService = require('./points');
 
 class Service extends BaseService {
@@ -12,27 +13,30 @@ class Service extends BaseService {
    * @param {String} organization_id
    * @return {Array}
    */
-  async publishCases(case_ids, organization_id) {
-    if (!case_ids) throw new Error('Case IDs are invalid')
-    if (!case_ids.length) throw new Error('Case IDs length is zero')
-    if (!organization_id) throw new Error('Organization ID is not valid')
+  async publishCases(caseIds, organizationId) {
+    if (!caseIds) throw new Error('Case IDs are invalid');
+    if (!caseIds.length) throw new Error('Case IDs length is zero');
+    if (!organizationId) throw new Error('Organization ID is not valid');
 
-    const results = await this.table
-      .whereIn('id', case_ids)
-      .where('organization_id', organization_id)
-      .where('state', 'staging');
-    if (results.length === case_ids.length) {
-      const updateResults = await this.table
-              .whereIn('id', case_ids)
-              .update({ state: 'published' })
-              .returning('*');
-      if (updateResults) {
-        return this.table
-                .where('state', 'published')
-                .where('expires_at', '>', new Date())
-                .returning('*');
+    const stagedCases = await this.table
+      .whereIn('id', caseIds)
+      .andWhere('organization_id', organizationId)
+      .andWhere('state', 'staging')
+      .select();
+
+    if (stagedCases.length === caseIds.length) {
+      await this.table.whereIn('id', caseIds).update({ state: 'published' });
+
+      const results = await this.table
+        .where('state', 'published')
+        .andWhere('expires_at', '>', new Date())
+        .select();
+
+      if (results) {
+        return _.map(results, c => this._mapCase(c));
       }
     }
+
     throw new Error('Could not publish the case. Make sure all are moved into staging state.')
   }
 
@@ -111,8 +115,14 @@ class Service extends BaseService {
    * @param {Number} organization_id
    * @return {Array}
    */
-  fetchAll(organization_id) {
-    return this.table.where({ organization_id }).orderBy('created_at', 'desc').returning('*');
+  async fetchAll(organization_id) {
+    const cases = await this.table.where({ organization_id }).orderBy('created_at', 'desc').select();
+
+    if (cases) {
+      return _.map(cases, c => this._mapCase(c));
+    }
+
+    return [];
   }
 
   /**
@@ -127,7 +137,11 @@ class Service extends BaseService {
     if (!ids.length === 0) throw new Error('IDs have an invalid length')
     if (!publication_id) throw new Error('Publication ID is invalid')
 
-    return this.table.whereIn('id', ids).update({ publication_id })
+    const results = this.table.whereIn('id', ids).update({ publication_id });
+
+    if (results) {
+      return this._mapCase(results);
+    }
   }
 
   /**
@@ -207,7 +221,7 @@ class Service extends BaseService {
     const points = await this.table
               .select(
                 'cases.id AS caseId',
-                'publications.publish_date',
+                'publications.publish_date AS publishDate',
                 'points.id AS pointId',
                 'points.coordinates',
                 'points.time',
@@ -217,11 +231,12 @@ class Service extends BaseService {
               .join('points', 'cases.id', '=', 'points.case_id')
               .join('publications', 'cases.publication_id', '=', 'publications.id')
               .where('cases.state', 'published')
-              .where('cases.expires_at', '>', new Date())
-              .returning('*');
+              .where('cases.expires_at', '>', new Date());
+
     if (points) {
       return pointsService._getRedactedPoints(points, true, false);
     }
+
     return []
   }
 
@@ -259,6 +274,7 @@ class Service extends BaseService {
     delete itm.expires_at;
     delete itm.created_at;
     delete itm.consented_to_publishing_at;
+    delete itm.external_id;
     delete itm.id;
     return itm
   }
