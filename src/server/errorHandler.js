@@ -1,35 +1,35 @@
-const logger = require('../logger')
+const logger = require('../logger');
 
 /* eslint-disable */
 const errorHandler = () => {
   return (err, req, res, next) => {
-    let errorCode = err.statusCode || 500
-    let errorMessage = err.message || 'General error.'
+    let errorCode = err.statusCode || 500;
+    let errorMessage = err.message || 'General error.';
     if (err.isBoom) {
-      errorCode = err.output.statusCode
-      errorMessage = err.output.payload.message
+      errorCode = err.output.statusCode;
+      errorMessage = err.output.payload.message;
     }
     if (process.env.NODE_ENV === 'production') {
-      errorMessage = 'Internal server error'
+      errorMessage = 'Internal server error';
     }
 
-    let response = { message: `${errorCode} - ${errorMessage}` }
+    let response = { message: `${errorCode} - ${errorMessage}` };
     if (process.env.NODE_ENV !== 'production') {
-      response.error = err
+      response.error = err;
       if (process.env.NODE_ENV !== 'test' && err.stack) {
-        console.error('')
-        console.error(err.stack)
-        console.error('')
+        console.error('');
+        console.error(err.stack);
+        console.error('');
       }
     }
-    
+
     if (process.env.NODE_ENV !== 'test') {
-      logger.error(`${errorCode} - ${errorMessage}`)
+      logger.error(`${errorCode} - ${errorMessage}`);
     }
 
-    res.status(errorCode).json(response)
-  }
-}
+    res.status(errorCode).json(response);
+  };
+};
 
-module.exports = errorHandler
+module.exports = errorHandler;
 /* eslint-enable */

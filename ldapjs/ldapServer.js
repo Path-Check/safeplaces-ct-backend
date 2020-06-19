@@ -5,7 +5,6 @@ const path = require('path');
 const server = ldap.createServer();
 
 server.bind(process.env.LDAP_BIND, function (req, res, next) {
-  console.log('[LDAP] Bind');
   if (
     req.dn.toString() !== process.env.LDAP_BIND ||
     req.credentials !== process.env.LDAP_PASS
@@ -18,7 +17,6 @@ server.bind(process.env.LDAP_BIND, function (req, res, next) {
 });
 
 function authorize(req, res, next) {
-  console.log('[LDAP] Authorize');
   if (!req.connection.ldap.bindDN.equals(process.env.LDAP_BIND)) {
     return next(new ldap.InsufficientAccessRightsError());
   }
@@ -27,7 +25,6 @@ function authorize(req, res, next) {
 }
 
 function loadPasswd(req, res, next) {
-  console.log('[LDAP] loadPasswd');
   fs.readFile(path.resolve(__dirname, 'passwd'), 'utf8', function (err, data) {
     if (err) return next(new ldap.OperationsError(err.message));
 
@@ -41,7 +38,7 @@ function loadPasswd(req, res, next) {
       if (!record || !record.length) continue;
 
       req.users[record[0]] = {
-        dn: `cn=${record[0]}, ${process.env.LDAP_ORG}`,
+        dn: process.env.LDAP_ORG,
         attributes: {
           cn: record[0],
           userPassword: record[1],
@@ -56,8 +53,7 @@ function loadPasswd(req, res, next) {
 
 const pre = [authorize, loadPasswd];
 
-server.search(process.env.LDAP_ORG, pre, function (req, res, next) {
-  console.log('[LDAP] search');
+server.search(process.env.LDAP_SEARCH, pre, function (req, res, next) {
   Object.keys(req.users).forEach(function (k) {
     if (
       req.filter.matches(req.users[k].attributes) &&
@@ -74,7 +70,6 @@ server.search(process.env.LDAP_ORG, pre, function (req, res, next) {
 
 module.exports = {
   start: () => {
-    console.log('[LDAP] Start');
     return new Promise(resolve => {
       server.listen(process.env.LDAP_PORT, function () {
         console.log('LDAP server listening at ' + server.url);
