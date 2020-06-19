@@ -7,12 +7,13 @@ const ELEMENTS = [...'0123456789'];
 const LENGTH = 6;
 
 class Service extends BaseService {
+
   async create(attempts) {
     // Cleanup old records
     await this._deleteExpired();
 
     // Try to generate a unique code a maximum number of times before aborting
-    attempts = attempts || 10;
+    attempts = (attempts || 10);
 
     while (attempts > 0) {
       let value = await this.generateValue();
@@ -34,14 +35,12 @@ class Service extends BaseService {
   find(query) {
     if (!query) throw new Error('Query is invalid');
 
-    return super
-      .find(query)
-      .first(
-        'id',
-        'value',
-        'upload_consent',
-        this.database.raw('COALESCE(invalidated_at, NOW()) >= NOW() AS valid'),
-      );
+    return super.find(query).first(
+      'id',
+      'value',
+      'upload_consent',
+      this.database.raw('COALESCE(invalidated_at, NOW()) >= NOW() AS valid'),
+    );
   }
 
   async generateValue() {
@@ -53,8 +52,8 @@ class Service extends BaseService {
 
       // There are only 10 possible digits (ELEMENTS.length),
       // so each 1-byte random number can be used for 2 elements.
-      const lhs = entropy & 0xf;
-      const rhs = (entropy >>> 4) & 0xf;
+      const lhs = (entropy & 0xF);
+      const rhs = ((entropy >>> 4) & 0xF);
 
       if (lhs < ELEMENTS.length) {
         value += ELEMENTS[lhs];
@@ -70,6 +69,7 @@ class Service extends BaseService {
   _deleteExpired() {
     return this.table.whereRaw("created_at < NOW() - INTERVAL '2 hours'").del();
   }
+
 }
 
 module.exports = new Service('access_codes', 'public');

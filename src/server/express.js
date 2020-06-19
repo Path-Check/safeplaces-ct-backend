@@ -9,6 +9,7 @@ const errorHandler = require('./errorHandler');
 const notFoundHandler = require('./notFoundHandler');
 const responseTimeHandler = require('./responseTimeHandler');
 
+const expressSession = require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('./passport');
 
@@ -17,28 +18,35 @@ class Server {
     this._app = express();
 
     const bodyParseJson = bodyParser.json({
-      type: '*/*',
-      limit: '50mb',
-    });
-    const bodyParseEncoded = bodyParser.urlencoded({ extended: false });
+      type:'*/*',
+      limit: '50mb'
+    })
+    const bodyParseEncoded = bodyParser.urlencoded({ extended: false })
 
     this._app.use(cors());
     this._app.use(cookieParser());
     this._app.use(expressLogger()); // Log Request
     this._app.use(bodyParseJson);
     this._app.use(bodyParseEncoded);
+    this._app.use(
+      expressSession({
+        secret: 'keyboard cat',
+        resave: true,
+        saveUninitialized: true,
+      }),
+    );
     this._app.use(passport.initialize());
     this._app.use(passport.session());
 
-    this._app.use(responseTimeHandler());
-
+    this._app.use(responseTimeHandler())
+    
     this._router = express.Router();
     this._app.use('/', this._router);
 
     process.nextTick(() => {
       this._app.use(notFoundHandler());
-      this._app.use(errorHandler());
-    });
+      this._app.use(errorHandler())
+    })
 
     this._server = http.createServer(this._app);
   }
@@ -52,6 +60,7 @@ class Server {
 
     return Promise.fromCallback(cb => this._server.listen(port, cb));
   }
+
 
   close() {
     this._server.close();

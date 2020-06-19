@@ -1,11 +1,12 @@
-exports.up = function (knex) {
+
+exports.up = function(knex) {
   return knex.schema.table('cases', table => {
-    table.timestamp('expires_at');
-  });
+    table.timestamp('expires_at')
+  })
 };
 
-exports.down = function (knex) {
+exports.down = function(knex) {
   return knex.schema.table('cases', table => {
-    table.dropColumn('expires_at');
-  });
+    table.dropColumn('expires_at')
+  })
 };

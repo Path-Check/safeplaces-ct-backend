@@ -23,17 +23,18 @@ exports.healthSlow = async (req, res) => {
     message: 'All Slow!',
   };
 
-  setTimeout(function () {
+  setTimeout(function() {
     res.status(200).json(data);
-  }, 2500);
+  }, 2500)
 };
 
 /**
- * @method healthError
- *
- * Health Error Check
- *
- */
+* @method healthError
+*
+* Health Error Check
+*
+*/
 exports.healthError = async () => {
-  throw new Error('Problem here.');
+ throw new Error('Problem here.')
 };
+
