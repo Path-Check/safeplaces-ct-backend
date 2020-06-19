@@ -10,7 +10,6 @@ const randomFillAsync = promisify(randomFill);
  *
  */
 class Random {
-
   constructor(capacity) {
     if (capacity < 4 || capacity > 4096) {
       throw new Error('byte count must be between 4 and 4096');
@@ -28,7 +27,7 @@ class Random {
    * @return {Number}
    */
   async next(bytes) {
-    bytes = (bytes || 4);
+    bytes = bytes || 4;
 
     if (bytes < 1 || bytes > 4) {
       throw new Error('byte count must be between 1 and 4');
@@ -42,12 +41,11 @@ class Random {
     }
 
     while (bytes-- > 0) {
-      result = ((result << 8) | this._buffer[this._pos++]);
+      result = (result << 8) | this._buffer[this._pos++];
     }
 
-    return (result >>> 0);
+    return result >>> 0;
   }
-
 }
 
 module.exports = Random;

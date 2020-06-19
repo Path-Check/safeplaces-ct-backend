@@ -4,7 +4,6 @@ const BaseService = require('../common/service.js');
 const pointsService = require('./points');
 
 class Service extends BaseService {
-
   /**
    * Mark Case Published
    *
@@ -37,7 +36,9 @@ class Service extends BaseService {
       }
     }
 
-    throw new Error('Could not publish the case. Make sure all are moved into staging state.')
+    throw new Error(
+      'Could not publish the case. Make sure all are moved into staging state.',
+    );
   }
 
   /**
@@ -48,8 +49,10 @@ class Service extends BaseService {
    * @return {Object}
    */
   async consentToPublishing(case_id) {
-    const result = await this.updateOne(case_id, { consented_to_publishing_at: this.database.fn.now() });
-    if (result){
+    const result = await this.updateOne(case_id, {
+      consented_to_publishing_at: this.database.fn.now(),
+    });
+    if (result) {
       return this._mapCase(result);
     }
   }
@@ -96,8 +99,8 @@ class Service extends BaseService {
    * @return {Object}
    */
   async createCase(options = null) {
-    if (!options.organization_id) throw new Error('Organization ID is invalid')
-    if (!options.expires_at) throw new Error('Expires at Date is invalid')
+    if (!options.organization_id) throw new Error('Organization ID is invalid');
+    if (!options.expires_at) throw new Error('Expires at Date is invalid');
 
     const cases = await this.create(options);
 
@@ -105,7 +108,7 @@ class Service extends BaseService {
       return this._mapCase(cases.shift());
     }
 
-    throw new Error('Could not create the case.')
+    throw new Error('Could not create the case.');
   }
 
   /**
@@ -116,7 +119,10 @@ class Service extends BaseService {
    * @return {Array}
    */
   async fetchAll(organization_id) {
-    const cases = await this.table.where({ organization_id }).orderBy('created_at', 'desc').select();
+    const cases = await this.table
+      .where({ organization_id })
+      .orderBy('created_at', 'desc')
+      .select();
 
     if (cases) {
       return _.map(cases, c => this._mapCase(c));
@@ -133,9 +139,9 @@ class Service extends BaseService {
    * @return {Array}
    */
   updateCasePublicationId(ids, publication_id) {
-    if (!ids) throw new Error('IDs are invalid')
-    if (!ids.length === 0) throw new Error('IDs have an invalid length')
-    if (!publication_id) throw new Error('Publication ID is invalid')
+    if (!ids) throw new Error('IDs are invalid');
+    if (!ids.length === 0) throw new Error('IDs have an invalid length');
+    if (!publication_id) throw new Error('Publication ID is invalid');
 
     const results = this.table.whereIn('id', ids).update({ publication_id });
 
@@ -152,13 +158,13 @@ class Service extends BaseService {
    * @return {Array}
    */
   async fetchCasePoints(case_id) {
-    if (!case_id) throw new Error('Case ID is invalid.')
+    if (!case_id) throw new Error('Case ID is invalid.');
 
-    const points = await pointsService.fetchRedactedPoints([case_id])
+    const points = await pointsService.fetchRedactedPoints([case_id]);
     if (points) {
-      return points
+      return points;
     }
-    return []
+    return [];
   }
 
   /**
@@ -169,13 +175,13 @@ class Service extends BaseService {
    * @return {Array}
    */
   async fetchCasesPoints(case_ids) {
-    if (!case_ids) throw new Error('Case IDs is invalid.')
+    if (!case_ids) throw new Error('Case IDs is invalid.');
 
-    const points = await pointsService.fetchRedactedPoints(case_ids)
+    const points = await pointsService.fetchRedactedPoints(case_ids);
     if (points) {
-      return points
+      return points;
     }
-    return []
+    return [];
   }
 
   /**
@@ -201,10 +207,10 @@ class Service extends BaseService {
    * @return {Object}
    */
   async deleteCasesPastRetention(organization_id) {
-    if (!organization_id) throw new Error('Organization ID is invalid')
+    if (!organization_id) throw new Error('Organization ID is invalid');
 
     return this.table
-      .where({ 'organization_id': organization_id })
+      .where({ organization_id: organization_id })
       .where('expires_at', '<=', new Date())
       .del();
   }
@@ -219,25 +225,25 @@ class Service extends BaseService {
    */
   async fetchAllPublishedPoints() {
     const points = await this.table
-              .select(
-                'cases.id AS caseId',
-                'publications.publish_date AS publishDate',
-                'points.id AS pointId',
-                'points.coordinates',
-                'points.time',
-                'points.hash',
-                'points.duration'
-              )
-              .join('points', 'cases.id', '=', 'points.case_id')
-              .join('publications', 'cases.publication_id', '=', 'publications.id')
-              .where('cases.state', 'published')
-              .where('cases.expires_at', '>', new Date());
+      .select(
+        'cases.id AS caseId',
+        'publications.publish_date AS publishDate',
+        'points.id AS pointId',
+        'points.coordinates',
+        'points.time',
+        'points.hash',
+        'points.duration',
+      )
+      .join('points', 'cases.id', '=', 'points.case_id')
+      .join('publications', 'cases.publication_id', '=', 'publications.id')
+      .where('cases.state', 'published')
+      .where('cases.expires_at', '>', new Date());
 
     if (points) {
       return pointsService._getRedactedPoints(points, true, false);
     }
 
-    return []
+    return [];
   }
 
   /**
@@ -248,8 +254,8 @@ class Service extends BaseService {
    * @return {Object}
    */
   async updateCaseExternalId(case_id, external_id) {
-    if (!case_id) throw new Error('ID is invalid')
-    if (!external_id) throw new Error('External ID is invalid')
+    if (!case_id) throw new Error('ID is invalid');
+    if (!external_id) throw new Error('External ID is invalid');
 
     const results = await this.updateOne(case_id, { external_id });
     if (results) {
@@ -276,7 +282,7 @@ class Service extends BaseService {
     delete itm.consented_to_publishing_at;
     delete itm.external_id;
     delete itm.id;
-    return itm
+    return itm;
   }
 }
 
