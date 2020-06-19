@@ -3,7 +3,7 @@ const knex = require('../knex.js');
 class BaseService {
   constructor(name, scope /* private or public */) {
     this._name = name;
-    this._scope = (scope || 'private');
+    this._scope = scope || 'private';
   }
 
   all() {
@@ -26,10 +26,13 @@ class BaseService {
     if (!id) throw new Error('ID was not provided');
     if (!params) throw new Error('Params were not provided');
 
-    const results = await this.table.where({ id: id }).update(params).returning('*');
+    const results = await this.table
+      .where({ id: id })
+      .update(params)
+      .returning('*');
 
     if (results) {
-      return results[0]
+      return results[0];
     }
   }
 
