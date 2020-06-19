@@ -56,6 +56,22 @@ S3_ACCESS_KEY=something
 S3_SECRET_KEY=something-secret
 ```
 
+## Data Layer
+
+The data base, [Safeplaces Data Layer](https://github.com/Path-Check/safeplaces-data-layer), has been decoupled from the main repo and now sits in a library that can be pulled into any micro service or API.  Both Public an Private database are managed out of this library. 
+
+Additionally, this can be forked for functionality, or replaced entirely with a data layer for your choosing.
+
+#### CLI
+
+Due to the nature of database management we have built in a small CLI that will allow you to run seeds and migrations. To install enter the following.
+
+This needs to be installed globaly so run the following command.
+
+`npm i -g @sublet/data-layer`
+
+For more information see the CLI portion of the [Safeplaces Data Layer](https://github.com/Path-Check/safeplaces-data-layer#cli) library.
+
 ## Deployment
 
 ### Deploy in local machine
