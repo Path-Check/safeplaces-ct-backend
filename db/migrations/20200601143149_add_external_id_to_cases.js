@@ -3,19 +3,20 @@ function enableUUIDExtension(knex) {
 }
 
 function buildExternalId(knex) {
-    return knex.schema.table('cases', table => {
-        table.string('external_id').unique().defaultTo(knex.raw("uuid_generate_v4()"));
-    });
+  return knex.schema.table('cases', table => {
+    table
+      .string('external_id')
+      .unique()
+      .defaultTo(knex.raw('uuid_generate_v4()'));
+  });
 }
 
-exports.up = function(knex) {
-  return enableUUIDExtension(knex)
-    .then(() => buildExternalId(knex))
+exports.up = function (knex) {
+  return enableUUIDExtension(knex).then(() => buildExternalId(knex));
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema.table('cases', table => {
-    table.dropColumn('external_id')
+    table.dropColumn('external_id');
   });
-
 };

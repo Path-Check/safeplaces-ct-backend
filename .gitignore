@@ -3,6 +3,8 @@
 .idea/
 .vscode/
 
+config.yaml
+
 # Logs
 logs
 *.log

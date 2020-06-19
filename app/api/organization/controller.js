@@ -10,13 +10,24 @@ const cases = require('../../../db/models/cases');
  *
  */
 exports.fetchOrganizationById = async (req, res) => {
-  const { user: { organization_id } } = req;
+  const {
+    user: { organization_id },
+  } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
   if (organization) {
-    res.status(200).json(_.pick(organization, ['id', 'externalId', 'name', 'completedOnboarding']));
+    res
+      .status(200)
+      .json(
+        _.pick(organization, [
+          'id',
+          'externalId',
+          'name',
+          'completedOnboarding',
+        ]),
+      );
   } else {
     throw new Error(`Could not fetch organization by id ${organization_id}.`);
   }
@@ -29,28 +40,36 @@ exports.fetchOrganizationById = async (req, res) => {
  *
  */
 exports.fetchOrganizationConfig = async (req, res) => {
-  const { user: { organization_id } } = req;
+  const {
+    user: { organization_id },
+  } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
   if (organization) {
-    res.status(200).json(_.pick(organization, [
-      'id',
-      'externalId',
-      'name',
-      'completedOnboarding',
-      'notificationThresholdPercent',
-      'notificationThresholdTimeline',
-      'daysToRetainRecords',
-      'regionCoordinates',
-      'apiEndpointUrl',
-      'referenceWebsiteUrl',
-      'infoWebsiteUrl',
-      'privacyPolicyUrl',
-    ]));
+    res
+      .status(200)
+      .json(
+        _.pick(organization, [
+          'id',
+          'externalId',
+          'name',
+          'completedOnboarding',
+          'notificationThresholdPercent',
+          'notificationThresholdTimeline',
+          'daysToRetainRecords',
+          'regionCoordinates',
+          'apiEndpointUrl',
+          'referenceWebsiteUrl',
+          'infoWebsiteUrl',
+          'privacyPolicyUrl',
+        ]),
+      );
   } else {
-    throw new Error(`Could not fetch organization config by users org id ${organization_id}.`);
+    throw new Error(
+      `Could not fetch organization config by users org id ${organization_id}.`,
+    );
   }
 };
 
@@ -68,11 +87,16 @@ exports.updateOrganization = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const results = await organizations.updateOrganization(organization_id, organization);
+  const results = await organizations.updateOrganization(
+    organization_id,
+    organization,
+  );
   if (results) {
     res.status(200).json(results);
   } else {
-    throw new Error(`Could not update organization by users org id ${organization_id} and paramaters.`);
+    throw new Error(
+      `Could not update organization by users org id ${organization_id} and paramaters.`,
+    );
   }
 };
 
@@ -85,12 +109,12 @@ exports.updateOrganization = async (req, res) => {
  */
 exports.fetchOrganizationCases = async (req, res) => {
   const {
-    user: { organization_id }
+    user: { organization_id },
   } = req;
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  await organizations.cleanOutExpiredCases(organization_id)
+  await organizations.cleanOutExpiredCases(organization_id);
 
   const cases = await organizations.getCases(organization_id);
 
@@ -106,25 +130,30 @@ exports.fetchOrganizationCases = async (req, res) => {
  */
 exports.createOrganizationCase = async (req, res) => {
   const {
-    user: { id, organization_id }
+    user: { id, organization_id },
   } = req;
 
   if (!id) throw new Error('User ID is missing.');
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizations.fetchById(organization_id);
-  if (!organization) throw new Error('Organization could not be found.')
+  if (!organization) throw new Error('Organization could not be found.');
 
   const newCase = await cases.createCase({
     contact_tracer_id: id,
     organization_id,
-    expires_at: moment().startOf('day').add(organization.daysToRetainRecords, 'days').format(),
-    state: 'unpublished'
+    expires_at: moment()
+      .startOf('day')
+      .add(organization.daysToRetainRecords, 'days')
+      .format(),
+    state: 'unpublished',
   });
 
   if (newCase) {
     res.status(200).json(newCase);
   } else {
-    throw new Error(`Could not create case by users org id ${organization_id}.`);
+    throw new Error(
+      `Could not create case by users org id ${organization_id}.`,
+    );
   }
 };

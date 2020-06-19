@@ -1,10 +1,10 @@
-const winston = require('winston')
-const transports = require('./transports')
-const config = require('./config')
+const winston = require('winston');
+const transports = require('./transports');
+const config = require('./config');
 
 const logger = new winston.Logger({
   levels: config.output.levels,
-  transports: transports
-})
+  transports: transports,
+});
 
-module.exports = logger
+module.exports = logger;

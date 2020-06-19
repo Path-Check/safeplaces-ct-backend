@@ -5,13 +5,16 @@ class Service extends BaseService {
     if (!organization_id) throw new Error('Organization ID was not valid');
     if (!params) throw new Error('Params were not valid');
 
-    const settings = await this.table.where({ organization_id: organization_id }).returning('id').first();
+    const settings = await this.table
+      .where({ organization_id: organization_id })
+      .returning('id')
+      .first();
 
     if (settings) {
       const result = await this.updateOne(settings.id, params);
 
       if (result) {
-        return result
+        return result;
       }
     }
   }
