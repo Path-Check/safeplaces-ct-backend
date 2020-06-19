@@ -74,9 +74,11 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '13.x'
-      - run: npm install -g knex
-      - run: npm install
-      - run: npm run ldap:build
+      - run: |
+          npm install -g knex &
+          npm install &
+          npm run ldap:build &
+          wait
       - run: |
           npm run ldap:start &
           echo $TESTS_ENV | base64 --decode --ignore-garbage > .env &&
