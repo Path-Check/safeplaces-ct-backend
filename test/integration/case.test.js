@@ -142,7 +142,7 @@ describe('Case', () => {
         .post(`/cases/points`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
-        .send({ caseIds: []});
+        .send({ caseIds: [] });
 
       results.error.should.be.false;
       results.should.have.status(200);
@@ -382,6 +382,8 @@ describe('Case', () => {
         result.body.should.have.property('case');
         result.body.case.should.be.a('object');
         result.body.case.should.have.property('caseId');
+        result.body.case.should.have.property('externalId');
+        result.body.case.should.have.property('contactTracerId');
         result.body.case.should.have.property('state');
         result.body.case.should.have.property('updatedAt');
         result.body.case.should.have.property('expiresAt');
@@ -469,6 +471,7 @@ describe('Case', () => {
 
       results.body.cases.forEach(c => {
         c.should.have.property('caseId');
+        c.should.have.property('externalId');
         c.should.have.property('contactTracerId');
         c.state.should.be.equal('published');
         c.should.have.property('state');
@@ -489,7 +492,6 @@ describe('Case', () => {
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
-
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`
 
       results.error.should.be.false;
@@ -498,7 +500,7 @@ describe('Case', () => {
 
       results.body.files.should.be.a('array');
 
-      const firstChunk = results.body.files.shift()
+      const firstChunk = results.body.files.shift();
       firstChunk.should.be.a('object');
 
       firstChunk.should.have.property('name');
@@ -507,6 +509,9 @@ describe('Case', () => {
       firstChunk.should.have.property('concern_point_hashes');
       firstChunk.should.have.property('info_website_url');
       firstChunk.should.have.property('publish_date_utc');
+      if (process.env.HASHING_TEST) {
+        firstChunk.should.have.property('points_for_test');
+      }
       firstChunk.name.should.equal(currentOrg.name);
       firstChunk.info_website_url.should.equal(currentOrg.infoWebsiteUrl);
 

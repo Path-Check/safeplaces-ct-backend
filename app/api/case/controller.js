@@ -97,11 +97,11 @@ exports.ingestUploadedPoints = async (req, res) => {
     return;
   }
 
-  const points = await pointService.createPointsFromUpload(caseId, uploadedPoints);
+  const concernPoints = await pointService.createPointsFromUpload(caseId, uploadedPoints);
 
   await uploadService.deletePoints(accessCode);
 
-  res.status(200).json({ concernPoints: points });
+  res.status(200).json({ concernPoints });
 };
 
 /**
@@ -265,6 +265,7 @@ exports.setCaseToStaging = async (req, res) => {
  * local = Save to local server environment
  *
  */
+
 exports.publishCases = async (req, res) => {
   const { body: { caseIds }, user: { organization_id } } = req;
   let { query: { type } } = req;
@@ -276,7 +277,7 @@ exports.publishCases = async (req, res) => {
 
   const organization = await organizationService.fetchById(organization_id);
   if (organization) {
-    const publishResults = await caseService.publishCases(caseIds, organization.id);
+    const cases = await caseService.publishCases(caseIds, organization.id);
 
     const publicationParams = {
       organization_id: organization.id,
@@ -310,7 +311,6 @@ exports.publishCases = async (req, res) => {
           if (type ==='gcs') {
             const results = await writeToGCSBucket(pages);
             if (results) {
-              const cases = publishResults.map(itm => caseService._mapCase(itm));
               res.status(200).json({ cases });
               return;
             } else {
@@ -319,7 +319,6 @@ exports.publishCases = async (req, res) => {
           } else if (type === 'aws') {
             const results = await writeToS3Bucket(pages);
             if (results) {
-              const cases = publishResults.map(itm => caseService._mapCase(itm));
               res.status(200).json({ cases });
               return;
             } else {
@@ -332,7 +331,6 @@ exports.publishCases = async (req, res) => {
             } else if (type === 'local') {
               const results = await writePublishedFiles(pages, '/tmp/trails')
               if (results) {
-                let cases = publishResults.map(itm => caseService._mapCase(itm))
                 res.status(200).json({ cases });
                 return;
               }

@@ -94,7 +94,7 @@ describe('Organization ', () => {
         .get(`/organization/configuration`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json');
-        
+
       results.should.have.status(200);
       results.body.id.should.equal(currentOrg.id);
       results.body.externalId.should.equal(currentOrg.externalId);
@@ -166,12 +166,12 @@ describe('Organization ', () => {
       results.body.cases.length.should.equal(3);
 
       const firstChunk = results.body.cases.shift()
-      firstChunk.should.have.property('id');
-      firstChunk.id.should.be.a('number')
+      firstChunk.should.have.property('caseId');
+      firstChunk.should.have.property('externalId');
+      firstChunk.should.have.property('contactTracerId');
       firstChunk.should.have.property('state');
-      firstChunk.state.should.be.a('string')
-      firstChunk.should.have.property('updated_at');
-      firstChunk.updated_at.should.be.a('string')
+      firstChunk.should.have.property('updatedAt');
+      firstChunk.should.have.property('expiresAt');
     });
   });
 
@@ -189,6 +189,7 @@ describe('Organization ', () => {
       results.should.have.status(200);
       results.body.should.be.a('object');
       results.body.should.have.property('caseId');
+      results.body.should.have.property('externalId');
       results.body.should.have.property('contactTracerId');
       results.body.should.have.property('state');
       results.body.should.have.property('updatedAt');

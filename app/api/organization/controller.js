@@ -5,6 +5,7 @@ const {
 const _ = require('lodash');
 const moment = require('moment');
 
+
 /**
  * @method fetchOrganization
  *
@@ -36,7 +37,6 @@ exports.fetchOrganizationConfig = async (req, res) => {
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizationService.fetchById(organization_id);
-
   if (organization) {
     res.status(200).json(_.pick(organization, [
       'id',
@@ -95,18 +95,9 @@ exports.fetchOrganizationCases = async (req, res) => {
 
   await organizationService.cleanOutExpiredCases(organization_id)
 
-  let cases = await organizationService.getCases(organization_id);
-  if (cases) {
-    cases = cases.map(c => {
-      // delete c.organization_id
-      delete c.publication_id
-      delete c.created_at
-      return c
-    })
-    res.status(200).json({ cases });
-  } else {
-    throw new Error(`Could not fetch organization cases by users org id ${organization_id}.`);
-  }
+  const cases = await organizationService.getCases(organization_id);
+
+  res.status(200).json({ cases });
 };
 
 /**
