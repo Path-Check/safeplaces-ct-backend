@@ -119,10 +119,6 @@ passport.use(
           }
           return done(null, {});
         });
-
-        res.on('end', function () {
-          return done(null, {});
-        })
       },
     );
   }),
