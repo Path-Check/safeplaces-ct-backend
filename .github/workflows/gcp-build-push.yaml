@@ -1,0 +1,60 @@
+# This workflow will build a docker container, publish it to Google Container Registry, and deploy it to GKE when a release is created
+#
+# To configure this workflow:
+#
+# 1. Ensure that your repository contains the necessary configuration for your Google Kubernetes Engine cluster, including deployment.yml, kustomization.yml, service.yml, etc.
+#
+# 2. Set up secrets in your workspace: GKE_PROJECT with the name of the project, GKE_EMAIL with the service account email, GKE_KEY with the Base64 encoded JSON service account key (https://github.com/GoogleCloudPlatform/github-actions/tree/docs/service-account-key/setup-gcloud#inputs).
+#
+# 3. Change the values for the GKE_ZONE, GKE_CLUSTER, IMAGE, REGISTRY_HOSTNAME and DEPLOYMENT_NAME environment variables (below).
+
+name: Push to GCR Container Registry
+
+on:
+  pull_request:
+    branches:
+      - saas-master
+  push:
+    branches:
+      - saas-gke
+
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  GITHUB_SHA: ${{ github.sha }}
+  SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
+  PROJECT_ID: covid-safeplaces
+
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        # working-directory: expressjs
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup gcloud environment
+      uses: GoogleCloudPlatform/github-actions@0.1.2
+      with:
+        version: '290.0.1'
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: $PROJECT_ID
+        export_default_credentials: true
+
+    # Set Active Project
+    - name: Activate GCP Project
+      run: |-
+        gcloud config set project $PROJECT_ID
+    # Build and push image to Google Container Registry
+    # - name: Build - Publish
+    #   run: |-
+    #     gcloud builds submit \
+    #       --quiet \
+    #       --tag "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
+
