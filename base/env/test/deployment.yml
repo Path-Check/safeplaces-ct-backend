@@ -23,7 +23,7 @@ spec:
             value: "3000"
           envFrom:
             - secretRef:
-                name: expressapp
+                name: hrmes-spl-be
           ports:
             - name: express
               containerPort: 3000
