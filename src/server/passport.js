@@ -88,11 +88,9 @@ passport.use(
         scope: 'base',
       },
       (err, res) => {
-
         if (err) console.error(err);
 
         res.on('searchEntry', function (entry) {
-
           // Compare the retrieved password and the sent password.
           if (entry.object.userPassword !== req.body.password) {
             return done(null, {});

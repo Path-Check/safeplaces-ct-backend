@@ -1,12 +1,12 @@
 // app/api/case/controller.js
 
-const { 
+const {
   accessCodeService,
   caseService,
   organizationService,
   pointService,
   publicationService,
-  uploadService
+  uploadService,
 } = require('../../../app/lib/db');
 const _ = require('lodash');
 const publicationFiles = require('../../lib/publicationFiles');
@@ -414,7 +414,7 @@ exports.updateOrganizationCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is missing.');
 
-  const results = await caseService.updateCaseExternalId(caseId, externalId)
+  const results = await caseService.updateCaseExternalId(caseId, externalId);
   if (results) {
     res.status(200).json({ case: results });
   } else {

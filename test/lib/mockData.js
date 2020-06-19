@@ -7,10 +7,10 @@ const {
   publicOrganizationService,
   settingService,
   uploadService,
-  userService
+  userService,
 } = require('../../app/lib/db');
 
-const _ = require('lodash')
+const _ = require('lodash');
 const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');

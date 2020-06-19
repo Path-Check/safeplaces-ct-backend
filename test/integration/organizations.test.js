@@ -188,7 +188,7 @@ describe('Organization ', () => {
         .get(`/organization/cases`)
         .set('Authorization', `Bearer ${token}`)
         .set('content-type', 'application/json');
-        
+
       results.should.have.status(200);
       results.body.should.be.a('object');
       results.body.should.have.property('cases');

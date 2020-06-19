@@ -1,3 +1,3 @@
 const db = require('@sublet/data-layer');
 
-module.exports = db.private
+module.exports = db.private;

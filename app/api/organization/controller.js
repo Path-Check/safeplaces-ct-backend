@@ -1,10 +1,6 @@
-const { 
-  caseService,
-  organizationService,
-} = require('../../../app/lib/db');
+const { caseService, organizationService } = require('../../../app/lib/db');
 const _ = require('lodash');
 const moment = require('moment');
-
 
 /**
  * @method fetchOrganization
@@ -140,7 +136,7 @@ exports.createOrganizationCase = async (req, res) => {
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizationService.fetchById(organization_id);
-  if (!organization) throw new Error('Organization could not be found.')
+  if (!organization) throw new Error('Organization could not be found.');
 
   const newCase = await caseService.createCase({
     contact_tracer_id: id,
