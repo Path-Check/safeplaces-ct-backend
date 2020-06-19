@@ -16,7 +16,7 @@ function parseJwt(token) {
   var jsonPayload = decodeURIComponent(
     atob(base64)
       .split('')
-      .map(function (c) {
+      .map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       })
       .join(''),
@@ -36,7 +36,7 @@ describe('POST /login', function () {
         username: 'spladmin',
         password: 'password',
       })
-      .end(function (err, res) {
+      .end(function(err, res) {
         expect(res.status).to.equal(200);
         expect(res.body).to.be.an('object');
         expect(res.body).to.haveOwnProperty('token');
@@ -53,7 +53,7 @@ describe('POST /login', function () {
       });
   });
 
-  it('should fail when wrong password is given saying creds are invalid', function (done) {
+  it('should fail when wrong password is given saying creds are invalid', function(done) {
     chai
       .request(server.app)
       .post('/login')
@@ -61,7 +61,7 @@ describe('POST /login', function () {
         username: 'spladmin',
         password: 'wrongpassword',
       })
-      .end(function (err, res) {
+      .end(function(err, res) {
         expect(res.status).to.equal(401);
         expect(res.body).to.be.an('object');
         expect(res.body).to.haveOwnProperty('message');
@@ -70,7 +70,7 @@ describe('POST /login', function () {
       });
   });
 
-  it('should fail with invalid username saying creds are invalid', function (done) {
+  it('should fail with invalid username saying creds are invalid', function(done) {
     chai
       .request(server.app)
       .post('/login')
@@ -78,7 +78,7 @@ describe('POST /login', function () {
         username: 'wronguser',
         password: 'password',
       })
-      .end(function (err, res) {
+      .end(function(err, res) {
         expect(res.status).to.equal(401);
         expect(res.body).to.be.an('object');
         expect(res.body).to.haveOwnProperty('message');
