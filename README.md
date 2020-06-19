@@ -301,8 +301,8 @@ LDAP_HOST (IP/URL of where LDAP server is hosted)
 LDAP_PASS (LDAP Administrative Password)
 LDAP_ORG="dc=covidsafepaths, dc=org"
 LDAP_BIND="cn=admin, dc=covidsafepaths, dc=org"
-LDAP_SEARCH="cn={{username}}, dc=covidsafepaths, dc=org"
-LDAP_FILTER="(objectClass=*)"
+LDAP_SEARCH="dc=covidsafepaths, dc=org"
+LDAP_FILTER="(&(objectClass=person)(cn={{username}}))"
 ```
 
 ### Environment Variables
