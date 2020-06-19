@@ -85,12 +85,18 @@ passport.use(
       query,
       {
         filter,
-        scope: 'base',
+        scope: 'sub',
       },
       (err, res) => {
         if (err) console.error(err);
 
         res.on('searchEntry', function (entry) {
+
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[LDAP] search entry');
+            console.log(entry.object);
+          }
+          
           // Compare the retrieved password and the sent password.
           if (entry.object.userPassword !== req.body.password) {
             return done(null, {});
@@ -105,6 +111,10 @@ passport.use(
           }
           return done(null, {});
         });
+
+        res.on('end', function () {
+          return done(null, {});
+        })
       },
     );
   }),
