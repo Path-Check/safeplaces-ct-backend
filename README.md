@@ -1,5 +1,6 @@
 
 
+
 # Safeplaces Backend API
 
 This repository holds an example backend for [Safeplaces API specification](https://github.com/Path-Check/safeplaces-backend/blob/dev/oas3.yaml).
@@ -349,6 +350,9 @@ Example: `JWT_SECRET="TVCH846KJdIyuB0s+vhXmoJa1YcVcDSsLjv+jTUDKJKzySdMvmIzelTjsh
 This `JWT_EXP` variable configures the time till expiration on a JWT. The value is represented as seconds. It is recommended that JWTs should be short lived.
 
 Example: `JWT_EXP=3600`
+
+#### `BYPASS_SAMESITE`
+This value controls the `SamesSite` cookie attribute for the authorization cookie returned by `/login`. If the value is `true`, then the cookie uses `SameSite=None`. Otherwise, it uses `SameSite=Strict`. The value of the environment variable should always be set to `false` in deployed scenarios but will need to be set to `true` for local development.
 
 ###A Post Deployment Tasks
 
