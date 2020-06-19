@@ -12,7 +12,7 @@ exports.login = (req, res) => {
 
   if (user && Object.entries(user).length > 0) {
     const expTime =
-      Date.now() + parseInt(process.env.JWT_EXP) || 60 * 60 * 1000;
+      Date.now() + 1000 * (parseInt(process.env.JWT_EXP) || 60 * 60);
     const expDate = new Date(expTime);
 
     const token = jwt.sign(
