@@ -45,7 +45,7 @@ function print(errors) {
 
   for (let report of textArr) {
     // Remove the `env.` prefix from the error message.
-    report = report.replace('env.', '');
+    report = report.replace('env.', 'env ');
     console.error(`[ ${chalk.redBright('✗')} ]  ${report}`);
   }
 

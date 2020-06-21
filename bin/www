@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const { api } = require('../src');
-
 /**
  * Environment variable validation
  */
 require('../tools/validateEnv')(process.env);
+
+const { api } = require('../src');
 
 /**
  * Module dependencies.
