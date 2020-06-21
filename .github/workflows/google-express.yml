@@ -36,14 +36,13 @@ jobs:
     defaults:
       run:
         shell: bash
-        # working-directory: expressjs
     steps:
-
       - name: Checkout
         uses: actions/checkout@v2
 
       # Setup gcloud CLI
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      - name: GCloud CLI
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           version: '290.0.0'
           service_account_email: ${{ secrets.GKE_EMAIL }}
@@ -51,8 +50,8 @@ jobs:
           project_id: ${{ secrets.GKE_PROJECT }}
           export_default_credentials: true
 
-      # Configure docker to use the gcloud command-line tool as a credential helper
-      - run: |
+        # Configure docker to use the gcloud command-line tool as a credential helper
+        run: |
           # Set up docker to authenticate
           # via gcloud command-line tool.
           gcloud auth configure-docker
