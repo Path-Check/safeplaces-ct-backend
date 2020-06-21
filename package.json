@@ -28,11 +28,13 @@
   "dependencies": {
     "@google-cloud/storage": "^5.0.1",
     "adm-zip": "^0.4.14",
+    "ajv": "^6.12.2",
     "atob": "^2.1.2",
     "aws-sdk": "^2.692.0",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.7.2",
     "boom": "^7.3.0",
+    "chalk": "^4.1.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
