@@ -1,19 +1,21 @@
-const _ = require('lodash')
+const {
+  accessCodeService,
+  caseService,
+  organizationService,
+  pointService,
+  publicationService,
+  publicOrganizationService,
+  settingService,
+  uploadService,
+  userService,
+} = require('../../app/lib/db');
+
+const _ = require('lodash');
 const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const randomCoordinates = require('random-coordinates');
 const sinon = require('sinon');
-
-const organizationService = require('../../db/models/organizations');
-const publicOrganizationService = require('../../db/models/publicOrganizations');
-const settingsService = require('../../db/models/settings');
-const usersService = require('../../db/models/users');
-const pointsService = require('../../db/models/points');
-const publicationService = require('../../db/models/publications');
-const casesService = require('../../db/models/cases');
-const uploadService = require('../../db/models/upload');
-const accessCodesService = require('../../db/models/accessCodes');
 
 class MockData {
 
@@ -24,11 +26,11 @@ class MockData {
    */
   async clearMockData() {
     await organizationService.deleteAllRows();
-    await settingsService.deleteAllRows();
-    await usersService.deleteAllRows();
-    await pointsService.deleteAllRows();
+    await settingService.deleteAllRows();
+    await userService.deleteAllRows();
+    await pointService.deleteAllRows();
     await publicationService.deleteAllRows();
-    await casesService.deleteAllRows();
+    await caseService.deleteAllRows();
     sinon.restore();
   }
 
@@ -59,7 +61,7 @@ class MockData {
       maps_api_key: process.env.SEED_MAPS_API_KEY,
     };
 
-    const results = await usersService.create(params);
+    const results = await userService.create(params);
     if (results) {
       return results[0];
     }
@@ -129,7 +131,7 @@ class MockData {
     if (!options.caseId) throw new Error('Case ID must be provided');
 
     let trails = this._generateTrailsData(numberOfTrails, timeIncrementInSeconds, options.startAt)
-    let results = await pointsService.insertRedactedTrailSet(
+    let results = await pointService.insertRedactedTrailSet(
       trails,
       options.caseId
     );
@@ -163,7 +165,7 @@ class MockData {
     let pointsCase = await this.mockCase(caseParams);
     if (pointsCase) {
       const trails = this._generateTrailsData(options.numberOfRecords, 300, options.startTime, true)
-      const results = await pointsService.loadTestRedactedTrails(
+      const results = await pointService.loadTestRedactedTrails(
         trails,
         pointsCase.caseId
       );
@@ -195,7 +197,7 @@ class MockData {
     let pointsCase = await this.mockCase(caseParams);
     if (pointsCase) {
       const trails = this._generateLargeGroupingOfPoints(options.startTime);
-      const results = await pointsService.insertRedactedTrailSet(
+      const results = await pointService.insertRedactedTrailSet(
         trails,
         pointsCase.caseId
       );
@@ -241,7 +243,7 @@ class MockData {
     const organization = await organizationService.fetchById(options.organization_id)
     if (organization) {
       if (!params.expires_at) params.expires_at = moment().startOf('day').add(organization.daysToRetainRecords, 'days').format();
-      const result = await casesService.createCase(params);
+      const result = await caseService.createCase(params);
       if (result) {
         return result;
       }
@@ -282,7 +284,7 @@ class MockData {
         publish_date: Math.floor(options.publishedOn / 1000)
       }
       const publication = await publicationService.insert(publicationParams);
-      await casesService.updateCasePublicationId([newCase.caseId], publication.id);
+      await caseService.updateCasePublicationId([newCase.caseId], publication.id);
     }
 
     return newCase
@@ -296,26 +298,26 @@ class MockData {
   async mockAccessCode() {
     const mockCode = {
       id: 1,
-      value: await accessCodesService.generateValue(),
+      value: await accessCodeService.generateValue(),
       valid: true,
     };
 
     try {
-      sinon.restoreObject(accessCodesService);
+      sinon.restoreObject(accessCodeService);
     } catch (error) {
-      // no-op
+      // no-opconsole.log(error)
     }
 
-    sinon.stub(accessCodesService, 'create').returns(mockCode);
+    sinon.stub(accessCodeService, 'create').returns(mockCode);
 
-    sinon.stub(accessCodesService, 'find').callsFake((query) => {
+    sinon.stub(accessCodeService, 'find').callsFake((query) => {
       if (query && (query.id === mockCode.id || query.value === mockCode.value)) {
         return mockCode;
       }
       return null;
     });
 
-    return await accessCodesService.create();
+    return await accessCodeService.create();
   }
 
   /**
@@ -430,7 +432,7 @@ class MockData {
     let i;
     for(i of Array(num).fill("")) {
       const coords = randomCoordinates({fixed: 5}).split(',');
-      const dbData = await pointsService.fetchTestHash(parseFloat(coords[1]), parseFloat(coords[0]))
+      const dbData = await pointService.fetchTestHash(parseFloat(coords[1]), parseFloat(coords[0]))
       const entry = {
         access_code_id: accessCodeId,
         upload_id: uploadId,
