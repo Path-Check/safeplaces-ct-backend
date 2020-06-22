@@ -1,7 +1,6 @@
+const { caseService, organizationService } = require('../../../app/lib/db');
 const _ = require('lodash');
 const moment = require('moment');
-const organizations = require('../../../db/models/organizations');
-const cases = require('../../../db/models/cases');
 
 /**
  * @method fetchOrganization
@@ -14,7 +13,7 @@ exports.fetchOrganizationById = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const organization = await organizations.fetchById(organization_id);
+  const organization = await organizationService.fetchById(organization_id);
   if (organization) {
     res.status(200).json(_.pick(organization, ['id', 'externalId', 'name', 'completedOnboarding']));
   } else {
@@ -33,7 +32,7 @@ exports.fetchOrganizationConfig = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const organization = await organizations.fetchById(organization_id);
+  const organization = await organizationService.fetchById(organization_id);
   if (organization) {
     res.status(200).json(_.pick(organization, [
       'id',
@@ -68,7 +67,7 @@ exports.updateOrganization = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const results = await organizations.updateOrganization(organization_id, organization);
+  const results = await organizationService.updateOrganization(organization_id, organization);
   if (results) {
     res.status(200).json(results);
   } else {
@@ -90,9 +89,9 @@ exports.fetchOrganizationCases = async (req, res) => {
 
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  await organizations.cleanOutExpiredCases(organization_id)
+  await organizationService.cleanOutExpiredCases(organization_id)
 
-  const cases = await organizations.getCases(organization_id);
+  const cases = await organizationService.getCases(organization_id);
 
   res.status(200).json({ cases });
 };
@@ -112,10 +111,10 @@ exports.createOrganizationCase = async (req, res) => {
   if (!id) throw new Error('User ID is missing.');
   if (!organization_id) throw new Error('Organization ID is missing.');
 
-  const organization = await organizations.fetchById(organization_id);
+  const organization = await organizationService.fetchById(organization_id);
   if (!organization) throw new Error('Organization could not be found.')
 
-  const newCase = await cases.createCase({
+  const newCase = await caseService.createCase({
     contact_tracer_id: id,
     organization_id,
     expires_at: moment().startOf('day').add(organization.daysToRetainRecords, 'days').format(),

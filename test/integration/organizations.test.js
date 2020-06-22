@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
+const { organizationService } = require('../../app/lib/db');
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
@@ -10,7 +11,6 @@ const jwt = require('jsonwebtoken');
 const mockData = require('../lib/mockData');
 
 const server = require('../../app');
-const organizations = require('../../db/models/organizations');
 
 const jwtSecret = require('../../config/jwtConfig');
 
@@ -70,7 +70,7 @@ describe('Organization ', () => {
 
   describe('GET /organization by user', () => {
     it('find the record just inserted using database', async () => {
-      const results = await organizations.fetchById(currentOrg.id);
+      const results = await organizationService.fetchById(currentOrg.id);
       results.id.should.equal(currentOrg.id);
     });
 
@@ -152,7 +152,7 @@ describe('Organization ', () => {
       results.body.completedOnboarding.should.equal(newParams.completedOnboarding);
     });
 
-    it('fetch the organizations cases', async () => {
+    it('fetch the organizationService cases', async () => {
       const results = await chai
         .request(server.app)
         .get(`/organization/cases`)

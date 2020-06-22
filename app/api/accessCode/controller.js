@@ -1,4 +1,4 @@
-const accessCodes = require('../../../db/models/accessCodes');
+const { accessCodeService } = require('../../../app/lib/db');
 
 /**
  * @method generate
@@ -7,7 +7,7 @@ const accessCodes = require('../../../db/models/accessCodes');
  *
  */
 exports.generate = async (req, res) => {
-  const code = await accessCodes.create();
+  const code = await accessCodeService.create();
 
   if (code == null || code.value == null) {
     res.status(500).json({ message: 'Internal Server Error' });
