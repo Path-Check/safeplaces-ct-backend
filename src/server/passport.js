@@ -91,7 +91,6 @@ passport.use(
         if (err) console.error(err);
 
         res.on('searchEntry', function (entry) {
-          
           if (process.env.NODE_ENV === 'development') {
             console.log('[LDAP] search entry');
             console.log(entry.object);
