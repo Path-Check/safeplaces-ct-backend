@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "@google-cloud/storage": "^5.0.1",
-    "@sublet/data-layer": "0.0.10",
+    "@sublet/data-layer": "0.0.11",
     "adm-zip": "^0.4.14",
     "atob": "^2.1.2",
     "aws-sdk": "^2.692.0",
