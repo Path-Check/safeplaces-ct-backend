@@ -90,6 +90,7 @@ describe('Case', () => {
       firstChunk.should.have.property('longitude');
       firstChunk.should.have.property('latitude');
       firstChunk.should.have.property('time');
+      firstChunk.should.have.property('nickname');
 
     });
   });
@@ -134,6 +135,7 @@ describe('Case', () => {
       firstChunk.should.have.property('longitude');
       firstChunk.should.have.property('latitude');
       firstChunk.should.have.property('time');
+      firstChunk.should.have.property('nickname');
     });
 
     it('and returns no points if no caseIds are passed', async () => {
@@ -183,7 +185,8 @@ describe('Case', () => {
           longitude: 14.91328448,
           latitude: 41.24060321,
           time: "2020-05-01T18:25:43.511Z",
-          duration: 5
+          duration: 5,
+          nickname: 'home'
         }
       };
 
@@ -206,6 +209,7 @@ describe('Case', () => {
       results.body.concernPoint.longitude.should.equal(newParams.point.longitude);
       results.body.concernPoint.latitude.should.equal(newParams.point.latitude);
       results.body.concernPoint.time.should.equal(newParams.point.time);
+      results.body.concernPoint.nickname.should.equal(newParams.point.nickname)
     });
   });
 
@@ -233,7 +237,8 @@ describe('Case', () => {
         longitude: 12.91328448,
         latitude: 39.24060321,
         time: "2020-05-21T18:25:43.511Z",
-        duration: 5
+        duration: 5,
+        nickname: 'grocery store'
       };
 
       const results = await chai
@@ -255,7 +260,51 @@ describe('Case', () => {
       results.body.concernPoint.should.have.property('duration');
       results.body.concernPoint.pointId.should.equal(testPoint.id);
       results.body.concernPoint.longitude.should.equal(newParams.longitude);
+      results.body.concernPoint.nickname.should.equal(newParams.nickname)
+    });
+  });
 
+  describe('update multiple points on a case', () => {
+
+    before(async () => {
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
+
+      let params = {
+        organization_id: currentOrg.id,
+        number_of_trails: 2,
+        seconds_apart: 1800,
+        state: 'staging',
+        nickname: 'home'
+      };
+
+      currentCase = await mockData.mockCaseAndTrails(_.extend(params, { state: 'unpublished' }))
+    });
+
+    it('return a 200', async () => {
+      const point1 = currentCase.points[0];
+      const point2 = currentCase.points[1];
+
+      const newParams = {
+        pointIds: [ point1.id, point2.id ],
+        nickname: 'grocery store'
+      };
+
+      const results = await chai
+        .request(server.app)
+        .put(`/case/points`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send(newParams);
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+
+      const firstChunk = results.body.concernPoints[0]
+      firstChunk.nickname.should.equal(newParams.nickname)
+
+      const secondChunk = results.body.concernPoints[1]
+      secondChunk.nickname.should.equal(newParams.nickname)
     });
   });
 
