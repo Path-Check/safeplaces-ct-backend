@@ -33,6 +33,11 @@ server.put(
   server.wrapAsync(async (req, res) => await controller.updateCasePoint(req, res), true),
 );
 
+server.put(
+  '/case/points',
+  server.wrapAsync(async (req, res) => await controller.updateCasePoints(req, res), true),
+);
+
 server.post(
   '/case/point/delete',
   server.wrapAsync(async (req, res) => await controller.deleteCasePoint(req, res), true),
