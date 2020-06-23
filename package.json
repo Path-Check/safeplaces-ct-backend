@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "@google-cloud/storage": "^5.0.1",
-    "@sublet/data-layer": "0.0.11",
+    "@sublet/data-layer": "0.0.14",
     "adm-zip": "^0.4.14",
     "ajv": "^6.12.2",
     "atob": "^2.1.2",
