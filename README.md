@@ -23,7 +23,7 @@ The project is still under development and will reach a Minimum Viable Product (
 ```
 DB_HOST_PUB=upload_db_host
 DB_NAME_PUB=upload_db_name
-DB_USER_PUB=uploa_db_user
+DB_USER_PUB=upload_db_user
 DB_PASS_PUB=upload_db_password
 ```
 
@@ -362,7 +362,7 @@ Below are tasks that should run the first time the application is deployed.
 #### Seeding the Database
 The database should be seeded with the stock organization and users by running the following command:
 
-`knex seed:run --env (staging|production)`
+`spdl seed:run --scope private --env development (staging|production)`
 
 ### All Deployments
 Below are tasks that should run on every deployment.
@@ -370,4 +370,4 @@ Below are tasks that should run on every deployment.
 ##### Migrate Database
 The following command should be run on every deployment to migrate the database (if using Docker this should be handled by the [dbsetup.sh](https://github.com/Path-Check/safeplaces-backend/blob/dev/dbsetup.sh) script):
 
-`knex migrate:latest --env (staging|production)`
+`spdl migrate:latest --scope private --env (staging|production)`
