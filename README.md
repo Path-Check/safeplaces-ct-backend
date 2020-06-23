@@ -83,7 +83,21 @@ For more information see the CLI portion of the [Safeplaces Data Layer](https://
 Clone this repository
 
 ```
-cd safeplaces-backend/expressjs
+cd safeplaces-backend
+```
+
+To work locally with the data-layer library, clone it to your computer and then reference it locally using the following command. 
+
+```
+npm install --save file:../safeplaces-data-layer
+```
+
+__NOTE:__ Where you clone it might be very different than the path below.
+
+Once installed it should show up in the package.json file like below.
+
+```
+"@sublet/data-layer": "file:../safeplaces-data-layer"
 ```
 
 #### Install Package Manager
@@ -138,6 +152,12 @@ npm install
 npm start
 ```
 
+or there is a helper command that can be run from the main directory
+
+```
+npm run ldap:start
+```
+
 #### Setup Database
 
 1. Create the database exported in your environment.
@@ -160,10 +180,10 @@ ALTER USER safepaths_user WITH NOSUPERUSER
 
 #### Knex migrations and seed the database
 
-Install Knex globally
+Install Safe Places Data Layer globally
 
 ```
-npm install knex -g
+npm i -g @sublet/data-layer
 ```
 
 Run migrations
@@ -175,7 +195,7 @@ npm run migrate:up
 Seed the database
 
 ```
-npm run seed
+npm run seed:dev
 ```
 
 #### Mocha unit tests
