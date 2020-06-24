@@ -39,7 +39,7 @@ const encrypt = async (location, salt = 'salt') => {
 
   const derivedKey = await Promise.fromCallback(cb => crypto.scrypt(secret, salt, 8, options, cb));
   if (derivedKey) {
-    const encodedString = derivedKey.toString('hex');
+    const encodedString = derivedKey.toString('hex'); 
     return { hash, secret, encodedString };
   }
 };

@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
 process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
+const { caseService, pointService } = require('../../app/lib/db');
 const _ = require('lodash');
 const moment = require('moment')
 const chai = require('chai');
@@ -12,8 +13,6 @@ const jwt = require('jsonwebtoken');
 const mockData = require('../lib/mockData');
 
 const server = require('../../app');
-const casesService = require('../../db/models/cases');
-const pointsService = require('../../db/models/points');
 
 const jwtSecret = require('../../config/jwtConfig');
 
@@ -56,7 +55,7 @@ describe('Case', () => {
   describe('fetch case points', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows();
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -91,6 +90,7 @@ describe('Case', () => {
       firstChunk.should.have.property('longitude');
       firstChunk.should.have.property('latitude');
       firstChunk.should.have.property('time');
+      firstChunk.should.have.property('nickname');
 
     });
   });
@@ -100,7 +100,7 @@ describe('Case', () => {
     let caseOne, caseTwo, caseThree;
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows();
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -135,6 +135,7 @@ describe('Case', () => {
       firstChunk.should.have.property('longitude');
       firstChunk.should.have.property('latitude');
       firstChunk.should.have.property('time');
+      firstChunk.should.have.property('nickname');
     });
 
     it('and returns no points if no caseIds are passed', async () => {
@@ -168,7 +169,7 @@ describe('Case', () => {
   describe('add a single point on a case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows();
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -184,7 +185,8 @@ describe('Case', () => {
           longitude: 14.91328448,
           latitude: 41.24060321,
           time: "2020-05-01T18:25:43.511Z",
-          duration: 5
+          duration: 5,
+          nickname: 'home'
         }
       };
 
@@ -207,14 +209,15 @@ describe('Case', () => {
       results.body.concernPoint.longitude.should.equal(newParams.point.longitude);
       results.body.concernPoint.latitude.should.equal(newParams.point.latitude);
       results.body.concernPoint.time.should.equal(newParams.point.time);
+      results.body.concernPoint.nickname.should.equal(newParams.point.nickname)
     });
   });
 
   describe('update a point on a case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
 
       let params = {
         organization_id: currentOrg.id,
@@ -234,7 +237,8 @@ describe('Case', () => {
         longitude: 12.91328448,
         latitude: 39.24060321,
         time: "2020-05-21T18:25:43.511Z",
-        duration: 5
+        duration: 5,
+        nickname: 'grocery store'
       };
 
       const results = await chai
@@ -256,15 +260,59 @@ describe('Case', () => {
       results.body.concernPoint.should.have.property('duration');
       results.body.concernPoint.pointId.should.equal(testPoint.id);
       results.body.concernPoint.longitude.should.equal(newParams.longitude);
+      results.body.concernPoint.nickname.should.equal(newParams.nickname)
+    });
+  });
 
+  describe('update multiple points on a case', () => {
+
+    before(async () => {
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
+
+      let params = {
+        organization_id: currentOrg.id,
+        number_of_trails: 2,
+        seconds_apart: 1800,
+        state: 'staging',
+        nickname: 'home'
+      };
+
+      currentCase = await mockData.mockCaseAndTrails(_.extend(params, { state: 'unpublished' }))
+    });
+
+    it('return a 200', async () => {
+      const point1 = currentCase.points[0];
+      const point2 = currentCase.points[1];
+
+      const newParams = {
+        pointIds: [ point1.id, point2.id ],
+        nickname: 'grocery store'
+      };
+
+      const results = await chai
+        .request(server.app)
+        .put(`/case/points`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('content-type', 'application/json')
+        .send(newParams);
+
+      results.error.should.be.false;
+      results.should.have.status(200);
+
+      const firstChunk = results.body.concernPoints[0]
+      firstChunk.nickname.should.equal(newParams.nickname)
+
+      const secondChunk = results.body.concernPoints[1]
+      secondChunk.nickname.should.equal(newParams.nickname)
     });
   });
 
   describe('delete a point on a case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
 
       let params = {
         organization_id: currentOrg.id,
@@ -296,7 +344,7 @@ describe('Case', () => {
 
   describe('delete points on a case', () => {
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows();
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -332,7 +380,7 @@ describe('Case', () => {
     });
 
     it('deletes points', async () => {
-      let points = await casesService.fetchCasePoints(currentCase.caseId);
+      let points = await caseService.fetchCasePoints(currentCase.caseId);
       const initialLength = points.length;
       initialLength.should.be.greaterThan(3);
 
@@ -348,7 +396,7 @@ describe('Case', () => {
       results.error.should.be.false;
       results.should.have.status(200);
 
-      points = await casesService.fetchCasePoints(currentCase.caseId);
+      points = await caseService.fetchCasePoints(currentCase.caseId);
       points.length.should.equal(initialLength - deletedPoints.length);
     });
   });
@@ -356,7 +404,7 @@ describe('Case', () => {
   describe('consent to publishing case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows();
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -395,7 +443,7 @@ describe('Case', () => {
   describe('move a case to staging', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows();
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -437,8 +485,8 @@ describe('Case', () => {
     let caseOne, caseTwo, caseThree
 
     beforeEach(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
 
       let params = {
         organization_id: currentOrg.id,
@@ -541,8 +589,8 @@ describe('Case', () => {
     let newCase
 
     beforeEach(async () => {
-      await casesService.deleteAllRows();
-      await pointsService.deleteAllRows();
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
 
       let params = {
         organization_id: currentOrg.id,
@@ -589,8 +637,8 @@ describe('Case', () => {
     let caseTwo, caseThree
 
     beforeEach(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
 
       let params = {
         organization_id: currentOrg.id,
@@ -650,8 +698,8 @@ describe('Case', () => {
     let caseOneInvalid, caseTwo, caseThree
 
     beforeEach(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
 
       let params = {
         organization_id: currentOrg.id,
@@ -686,7 +734,7 @@ describe('Case', () => {
   describe('delete a case', () => {
 
     before(async () => {
-      await casesService.deleteAllRows()
+      await caseService.deleteAllRows();
 
       const caseParams = {
         organization_id: currentOrg.id,
@@ -741,9 +789,8 @@ describe('Case', () => {
 
   describe('purge cases outside 30 day retention period for organization', () => {
     before(async () => {
-      await casesService.deleteAllRows()
-      await pointsService.deleteAllRows()
-
+      await caseService.deleteAllRows();
+      await pointService.deleteAllRows();
 
       // Add Case & Trails
       let expires_at = new Date().getTime() - ((86400 * 10) * 1000);
