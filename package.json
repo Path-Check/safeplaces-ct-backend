@@ -59,6 +59,7 @@
     "pg": "^8.0.2",
     "response-time": "^2.3.2",
     "sinon": "^9.0.2",
+    "superagent": "^5.2.2",
     "winston": "2.4.4",
     "winston-papertrail": "^1.0.5",
     "wkx": "^0.5.0"
