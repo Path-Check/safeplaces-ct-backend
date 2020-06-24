@@ -1,0 +1,569 @@
+openapi: 3.0.0
+info:
+  title: SafePlaces Backend API
+  contact: {}
+  version: '1.0'
+paths:
+  /login:
+    post:
+      summary: Returns a JWT to be used in subsequent API requests
+      operationId: Login
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: spladmin
+              password: password
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+      deprecated: false
+      security: []
+
+  /access-code:
+    post:
+      summary: Returns an access code to be used when uploading points of concern data to ingest service
+      operationId: AccessCode
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessCodeResponse'
+      deprecated: false
+
+  /organization:
+    get:
+      summary: Returns information about the logged in user's organization
+      operationId: Organization
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationResponse'
+
+      deprecated: true
+
+  /organization/configuration:
+    put:
+      summary: Returns information about the logged in user's organization
+      operationId: OrganizationConfiguration
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationConfigurationRequest'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationConfigurationResponse'
+      deprecated: false
+    get:
+      summary: Organization Configuration
+      operationId: GetOrganizationConfiguration
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationConfigurationResponse'
+      deprecated: false
+
+  /organization/cases:
+    get:
+      summary: Returns all cases associated with the organization of the logged in user
+      operationId: OrganizationCases
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationCasesResponse'
+      deprecated: false
+
+  /organization/case:
+    post:
+      summary: Create a new case
+      operationId: CreateCase
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCaseResponse'
+      deprecated: false
+
+  /case:
+    put:
+      summary: Update an existing case
+      operationId: UpdateCase
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCaseRequest'
+            example:
+              caseId: 1
+              externalId: an_id
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCaseResponse'
+      deprecated: false
+
+  /case/delete:
+    post:
+      summary: Delete a case
+      operationId: DeleteCase
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteCaseRequest'
+            example:
+              caseId: 2
+        required: true
+      responses:
+        '200':
+          description: 'Case was successfully deleted'
+          headers: {}
+      deprecated: false
+
+  /case/consent-to-publishing:
+    post:
+      summary: Record user's consent to the publishing of their data
+      operationId: ConsentToPublishing
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentToPublishingRequest'
+            example:
+              caseId: 1
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCaseResponse'
+      deprecated: false
+
+  /case/stage:
+    post:
+      summary: Mark a case as ready for review before publishing
+      operationId: StageCase
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StageCaseRequest'
+            example:
+              caseId: 1
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageCaseResponse'
+      deprecated: false
+
+  /cases/publish:
+    post:
+      summary: Select a set a cases whose points of concern will be added to the publicly accessible published data set
+      operationId: PublishCase
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishCaseRequest'
+            example:
+              caseIds:
+                - 1
+                - 2
+        required: true
+      responses:
+        '200':
+          description: 'Cases were successfully published'
+          headers: {}
+      deprecated: false
+
+components:
+  schemas:
+    LoginRequest:
+      title: LoginRequest
+      required:
+        - username
+        - password
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      example:
+        username: spladmin
+        password: password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+      example:
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzcGxhZG1pbiIsImlhdCI6MTU5Mjk5NzgzNywiZXhwIjoxNTkzMDMzODM3fQ.uJ2M8qzRT8OaLQVqV8vg5kAy8ylRD10QgeK2z-uRZME"
+
+    OrganizationResponse:
+      title: OrganizationResponse
+      type: object
+      properties:
+        id:
+          type: integer
+        externalId:
+          type: string
+        name:
+          type: string
+        completedOnboarding:
+          type: boolean
+      example:
+        id: 1
+        name: Health Authority
+        externalId: 1eb7c9ac-e417-4845-a7e3-a74db447ecc7
+        completedOnboarding: true
+
+    OrganizationConfigurationRequest:
+      title: OrganizationConfigurationRequest
+      required:
+        - name
+        - notificationThresholdPercent
+        - notificationThresholdTimeline
+        - daysToRetainRecords
+        - regionCoordinates
+        - apiEndpointUrl
+        - referenceWebsiteUrl
+        - infoWebsiteUrl
+        - completedOnboarding
+        - privacyPolicyUrl
+      type: object
+      properties:
+        name:
+          type: string
+        notificationThresholdPercent:
+          type: integer
+          format: int32
+        notificationThresholdTimeline:
+          type: integer
+          format: int32
+        daysToRetainRecords:
+          type: integer
+          format: int32
+        regionCoordinates:
+          $ref: '#/components/schemas/RegionCoordinates'
+        apiEndpointUrl:
+          type: string
+        referenceWebsiteUrl:
+          type: string
+        infoWebsiteUrl:
+          type: string
+        completedOnboarding:
+          type: boolean
+        privacyPolicyUrl:
+          type: string
+      example:
+        name: Health Authority
+        notificationThresholdPercent: 6
+        notificationThresholdTimeline: 0
+        daysToRetainRecords: 30
+        regionCoordinates:
+          ne:
+            latitude: 21.312764055951195
+            longitude: -21.45445121262883
+          sw:
+            latitude: 21.766025040122642
+            longitude: -21.49442923997258
+        apiEndpointUrl: 'https://s3.aws.com/bucket_name'
+        referenceWebsiteUrl: 'http://nbc.gov'
+        infoWebsiteUrl: 'http://nbc.gov'
+        completedOnboarding: true
+        privacyPolicyUrl: http://test.com
+
+    OrganizationConfigurationResponse:
+      title: OrganizationConfigurationResponse
+      type: object
+      properties:
+        name:
+          type: string
+        notificationThresholdPercent:
+          type: integer
+          format: int32
+        notificationThresholdTimeline:
+          type: integer
+          format: int32
+        daysToRetainRecords:
+          type: integer
+          format: int32
+        regionCoordinates:
+          $ref: '#/components/schemas/RegionCoordinates'
+        apiEndpointUrl:
+          type: string
+        referenceWebsiteUrl:
+          type: string
+        infoWebsiteUrl:
+          type: string
+        completedOnboarding:
+          type: boolean
+        privacyPolicyUrl:
+          type: string
+      example:
+        name: Health Authority
+        notificationThresholdPercent: 6
+        notificationThresholdTimeline: 0
+        daysToRetainRecords: 30
+        regionCoordinates:
+          ne:
+            latitude: 21.312764055951195
+            longitude: -21.45445121262883
+          sw:
+            latitude: 21.766025040122642
+            longitude: -21.49442923997258
+        apiEndpointUrl: 'https://s3.aws.com/bucket_name'
+        referenceWebsiteUrl: 'http://nbc.gov'
+        infoWebsiteUrl: 'http://nbc.gov'
+        completedOnboarding: true
+        privacyPolicyUrl: 'http://test.com'
+        externalId: 'a30ed5ec-b639-11ea-b3de-0242ac130004'
+
+    OrganizationCasesResponse:
+      title: OrganizationCasesResponse
+      type: array
+      items:
+        type: object
+      example:
+        cases:
+          - caseId: 1
+            state: staging
+            updatedAt: "2020-06-24T11:26:10.416Z"
+            stagedAt: "2020-07-24T04:00:00.000Z"
+            externalId: "2fee5ac6-e11d-47e4-a89d-8a5a80201710"
+            contactTracerId: "a88309ca-26cd-4d2b-8923-af0779e423a3"
+          - caseId: 2
+            state: unpublished
+            updatedAt: "2020-06-24T11:26:10.416Z"
+            stagedAt: null
+            externalId: "5add5ac6-e11d-47e4-a89d-8a5a8020123"
+            contactTracerId: "a88309ca-26cd-4d2b-8923-af0779e423a3"
+
+    RegionCoordinates:
+      title: RegionCoordinates
+      required:
+        - ne
+        - sw
+      type: object
+      properties:
+        ne:
+          $ref: '#/components/schemas/Ne'
+        sw:
+          $ref: '#/components/schemas/Sw'
+      example:
+        ne:
+          latitude: 21.312764055951195
+          longitude: -21.45445121262883
+        sw:
+          latitude: 21.766025040122642
+          longitude: -21.49442923997258
+
+    Ne:
+      title: Ne
+      required:
+        - latitude
+        - longitude
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+      example:
+        latitude: 21.312764055951195
+        longitude: -21.45445121262883
+
+    Sw:
+      title: Sw
+      required:
+        - latitude
+        - longitude
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+      example:
+        latitude: 21.766025040122642
+        longitude: -21.49442923997258
+
+    DeleteCaseRequest:
+      title: DeleteCaseRequest
+      required:
+        - caseId
+      type: object
+      properties:
+        caseId:
+          type: integer
+          format: int32
+      example:
+        caseId: 2
+
+    AccessCodeResponse:
+      title: AccessCodeResponse
+      type: object
+      properties:
+        accessCode:
+          type: string
+      example:
+        accessCode: "123456"
+
+    CreateCaseResponse:
+      title: CreateCaseResponse
+      type: object
+      example:
+        caseId: 1
+        state: unpublished
+        updatedAt: "2020-06-24T11:26:10.416Z"
+        stagedAt: null
+        externalId: "2fee5ac6-e11d-47e4-a89d-8a5a80201710"
+        contactTracerId: "a88309ca-26cd-4d2b-8923-af0779e423a3"
+
+    UpdateCaseRequest:
+      title: UpdateCaseRequest
+      required:
+        - caseId
+        - externalId
+      type: object
+      properties:
+        caseId:
+          type: integer
+          format: int32
+        externalId:
+          type: string
+      example:
+        caseId: 1
+        externalId: an_id
+
+    UpdateCaseResponse:
+      title: UpdateCaseResponse
+      type: object
+      example:
+        caseId: 1
+        state: unpublished
+        updatedAt: "2020-06-24T11:26:10.416Z"
+        stagedAt: null
+        externalId: an_id
+        contactTracerId: "a88309ca-26cd-4d2b-8923-af0779e423a3"
+
+    ConsentToPublishingRequest:
+      title: ConsentToPublishingRequest
+      required:
+        - caseId
+      type: object
+      properties:
+        caseId:
+          type: integer
+          format: int32
+      example:
+        caseId: 1
+
+    StageCaseRequest:
+      title: StageCaseRequest
+      required:
+        - caseId
+      type: object
+      properties:
+        caseId:
+          type: integer
+          format: int32
+      example:
+        caseId: 1
+
+    StageCaseResponse:
+      title: UpdateCaseResponse
+      type: object
+      example:
+        caseId: 1
+        state: staging
+        updatedAt: "2020-06-24T11:26:10.416Z"
+        stagedAt: "2020-06-24T11:26:10.416Z"
+        externalId: "2fee5ac6-e11d-47e4-a89d-8a5a80201710"
+        contactTracerId: "a88309ca-26cd-4d2b-8923-af0779e423a3"
+
+    PublishCaseRequest:
+      title: PublishCaseRequest
+      required:
+        - caseIds
+      type: object
+      properties:
+        caseIds:
+          type: array
+          items:
+            type: integer
+            format: int32
+      example:
+        caseIds:
+          - 1
+          - 2
+
+
+  securitySchemes:
+    httpBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - httpBearer: []
