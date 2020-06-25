@@ -549,6 +549,18 @@
 					"body": ""
 				}
 			]
+		},
+		{
+			"name": "Validate Access-code",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				},
+				"description": "Determines whether an access code is valid and if it can be used to perform an /upload API call."
+			},
+			"response": []
 		}
 	],
 	"variable": [
