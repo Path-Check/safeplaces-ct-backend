@@ -1,14 +1,14 @@
 // app/api/case/controller.js
 
+const {
+  accessCodeService,
+  caseService,
+  organizationService,
+  pointService,
+  publicationService,
+  uploadService,
+} = require('../../../app/lib/db');
 const _ = require('lodash');
-
-const casesService = require('../../../db/models/cases');
-const organizationsService = require('../../../db/models/organizations');
-const publicationsService = require('../../../db/models/publications');
-const accessCodesService = require('../../../db/models/accessCodes');
-const uploadService = require('../../../db/models/upload');
-const pointsService = require('../../../db/models/points');
-
 const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
 const writeToGCSBucket = require('../../lib/writeToGCSBucket');
@@ -25,12 +25,11 @@ exports.fetchCasePoints = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.');
 
-  const concernPoints = await casesService.fetchCasePoints(caseId);
+  const concernPoints = await caseService.fetchCasePoints(caseId);
 
   if (concernPoints) {
     res.status(200).json({ concernPoints });
-  }
-  else {
+  } else {
     throw new Error(`Concern points could not be found for case id ${caseId}`);
   }
 };
@@ -49,13 +48,16 @@ exports.fetchCasesPoints = async (req, res) => {
     return;
   }
 
-  const concernPoints = await casesService.fetchCasesPoints(caseIds);
+  const concernPoints = await caseService.fetchCasesPoints(caseIds);
 
   if (concernPoints) {
     res.status(200).json({ concernPoints });
-  }
-  else {
-    throw new Error(`Concern points could not be found for case id ${JSON.stringify(caseIds)}`);
+  } else {
+    throw new Error(
+      `Concern points could not be found for case id ${JSON.stringify(
+        caseIds,
+      )}`,
+    );
   }
 };
 
@@ -74,7 +76,7 @@ exports.ingestUploadedPoints = async (req, res) => {
     return;
   }
 
-  const accessCode = await accessCodesService.find({ value: codeValue });
+  const accessCode = await accessCodeService.find({ value: codeValue });
 
   // Check access code validity
   if (!accessCode) {
@@ -97,7 +99,10 @@ exports.ingestUploadedPoints = async (req, res) => {
     return;
   }
 
-  const concernPoints = await pointsService.createPointsFromUpload(caseId, uploadedPoints);
+  const concernPoints = await pointService.createPointsFromUpload(
+    caseId,
+    uploadedPoints,
+  );
 
   await uploadService.deletePoints(accessCode);
 
@@ -113,13 +118,13 @@ exports.ingestUploadedPoints = async (req, res) => {
 exports.deleteCasePoints = async (req, res) => {
   const { pointIds } = req.body;
 
-  if (pointIds ==  null || !_.isArray(pointIds)) {
+  if (pointIds == null || !_.isArray(pointIds)) {
     res.status(400).send();
     return;
   }
 
   if (pointIds.length > 0) {
-    await pointsService.deleteIds(pointIds);
+    await pointService.deleteIds(pointIds);
   }
 
   res.status(200).send();
@@ -140,13 +145,14 @@ exports.createCasePoint = async (req, res) => {
   if (!point.time) throw new Error('Latitude is not valid.');
   if (!point.duration) throw new Error('Duration is not valid.');
 
-  const concernPoint = await casesService.createCasePoint(caseId, point);
+  const concernPoint = await caseService.createCasePoint(caseId, point);
 
   if (concernPoint) {
     res.status(200).json({ concernPoint });
-  }
-  else {
-    throw new Error(`Concern point could not be created for case ${caseId} using point data.`);
+  } else {
+    throw new Error(
+      `Concern point could not be created for case ${caseId} using point data.`,
+    );
   }
 };
 
@@ -157,7 +163,10 @@ exports.createCasePoint = async (req, res) => {
  *
  */
 exports.updateCasePoint = async (req, res) => {
-  const { body, body: { pointId } } = req;
+  const {
+    body,
+    body: { pointId },
+  } = req;
 
   if (!pointId) throw new Error('Point ID is not valid.');
   if (!body.latitude) throw new Error('Latitude is not valid.');
@@ -165,15 +174,53 @@ exports.updateCasePoint = async (req, res) => {
   if (!body.time) throw new Error('Latitude is not valid.');
   if (!body.duration) throw new Error('Duration is not valid.');
 
-  const params = _.pick(body, ['longitude','latitude','time','duration']);
+  const params = _.pick(body, [
+    'longitude',
+    'latitude',
+    'time',
+    'duration',
+    'nickname',
+  ]);
 
-  const concernPoint = await pointsService.updateRedactedPoint(pointId, params);
+  const concernPoint = await pointService.updateRedactedPoint(pointId, params);
 
   if (concernPoint) {
     res.status(200).json({ concernPoint });
+  } else {
+    throw new Error(
+      `Concern point could not be updated for point ${pointId} using point data.`,
+    );
   }
-  else {
-    throw new Error(`Concern point could not be updated for point ${pointId} using point data.`);
+};
+
+/**
+ * @method updateCasePoints
+ *
+ * Updates existing points of concern
+ *
+ */
+exports.updateCasePoints = async (req, res) => {
+  const {
+    body,
+    body: { pointIds },
+  } = req;
+
+  if (!pointIds) throw new Error('Point IDs are not valid.');
+  if (!body.nickname) throw new Error('Nickname is not valid.');
+
+  const params = _.pick(body, ['nickname']);
+
+  const concernPoints = await pointService.updateRedactedPoints(
+    pointIds,
+    params,
+  );
+
+  if (concernPoints) {
+    res.status(200).json({ concernPoints });
+  } else {
+    throw new Error(
+      `Concern points could not be updated for points ${pointIds}.`,
+    );
   }
 };
 
@@ -186,14 +233,13 @@ exports.updateCasePoint = async (req, res) => {
 exports.deleteCasePoint = async (req, res) => {
   const { pointId } = req.body;
 
-  if (!pointId) throw new Error('Point ID is not valid.')
+  if (!pointId) throw new Error('Point ID is not valid.');
 
-  const caseResults = await pointsService.deleteWhere({ id: pointId });
+  const caseResults = await pointService.deleteWhere({ id: pointId });
 
   if (caseResults) {
     res.sendStatus(200);
-  }
-  else {
+  } else {
     throw new Error(`Concern point could not be deleted for point ${pointId}.`);
   }
 };
@@ -210,13 +256,14 @@ exports.consentToPublish = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.');
 
-  const caseResult = await casesService.consentToPublishing(caseId);
+  const caseResult = await caseService.consentToPublishing(caseId);
 
   if (caseResult) {
-    res.status(200).json({ case: caseResult })
-  }
-  else {
-    throw new Error(`Could not set consent to publishing for case id ${caseId}.`);
+    res.status(200).json({ case: caseResult });
+  } else {
+    throw new Error(
+      `Could not set consent to publishing for case id ${caseId}.`,
+    );
   }
 };
 
@@ -231,12 +278,11 @@ exports.setCaseToStaging = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.');
 
-  const caseResults = await casesService.moveToStaging(caseId);
+  const caseResults = await caseService.moveToStaging(caseId);
 
   if (caseResults) {
     res.status(200).json({ case: caseResults });
-  }
-  else {
+  } else {
     throw new Error(`Could not set case to staging for case id ${caseId}.`);
   }
 };
@@ -265,49 +311,70 @@ exports.setCaseToStaging = async (req, res) => {
  * local = Save to local server environment
  *
  */
+
 exports.publishCases = async (req, res) => {
-  const { body: { caseIds }, user: { organization_id } } = req;
-  let { query: { type } } = req;
+  const {
+    body: { caseIds },
+    user: { organization_id },
+  } = req;
+  let {
+    query: { type },
+  } = req;
 
-  type = (type || process.env.PUBLISH_STORAGE_TYPE);
+  type = type || process.env.PUBLISH_STORAGE_TYPE;
 
-  if (!caseIds) throw new Error('Case IDs are invalid.')
-  if (!organization_id) throw new Error('Organization ID is not valid.')
+  if (!caseIds) throw new Error('Case IDs are invalid.');
+  if (!organization_id) throw new Error('Organization ID is not valid.');
 
-  const organization = await organizationsService.fetchById(organization_id);
+  const organization = await organizationService.fetchById(organization_id);
   if (organization) {
-    const cases = await casesService.publishCases(caseIds, organization.id);
+    const cases = await caseService.publishCases(caseIds, organization.id);
 
     const publicationParams = {
       organization_id: organization.id,
-      publish_date: Math.floor(new Date().getTime() / 1000)
-    }
-    const publication = await publicationsService.insert(publicationParams);
+      publish_date: Math.floor(new Date().getTime() / 1000),
+    };
+    const publication = await publicationService.insert(publicationParams);
     if (publication) {
-
-      const casesUpdateResults = await casesService.updateCasePublicationId(caseIds, publication.id);
+      const casesUpdateResults = await caseService.updateCasePublicationId(
+        caseIds,
+        publication.id,
+      );
       if (!casesUpdateResults) {
-        throw new Error(`Could not set case to staging for case id ${JSON.stringify(caseIds)} and publication ${publication.id}.`);
+        throw new Error(
+          `Could not set case to staging for case id ${JSON.stringify(
+            caseIds,
+          )} and publication ${publication.id}.`,
+        );
       }
 
       // Everything has been published and assigned...pull all published points.
-      const points = await casesService.fetchAllPublishedPoints();
+      const points = await caseService.fetchAllPublishedPoints();
 
       if (points && points.length > 0) {
         if (type === 'zip' && process.env.NODE_ENV !== 'production') {
-          let data = await publicationFiles.buildAndZip(organization, publication, points)
-          res.status(200)
+          let data = await publicationFiles.buildAndZip(
+            organization,
+            publication,
+            points,
+          );
+          res
+            .status(200)
             .set({
               'Content-Type': 'application/octet-stream',
               'Content-Disposition': `attachment; filename="${publication.id}.zip"`,
-              'Content-Length': data.length
+              'Content-Length': data.length,
             })
-            .send(data)
-            return;
+            .send(data);
+          return;
         } else {
-          let pages = await publicationFiles.build(organization, publication, points)
+          let pages = await publicationFiles.build(
+            organization,
+            publication,
+            points,
+          );
 
-          if (type ==='gcs') {
+          if (type === 'gcs') {
             const results = await writeToGCSBucket(pages);
             if (results) {
               res.status(200).json({ cases });
@@ -328,12 +395,14 @@ exports.publishCases = async (req, res) => {
               res.status(200).json(pages);
               return;
             } else if (type === 'local') {
-              const results = await writePublishedFiles(pages, '/tmp/trails')
+              const results = await writePublishedFiles(pages, '/tmp/trails');
               if (results) {
                 res.status(200).json({ cases });
                 return;
               }
-              throw new Error('Files could not be written to /tmp/trails folder.');
+              throw new Error(
+                'Files could not be written to /tmp/trails folder.',
+              );
             }
           }
         }
@@ -341,7 +410,9 @@ exports.publishCases = async (req, res) => {
       }
       throw new Error('No points returned after cases were published.');
     } else {
-      throw new Error('Publication could not be generated using organization and publish date.');
+      throw new Error(
+        'Publication could not be generated using organization and publish date.',
+      );
     }
   } else {
     throw new Error(`Organization could not be found by id ${organization_id}`);
@@ -359,12 +430,11 @@ exports.deleteCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is not valid.');
 
-  const caseResults = await casesService.deleteWhere({ id: caseId });
+  const caseResults = await caseService.deleteWhere({ id: caseId });
 
   if (caseResults) {
     res.sendStatus(200);
-  }
-  else {
+  } else {
     throw new Error(`Could not delete case id ${caseId}.`);
   }
 };
@@ -381,10 +451,12 @@ exports.updateOrganizationCase = async (req, res) => {
 
   if (!caseId) throw new Error('Case ID is missing.');
 
-  const results = await casesService.updateCaseExternalId(caseId, externalId)
+  const results = await caseService.updateCaseExternalId(caseId, externalId);
   if (results) {
-    res.status(200).json({ case: results })
+    res.status(200).json({ case: results });
   } else {
-    throw new Error(`Could not update case id ${caseId} with external id ${externalId}.`);
+    throw new Error(
+      `Could not update case id ${caseId} with external id ${externalId}.`,
+    );
   }
 };
