@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const Promise = require('bluebird');
 const cors = require('cors');
-const boom = require('boom');
 const bodyParser = require('body-parser');
 const expressLogger = require('../logger/express');
 const errorHandler = require('./errorHandler');
@@ -12,16 +11,17 @@ const responseTimeHandler = require('./responseTimeHandler');
 const expressSession = require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('./passport');
+const { hybridStrategy } = require('./auth');
 
 class Server {
   constructor() {
     this._app = express();
 
     const bodyParseJson = bodyParser.json({
-      type:'*/*',
-      limit: '50mb'
-    })
-    const bodyParseEncoded = bodyParser.urlencoded({ extended: false })
+      type: '*/*',
+      limit: '50mb',
+    });
+    const bodyParseEncoded = bodyParser.urlencoded({ extended: false });
 
     this._app.use(cors());
     this._app.use(cookieParser());
@@ -38,15 +38,15 @@ class Server {
     this._app.use(passport.initialize());
     this._app.use(passport.session());
 
-    this._app.use(responseTimeHandler())
-    
+    this._app.use(responseTimeHandler());
+
     this._router = express.Router();
     this._app.use('/', this._router);
 
     process.nextTick(() => {
       this._app.use(notFoundHandler());
-      this._app.use(errorHandler())
-    })
+      this._app.use(errorHandler());
+    });
 
     this._server = http.createServer(this._app);
   }
@@ -97,24 +97,18 @@ class Server {
   /**
    * @method wrapAsync
    */
-  wrapAsync(fn, validate = false) {
+  wrapAsync(asyncFn, validate = false) {
     return (req, res, next) => {
-      // Make sure to `.catch()` any errors and pass them along to the `next()`
-      // middleware in the chain, in this case the error handler.
-      if (validate) {
-        passport.authenticate('jwt', { session: false }, (err, user) => {
-          if (err) {
-            throw new Error(err.message);
-          } else if (user) {
-            req.user = user;
-            fn(req, res, next).catch(next);
-          } else {
-            throw boom.unauthorized('Unauthorized');
-          }
-        })(req, res, next);
-      } else {
-        fn(req, res, next).catch(next);
+      if (!validate) {
+        asyncFn(req, res, next).catch(next);
+        return;
       }
+      hybridStrategy(req).then(user => {
+        req.user = user;
+        asyncFn(req, res, next).catch(next);
+      }).catch(() => {
+        res.status(401).send('Unauthorized');
+      });
     };
   }
 }
