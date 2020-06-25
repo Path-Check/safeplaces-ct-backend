@@ -22,10 +22,12 @@ class Server {
     });
     const bodyParseEncoded = bodyParser.urlencoded({ extended: false });
 
-    this._app.use(cors({
-      origin: 'http://127.0.0.1:5000',
-      credentials: true,
-    }));
+    this._app.use(
+      cors({
+        origin: 'http://127.0.0.1:5000',
+        credentials: true,
+      }),
+    );
     this._app.use(cookieParser());
     this._app.use(expressLogger()); // Log Request
     this._app.use(bodyParseJson);

@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken');
 const request = require('superagent');
+const auth = require('../../auth');
 
 const redirectUri = `${process.env.BACKEND_BASE_URL}/auth/callback`;
 
 // TODO: Clean up global constants
-// TODO: Use querystring module
 
 /**
  * @method login
@@ -57,24 +57,29 @@ exports.login = (req, res) => {
 exports.authLogin = (req, res) => {
   const scope = 'openid profile';
   const clientId = process.env.AUTH0_CLIENT_ID;
-  const url = `${process.env.AUTH0_BASE_URL}/authorize` +
-    [
-      `?response_type=code`,
-      `&audience=${encodeURIComponent(process.env.AUTH0_API_AUDIENCE)}`,
-      `&client_id=${encodeURIComponent(clientId)}`,
-      `&redirect_uri=${encodeURIComponent(redirectUri)}`,
-      `&scope=${encodeURIComponent(scope)}`,
-      `&state=${Math.floor(Math.random() * 100 + 1)}`,
-    ].join('');
+  const state = auth.generateCSRFToken();
+  let url =
+    `${process.env.AUTH0_BASE_URL}/authorize?` +
+    auth.generateQueryString({
+      response_type: 'code',
+      audience: process.env.AUTH0_API_AUDIENCE,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: scope,
+      state: state,
+    });
 
   res.status(302).redirect(url);
 };
 
 exports.authLogout = (req, res) => {
-  // TODO: Redirect to home page
   const clientId = process.env.AUTH0_CLIENT_ID;
-  const url = `${process.env.AUTH0_BASE_URL}/v2/logout` +
-    `?client_id=${encodeURIComponent(clientId)}`;
+  const url =
+    `${process.env.AUTH0_BASE_URL}/v2/logout?` +
+    auth.generateQueryString({
+      client_id: clientId,
+      returnTo: process.env.AUTH_LOGOUT_REDIRECT_URL,
+    });
   res.status(302).redirect(url);
 };
 
@@ -86,11 +91,11 @@ exports.authCallback = (req, res) => {
   request('POST', `${process.env.AUTH0_BASE_URL}/oauth/token`)
     .type('form')
     .send({
-      'grant_type': 'authorization_code',
-      'client_id': process.env.AUTH0_CLIENT_ID,
-      'client_secret': process.env.AUTH0_CLIENT_SECRET,
-      'code': req.query.code,
-      'redirect_uri': redirectUri,
+      grant_type: 'authorization_code',
+      client_id: process.env.AUTH0_CLIENT_ID,
+      client_secret: process.env.AUTH0_CLIENT_SECRET,
+      code: req.query.code,
+      redirect_uri: redirectUri,
     })
     .then(res => res.body)
     .then(data => {
@@ -120,7 +125,7 @@ exports.authCallback = (req, res) => {
       return res
         .status(302)
         .header('Set-Cookie', cookie)
-        .redirect(process.env.AUTH_REDIRECT_URL);
+        .redirect(process.env.AUTH_LOGIN_REDIRECT_URL);
     })
     .catch(err => {
       console.error(err);

@@ -56,7 +56,8 @@ function tryCookieStrategy(req) {
     if (!req.cookies) {
       return reject(new Error('No cookies found'));
     }
-    const accessToken = req.cookies['auth_token'];
+    const accessToken =
+      req.cookies['auth_token'] || req.cookies['access_token'];
     if (!accessToken) {
       return reject(new Error('No access token found in cookie'));
     }
