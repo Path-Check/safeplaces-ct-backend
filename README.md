@@ -1,6 +1,3 @@
-
-
-
 # Safeplaces Backend API
 
 This repository holds an example backend for [Safeplaces API specification](https://github.com/Path-Check/safeplaces-backend/blob/dev/oas3.yaml).
@@ -86,7 +83,7 @@ Clone this repository
 cd safeplaces-backend
 ```
 
-To work locally with the data-layer library, clone it to your computer and then reference it locally using the following command. 
+To work locally with the data-layer library, clone it to your computer and then reference it locally using the following command.
 
 ```
 npm install --save file:../safeplaces-data-layer
@@ -283,17 +280,21 @@ This section of the readme will detail configuration of deployed environments. I
 The staging deployment is based off of the `staging` branch. This environment is used by QA, product, and development teams to validate functionality before releasing to the general public.
 
 ##### Hosted Services
-Frontend : [https://safeplaces.extremesolution.com/](https://safeplaces.extremesolution.com/)  
-Backend API (this repo) : [https://zeus.safeplaces.extremesolution.com](https://zeus.safeplaces.extremesolution.com/)  
+Frontend : [https://safeplaces.extremesolution.com/](https://safeplaces.extremesolution.com/)
+
+Backend API (this repo) : [https://zeus.safeplaces.extremesolution.com](https://zeus.safeplaces.extremesolution.com/)
+
 Ingest Service API : [https://hermes.safeplaces.extremesolution.com/](https://hermes.safeplaces.extremesolution.com/)
 
 #### Production
 The production deployment is based off of the `master` branch. This environment is a production version of the SafePlaces application(s).
 
 ##### Hosted Services
-Frontend: https://spl.extremesolution.com/
-Backend API (this repo): https://yoda.spl.extremesolution.com/
-Ingest Service: https://obiwan.spl.extremesolution.com/
+Frontend: [https://spl.extremesolution.com/](https://spl.extremesolution.com/)
+
+Backend API (this repo): [https://yoda.spl.extremesolution.com/](https://spl.extremesolution.com/)
+
+Ingest Service: [https://obiwan.spl.extremesolution.com/](https://spl.extremesolution.com/)
 
 ### Database Configuration
 Databases for the staging and production version of the application will be configured similarly. Each environment will use its own database.
@@ -374,9 +375,9 @@ Example: `JWT_EXP=3600`
 #### `BYPASS_SAMESITE`
 This value controls the `SamesSite` cookie attribute for the authorization cookie returned by `/login`. If the value is `true`, then the cookie uses `SameSite=None`. Otherwise, it uses `SameSite=Strict`. The value of the environment variable should always be set to `false` in deployed scenarios but will need to be set to `true` for local development.
 
-###A Post Deployment Tasks
+### Post Deployment Tasks
 
-### First Deployment
+#### First Deployment
 Below are tasks that should run the first time the application is deployed.
 
 #### Seeding the Database
@@ -396,17 +397,17 @@ The following command should be run on every deployment to migrate the database 
 We recommend the following for deployed versions of any and all SafePlace APIs:
 
 - The following headers (and appropriate values) should be returned from the server to client:
-- X-Frame-Options 
-- X-XSS-Protection 
-- X-Content-Type-Options 
-- Expect-CT 
-- Feature-Policy
-- Strict-Transport-Security
-  - A suitable "Referrer-Policy" header is included, such as "no-referrer" or "same-origin"
+	- X-Frame-Options
+	- X-XSS-Protection
+	- X-Content-Type-Options
+	- Expect-CT
+	- Feature-Policy
+	- Strict-Transport-Security
+- A suitable "Referrer-Policy" header is included, such as "no-referrer" or "same-origin"
 - The server running SafePlaces should not expose any information about itself that is unneeded (i.e., type of server (nginx) and version (1.17.8))
-  - Implement an appropriate security policy
-  - All SafePlaces APIs should be deployed behind an appropriately configured firewall
-  - All requests to and from a SafePlaces API should be over HTTPS
-  - Old versions of SSL and TLS protocols, algorithms, ciphers, and configuration are disabled, such as SSLv2, SSLv3, or TLS 1.0 and TLS 1.1. The latest version of TLS should be the preferred cipher suite.
-  - The web server should be configured under a low-privilege system user account.
-  -  Any debug model provided by the web or application server is disabled.
+- Implement an appropriate security policy
+- All SafePlaces APIs should be deployed behind an appropriately configured firewall
+- All requests to and from a SafePlaces API should be over HTTPS
+- Old versions of SSL and TLS protocols, algorithms, ciphers, and configuration are disabled, such as SSLv2, SSLv3, or TLS 1.0 and TLS 1.1. The latest version of TLS should be the preferred cipher suite.
+- The web server should be configured under a low-privilege system user account.
+-  Any debug model provided by the web or application server is disabled.
