@@ -52,7 +52,6 @@ class Server {
     return Promise.fromCallback(cb => this._server.listen(port, cb));
   }
 
-
   close() {
     this._server.close();
   }
@@ -94,12 +93,14 @@ class Server {
         asyncFn(req, res, next).catch(next);
         return;
       }
-      hybridStrategy(req).then(user => {
-        req.user = user;
-        asyncFn(req, res, next).catch(next);
-      }).catch(() => {
-        res.status(401).send('Unauthorized');
-      });
+      hybridStrategy(req)
+        .then(user => {
+          req.user = user;
+          asyncFn(req, res, next).catch(next);
+        })
+        .catch(() => {
+          res.status(401).send('Unauthorized');
+        });
     };
   }
 }

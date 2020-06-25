@@ -20,29 +20,34 @@ function tokenStrategy(accessToken) {
     if (!accessToken) {
       return reject(new Error('No access token found'));
     }
-    jwt.verify(accessToken, JWT_SECRET, {
-      algorithms: ['HS256'],
-    }, (err, decoded) => {
-      if (err) {
-        return reject(err);
-      }
-      const username = decoded.sub;
-      if (!username) {
-        return reject(new Error('No username found'));
-      }
-      userService
-        .findOne({ username })
-        .then(user => {
-          if (!user) {
-            return reject(new Error('No user found'));
-          } else {
-            return resolve(user);
-          }
-        })
-        .catch(err => {
+    jwt.verify(
+      accessToken,
+      JWT_SECRET,
+      {
+        algorithms: ['HS256'],
+      },
+      (err, decoded) => {
+        if (err) {
           return reject(err);
-        });
-    });
+        }
+        const username = decoded.sub;
+        if (!username) {
+          return reject(new Error('No username found'));
+        }
+        userService
+          .findOne({ username })
+          .then(user => {
+            if (!user) {
+              return reject(new Error('No user found'));
+            } else {
+              return resolve(user);
+            }
+          })
+          .catch(err => {
+            return reject(err);
+          });
+      },
+    );
   });
 }
 

@@ -29,13 +29,13 @@ ldapClient.bind(process.env.LDAP_BIND, process.env.LDAP_PASS, err => {
 if (process.env.LDAP_FILTER.indexOf('{{username}}') === -1) {
   throw new Error(
     'LDAP_FILTER environment variable must contain the keyword {{username}}. ' +
-    'These keywords will be replaced by the request details appropriately.',
+      'These keywords will be replaced by the request details appropriately.',
   );
 }
 
 passport.use(
   'ldap',
-  new CustomStrategy(function(req, done) {
+  new CustomStrategy(function (req, done) {
     /*
      * Filter will look like
      * (&(cn={{username}})(objectClass=person))
@@ -58,7 +58,7 @@ passport.use(
       (err, res) => {
         if (err) console.error(err);
 
-        res.on('searchEntry', function(entry) {
+        res.on('searchEntry', function (entry) {
           if (process.env.NODE_ENV === 'development') {
             console.log('[LDAP] search entry');
             console.log(entry.object);
@@ -71,7 +71,7 @@ passport.use(
           return done(err, entry.object);
         });
 
-        res.on('error', function(err) {
+        res.on('error', function (err) {
           if (process.env.NODE_ENV === 'development') {
             console.error(err.message);
           }
@@ -82,11 +82,11 @@ passport.use(
   }),
 );
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user);
 });
 
-passport.deserializeUser(function(user, done) {
+passport.deserializeUser(function (user, done) {
   done(null, user);
 });
 
