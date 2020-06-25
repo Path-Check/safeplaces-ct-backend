@@ -95,9 +95,31 @@ exports.authCallback = (req, res) => {
     .then(res => res.body)
     .then(data => {
       console.log(data);
+      const accessToken = data['access_token'];
+      const expiresIn = data['expires_in'] * 1000; // Expiration time to ms.
+
+      const expDate = new Date(Date.now() + expiresIn);
+
+      const sameSite =
+        process.env.BYPASS_SAME_SITE === 'true' ? 'None' : 'Strict';
+
+      const cookieProps = [
+        `access_token=${accessToken}`,
+        `Path=/`,
+        `Expires=${expDate.toUTCString()}`,
+        'HttpOnly',
+        `SameSite=${sameSite}`,
+      ];
+
+      if (process.env.NODE_ENV !== 'development') {
+        cookieProps.push('Secure');
+      }
+
+      const cookie = cookieProps.join(';');
+
       return res
         .status(302)
-        .header('Set-Cookie', `access_token=${data.access_token}`)
+        .header('Set-Cookie', cookie)
         .redirect(process.env.AUTH_REDIRECT_URL);
     })
     .catch(err => {
