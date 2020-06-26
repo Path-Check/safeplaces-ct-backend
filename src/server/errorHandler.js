@@ -9,22 +9,22 @@ const errorHandler = () => {
       errorCode = err.output.statusCode;
       errorMessage = err.output.payload.message;
     }
+
+    // make sure error is captured in logs for all environments except test
+    if (process.env.NODE_ENV !== 'test') {
+      logger.error(`${errorCode} - ${err.stack}`);
+    }
+
+    // scrub error returned to client for production environment
     if (process.env.NODE_ENV === 'production') {
       errorMessage = 'Internal server error';
     }
 
     let response = { message: `${errorCode} - ${errorMessage}` };
+
+    // return full error in response payload if not in production
     if (process.env.NODE_ENV !== 'production') {
       response.error = err;
-      if (process.env.NODE_ENV !== 'test' && err.stack) {
-        console.error('');
-        console.error(err.stack);
-        console.error('');
-      }
-    }
-
-    if (process.env.NODE_ENV !== 'test') {
-      logger.error(`${errorCode} - ${errorMessage}`);
     }
 
     res.status(errorCode).json(response);
