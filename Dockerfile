@@ -12,4 +12,3 @@ RUN npm install -g knex
 RUN npm install -g @sublet/data-layer --unsafe-perm
 ENTRYPOINT ["/app/dbsetup.sh"]
 CMD ["npm", "start"]
-
