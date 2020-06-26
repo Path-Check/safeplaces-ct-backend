@@ -90,16 +90,18 @@ class Server {
         return;
       }
 
-      const enforcedStrategy = process.env.NODE_ENV === 'test'
-        ? auth.enforce.test.validateToken
-        : auth.enforce.prod.validateToken;
+      const enforcedStrategy =
+        process.env.NODE_ENV === 'test'
+          ? auth.enforce.test.validateToken
+          : auth.enforce.prod.validateToken;
 
-      auth.enforce.verifyRequest(req, enforcedStrategy)
+      auth.enforce
+        .verifyRequest(req, enforcedStrategy)
         .then(user => {
           req.user = user;
           asyncFn(req, res, next).catch(next);
         })
-        .catch(err => res.status(401).send('Unauthorized'));
+        .catch(() => res.status(401).send('Unauthorized'));
     };
   }
 }

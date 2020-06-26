@@ -4,8 +4,7 @@ function sourceCookie(req) {
   if (!req.cookies) {
     throw new Error('No cookies found');
   }
-  const accessToken =
-    req.cookies['auth_token'] || req.cookies['access_token'];
+  const accessToken = req.cookies['auth_token'] || req.cookies['access_token'];
   if (!accessToken) {
     throw new Error('No access token found in cookie');
   }
@@ -32,13 +31,11 @@ function sourceToken(req) {
   let accessToken;
   try {
     accessToken = sourceCookie(req);
-  } catch (e) {
-  }
+  } catch (e) {}
   if (accessToken) return accessToken;
   try {
     accessToken = sourceHeader(req);
-  } catch (e) {
-  }
+  } catch (e) {}
   return accessToken;
 }
 

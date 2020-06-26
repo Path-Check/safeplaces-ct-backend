@@ -2,7 +2,11 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
 function isValidDate(date) {
-  return date && Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date);
+  return (
+    date &&
+    Object.prototype.toString.call(date) === '[object Date]' &&
+    !isNaN(date)
+  );
 }
 
 function signJWT({ subject, role, expires }) {

@@ -9,7 +9,10 @@ const errorHandler = () => {
       errorCode = err.output.statusCode;
       errorMessage = err.output.payload.message;
     }
-    if (process.env.NODE_ENV === 'production') {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      !process.env.DISPLAY_ERROR_MESSAGE
+    ) {
       errorMessage = 'Internal server error';
     }
 

@@ -16,13 +16,18 @@ function getSigningKey(header, callback) {
 
 function validateToken(accessToken) {
   return new Promise((resolve, reject) => {
-    jwt.verify(accessToken, getSigningKey, {
-      audience: process.env.AUTH0_API_AUDIENCE,
-      algorithms: ['RS256'],
-    }, (err, decoded) => {
-      if (err) return reject(err);
-      return resolve(decoded);
-    });
+    jwt.verify(
+      accessToken,
+      getSigningKey,
+      {
+        audience: process.env.AUTH0_API_AUDIENCE,
+        algorithms: ['RS256'],
+      },
+      (err, decoded) => {
+        if (err) return reject(err);
+        return resolve(decoded);
+      },
+    );
   });
 }
 

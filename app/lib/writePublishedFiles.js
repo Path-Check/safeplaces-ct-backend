@@ -5,7 +5,7 @@ const fs = require('fs');
  * This is simple logic that will save the published files that are needed
  * for the Mobile apps to download data from. You will want to create your own
  * logic here and save to a public location. Your organizations API Endpoint
- * should point to the directory that the safe_paths.json file is located in.
+ * should point to the directory that the cursor.json file is located in.
  *
  * @method writePublishedFiles
  * @param {Object} pages
@@ -34,10 +34,7 @@ module.exports = async (pages, baseLocation) => {
 
   const results = await mkdir(`${baseLocation}`);
   if (results) {
-    await saveFile(
-      `${baseLocation}/safe_paths.json`,
-      JSON.stringify(pages.cursor),
-    );
+    await saveFile(`${baseLocation}/cursor.json`, JSON.stringify(pages.cursor));
     let page, filename;
     for (page of pages.files) {
       filename = page.page_name.split('/').pop();

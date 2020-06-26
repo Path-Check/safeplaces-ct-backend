@@ -7,14 +7,14 @@ exports.login = (req, res) => {
   request('POST', `${process.env.AUTH0_BASE_URL}/oauth/token`)
     .type('form')
     .send({
-      'grant_type': 'password',
-      'username': username,
-      'password': password,
-      'audience': process.env.AUTH0_API_AUDIENCE,
-      'client_id': process.env.AUTH0_CLIENT_ID,
-      'client_secret': process.env.AUTH0_CLIENT_SECRET,
-      'connection': process.env.AUTH0_DB_CONNECTION,
-      'scope': 'openid',
+      grant_type: 'password',
+      username: username,
+      password: password,
+      audience: process.env.AUTH0_API_AUDIENCE,
+      client_id: process.env.AUTH0_CLIENT_ID,
+      client_secret: process.env.AUTH0_CLIENT_SECRET,
+      connection: process.env.AUTH0_DB_CONNECTION,
+      scope: 'openid',
     })
     .then(res => res.body)
     .then(data => {
@@ -32,13 +32,10 @@ exports.login = (req, res) => {
         secure: process.env.NODE_ENV !== 'development',
       });
 
-      res
-        .status(200)
-        .header('Set-Cookie', cookieString)
-        .json({
-          token: accessToken,
-          maps_api_key: process.env.SEED_MAPS_API_KEY,
-        });
+      res.status(200).header('Set-Cookie', cookieString).json({
+        token: accessToken,
+        maps_api_key: process.env.SEED_MAPS_API_KEY,
+      });
     })
     .catch(() => res.status(401).send('Unauthorized'));
 };
