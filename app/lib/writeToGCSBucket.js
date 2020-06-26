@@ -17,7 +17,7 @@ const { Storage } = require('@google-cloud/storage');
 
 async function main() {
   const auth = new GoogleAuth({
-    scopes: 'https://www.googleapis.com/auth/devstorage.read_write'
+    scopes: 'https://www.googleapis.com/auth/devstorage.read_write',
   });
   const client = await auth.getClient();
   const projectId = await auth.getProjectId();
