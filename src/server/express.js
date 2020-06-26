@@ -1,16 +1,14 @@
 const express = require('express');
 const http = require('http');
 const Promise = require('bluebird');
-const cors = require('cors');
 const bodyParser = require('body-parser');
 const expressLogger = require('../logger/express');
 const errorHandler = require('./errorHandler');
 const notFoundHandler = require('./notFoundHandler');
 const responseTimeHandler = require('./responseTimeHandler');
+const auth = require('../../app/auth');
 
 const cookieParser = require('cookie-parser');
-const passport = require('./passport');
-const { hybridStrategy } = require('./auth');
 
 class Server {
   constructor() {
@@ -22,17 +20,10 @@ class Server {
     });
     const bodyParseEncoded = bodyParser.urlencoded({ extended: false });
 
-    this._app.use(
-      cors({
-        origin: 'http://127.0.0.1:5000',
-        credentials: true,
-      }),
-    );
     this._app.use(cookieParser());
     this._app.use(expressLogger()); // Log Request
     this._app.use(bodyParseJson);
     this._app.use(bodyParseEncoded);
-    this._app.use(passport.initialize());
 
     this._app.use(responseTimeHandler());
 
@@ -98,14 +89,17 @@ class Server {
         asyncFn(req, res, next).catch(next);
         return;
       }
-      hybridStrategy(req)
+
+      const enforcedStrategy = process.env.NODE_ENV === 'test'
+        ? auth.enforce.test.validateToken
+        : auth.enforce.prod.validateToken;
+
+      auth.enforce.verifyRequest(req, enforcedStrategy)
         .then(user => {
           req.user = user;
           asyncFn(req, res, next).catch(next);
         })
-        .catch(() => {
-          res.status(401).send('Unauthorized');
-        });
+        .catch(err => res.status(401).send('Unauthorized'));
     };
   }
 }
