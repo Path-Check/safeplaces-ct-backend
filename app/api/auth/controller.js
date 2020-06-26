@@ -18,7 +18,6 @@ exports.login = (req, res) => {
     })
     .then(res => res.body)
     .then(data => {
-      console.log(data);
       const accessToken = data['access_token'];
       const expiresIn = parseInt(data['expires_in']);
 
