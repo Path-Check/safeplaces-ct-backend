@@ -16,7 +16,6 @@ const { Storage } = require('@google-cloud/storage');
  */
 
 async function main() {
-
   // https://www.googleapis.com/auth/cloud-platform
   // https://www.googleapis.com/auth/cloud-platform.read-only
   // https://www.googleapis.com/auth/ndev.clouddns.readonly
@@ -27,7 +26,7 @@ async function main() {
       'https://www.googleapis.com/auth/cloud-platform',
       'https://www.googleapis.com/auth/cloud-platform.read-only',
       'https://www.googleapis.com/auth/devstorage.read_write',
-      'https://www.googleapis.com/auth/ndev.clouddns.readwrite'
+      'https://www.googleapis.com/auth/ndev.clouddns.readwrite',
     ],
   });
   const client = await auth.getClient();
