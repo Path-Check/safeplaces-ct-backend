@@ -54,8 +54,6 @@ const client = new SecretManagerServiceClient();
 async function pullSecret() {
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return true;
 
-  console.log('[GCS] pullSecret Started.');
-
   const saveCredentialsFile = (file, contents) => {
     return new Promise((resolve, reject) => {
       fs.writeFile(file, contents, err => {
@@ -67,23 +65,14 @@ async function pullSecret() {
 
   const fileName = '/tmp/creds.json';
 
-  console.log('[GCS] pullSecret name: ', process.env.GOOGLE_SECRET);
-
   const [accessResponse] = await client.accessSecretVersion({
     name: process.env.GOOGLE_SECRET,
   });
-  console.log('[GCS] pullSecret accessResponse: ', accessResponse);
   const responsePayload = accessResponse.payload.data.toString('utf8');
-  console.log('[GCS] pullSecret responsePayload: ', responsePayload);
   if (responsePayload) {
     const credsSaved = await saveCredentialsFile(fileName, responsePayload);
-    console.log('[GCS] pullSecret credsSaved: ', credsSaved);
     if (credsSaved) {
       process.env.GOOGLE_APPLICATION_CREDENTIALS = fileName;
-      console.log(
-        '[GCS] pullSecret fileName: ',
-        process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      );
       return true;
     } else {
       throw new Error('Problem saving credentials file.');
