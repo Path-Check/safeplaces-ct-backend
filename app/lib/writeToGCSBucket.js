@@ -19,38 +19,6 @@ const client = new SecretManagerServiceClient();
  * @return {Boolean}
  */
 
-// async function main() {
-//   // https://www.googleapis.com/auth/cloud-platform
-//   // https://www.googleapis.com/auth/cloud-platform.read-only
-//   // https://www.googleapis.com/auth/ndev.clouddns.readonly
-//   // https://www.googleapis.com/auth/ndev.clouddns.readwrite”’,
-
-//   const auth = new GoogleAuth({
-//     scopes: [
-//       'https://www.googleapis.com/auth/cloud-platform',
-//       'https://www.googleapis.com/auth/cloud-platform.read-only',
-//       'https://www.googleapis.com/auth/devstorage.read_write',
-//       'https://www.googleapis.com/auth/ndev.clouddns.readwrite',
-//     ],
-//   });
-//   const client = await auth.getClient();
-//   const projectId = await auth.getProjectId();
-//   const url = `https://dns.googleapis.com/dns/v1/projects/${projectId}`;
-//   const res = await client.request({ url });
-//   console.log(res.data);
-// }
-
-// if (process.env.GOOGLE_SERVICE_EMAIL) {
-//   main().catch(console.error);
-// }
-
-/**
- * TODO(developer): Uncomment these variables before running the sample.
- */
-// parent = 'projects/my-project', // Project for which to manage secrets.
-// secretId = 'foo', // Secret ID.
-// payload = 'hello world!' // String source data.
-
 async function pullSecret() {
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return true;
 
@@ -86,6 +54,11 @@ module.exports = async pages => {
   if (!process.env.GCLOUD_STORAGE_BUCKET)
     throw new Error('Google Bucket not set.');
 
+  let path = '';
+  if (process.env.GCLOUD_STORAGE_PATH) {
+    path = process.env.GCLOUD_STORAGE_PATH + '/';
+  }
+
   const secret = await pullSecret();
   if (secret) {
     const storage = new Storage();
@@ -103,11 +76,11 @@ module.exports = async pages => {
       });
     };
 
-    await saveFile(`safe_paths.json`, JSON.stringify(pages.cursor));
+    await saveFile(`${path}safe_paths.json`, JSON.stringify(pages.cursor));
 
     for (let page of pages.files) {
       const filename = page.page_name.split('/').pop();
-      await saveFile(filename, JSON.stringify(page));
+      await saveFile(path + filename, JSON.stringify(page));
     }
   } else {
     throw new Error('Secrets file could not be generated');
