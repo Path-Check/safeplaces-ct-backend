@@ -1,4 +1,4 @@
-const { auth, Compute } = require('google-auth-library');
+const { GoogleAuth } = require('google-auth-library');
 const { Storage } = require('@google-cloud/storage');
 
 /**
@@ -16,9 +16,10 @@ const { Storage } = require('@google-cloud/storage');
  */
 
 async function main() {
-  const client = new Compute({
-    serviceAccountEmail: process.env.GOOGLE_SERVICE_EMAIL,
+  const auth = new GoogleAuth({
+    scopes: 'https://www.googleapis.com/auth/devstorage.read_write'
   });
+  const client = await auth.getClient();
   const projectId = await auth.getProjectId();
   const url = `https://dns.googleapis.com/dns/v1/projects/${projectId}`;
   const res = await client.request({ url });
@@ -32,8 +33,6 @@ if (process.env.GOOGLE_SERVICE_EMAIL) {
 module.exports = async pages => {
   if (!process.env.GCLOUD_STORAGE_BUCKET)
     throw new Error('Google Bucket not set.');
-
-  auth.getClient();
 
   const storage = new Storage();
   const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET);
