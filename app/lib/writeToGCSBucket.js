@@ -44,7 +44,6 @@ const client = new SecretManagerServiceClient();
 //   main().catch(console.error);
 // }
 
-
 /**
  * TODO(developer): Uncomment these variables before running the sample.
  */
@@ -53,7 +52,7 @@ const client = new SecretManagerServiceClient();
 // payload = 'hello world!' // String source data.
 
 async function pullSecret() {
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return true
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return true;
 
   const saveCredentialsFile = (file, contents) => {
     return new Promise((resolve, reject) => {
@@ -64,20 +63,22 @@ async function pullSecret() {
     });
   };
 
-  const fileName = '/tmp/creds.json'
+  const fileName = '/tmp/creds.json';
 
-  const [accessResponse] = await client.accessSecretVersion({ name: process.env.GOOGLE_SECRET });
+  const [accessResponse] = await client.accessSecretVersion({
+    name: process.env.GOOGLE_SECRET,
+  });
   const responsePayload = accessResponse.payload.data.toString('utf8');
   if (responsePayload) {
-    const credsSaved = await saveCredentialsFile(fileName, responsePayload)
+    const credsSaved = await saveCredentialsFile(fileName, responsePayload);
     if (credsSaved) {
-      process.env.GOOGLE_APPLICATION_CREDENTIALS = fileName
-      return true
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = fileName;
+      return true;
     } else {
-      throw new Error('Problem saving credentials file.')
+      throw new Error('Problem saving credentials file.');
     }
   } else {
-    throw new Error('Problem getting access secret response.')
+    throw new Error('Problem getting access secret response.');
   }
 }
 
@@ -85,11 +86,11 @@ module.exports = async pages => {
   if (!process.env.GCLOUD_STORAGE_BUCKET)
     throw new Error('Google Bucket not set.');
 
-  const secret = await pullSecret()
+  const secret = await pullSecret();
   if (secret) {
     const storage = new Storage();
     const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET);
-  
+
     const saveFile = (filename, contents) => {
       return new Promise((resolve, reject) => {
         const blob = bucket.file(filename);
@@ -101,15 +102,15 @@ module.exports = async pages => {
         stream.end(Buffer.from(contents));
       });
     };
-  
+
     await saveFile(`safe_paths.json`, JSON.stringify(pages.cursor));
-  
+
     for (let page of pages.files) {
       const filename = page.page_name.split('/').pop();
       await saveFile(filename, JSON.stringify(page));
     }
   } else {
-    throw new Error('Secrets file could not be generated')
+    throw new Error('Secrets file could not be generated');
   }
 
   return true;
