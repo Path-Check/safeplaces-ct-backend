@@ -6,7 +6,7 @@ module.exports = {
     exitOnError: false,
     json: true,
     maxsize: 5242880, // 5MB file chunks
-    maxFiles: 5
+    maxFiles: 5,
   },
   output: {
     level: 'debug',
@@ -20,14 +20,14 @@ module.exports = {
       error: 1,
       warn: 2,
       info: 3,
-      debug: 4
+      debug: 4,
     },
     colors: {
       critical: 'red bold',
       error: 'red italic',
       warn: 'yellow bold',
       info: 'green',
-      debug: 'blue'
-    }
-  }
-}
+      debug: 'blue',
+    },
+  },
+};

@@ -16,7 +16,7 @@
     "test:int": "mocha test/integration/*.* --exit",
     "test:unit": "mocha test/unit/*.* --exit",
     "test:all": "mocha test/**/*.* --exit",
-    "format": "prettier --write **/*.{js,json}",
+    "format": "prettier --write \"**/*.{js,json}\"",
     "ldap:build": "cd ldapjs && npm install",
     "ldap:start": "cd ldapjs && npm start"
   },
@@ -26,6 +26,7 @@
     "test"
   ],
   "dependencies": {
+    "@google-cloud/secret-manager": "^3.1.0",
     "@google-cloud/storage": "^5.0.1",
     "@sublet/data-layer": "0.0.15",
     "adm-zip": "^0.4.14",
@@ -34,6 +35,7 @@
     "aws-sdk": "^2.692.0",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.7.2",
+    "body-parser": "^1.19.0",
     "boom": "^7.3.0",
     "chalk": "^4.1.0",
     "cookie-parser": "~1.4.4",
@@ -41,7 +43,7 @@
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
     "express": "~4.16.1",
-    "express-session": "^1.17.1",
+    "google-auth-library": "^6.0.2",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "jszip": "^3.4.0",
@@ -54,8 +56,6 @@
     "ngeohash": "^0.6.3",
     "passport": "^0.4.1",
     "passport-custom": "^1.1.1",
-    "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0",
     "pg": "^8.0.2",
     "response-time": "^2.3.2",
     "sinon": "^9.0.2",
