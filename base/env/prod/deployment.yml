@@ -16,6 +16,9 @@ spec:
     spec:
       containers:
         - name: prod-spl-be
+          volumeMounts:
+            - mountPath: /app/keys
+              name: gcs-svc
           image: gcr.io/PROJECT_ID/IMAGE:TAG
           imagePullPolicy: IfNotPresent
           env:
@@ -40,3 +43,8 @@ spec:
               port: express
             initialDelaySeconds: 30
             periodSeconds: 2
+      volumes:
+        - name: gcs-svc
+          configMap:
+            name: spl-be-svc
+
