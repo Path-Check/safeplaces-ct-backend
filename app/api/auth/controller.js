@@ -39,7 +39,7 @@ exports.login = (req, res) => {
     })
     .catch(err => {
       console.log(err);
-      res.status(401).send('Unauthorized')
+      res.status(401).send('Unauthorized');
     });
 };
 
