@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const AdmZip = require('adm-zip');
 const geoHash = require('./geoHash');
-const transform = require('./pocTransform.js');
+// const transform = require('./pocTransform.js');
 
 /**
  * @class PublicationFiles
@@ -30,7 +30,7 @@ class PublicationFiles {
     }
     this._apiEndpointPage = `${endpoint}[PAGE].json`;
 
-    trails = await this._transformAndHash(trails);
+    // trails = await this._transformAndHash(trails);
 
     const header = this._getHeader(organization, record);
     const trailsChunked = this._chunkTrails(trails, organization.chunkingInSeconds);
@@ -104,29 +104,27 @@ class PublicationFiles {
 
   /**
    *
-   * Transform from duration to discreet and build hashes.
+   * Hash given points
    *
-   * @method _transformAndHash
-   * @param {Array[Trails]} trails
+   * @method hashPoints
+   * @param {Array[Trails]} points
    * @return {Array[HashedTrails]}
    */
 
-  async _transformAndHash(trails) {
-    trails = transform.durationToDiscreet(trails)
+  async hashPoints(points) {
+    let point, hash;
+    let pointRecords = [];
 
-    let trail, hash;
-    let trailRecords = [];
-
-    for(trail of trails) {
-      hash = await geoHash.encrypt(trail)
+    for(point of points) {
+      hash = await geoHash.encrypt(point)
       if (hash) {
-        trail.hash = hash.encodedString;
-        trail.secret = hash.secret;
-        trailRecords.push(trail);
+        point.hash = hash.encodedString;
+        point.secret = hash.secret;
+        pointRecords.push(point);
       }
     }
 
-    return trailRecords;
+    return pointRecords;
   }
 
   /**

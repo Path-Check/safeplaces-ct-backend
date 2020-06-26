@@ -13,6 +13,7 @@ const publicationFiles = require('../../lib/publicationFiles');
 const writePublishedFiles = require('../../lib/writePublishedFiles');
 const writeToGCSBucket = require('../../lib/writeToGCSBucket');
 const writeToS3Bucket = require('../../lib/writeToS3Bucket');
+// const geoHash = require('../../lib/geoHash');
 
 /**
  * @method fetchCasePoints
@@ -289,6 +290,17 @@ exports.publishCases = async (req, res) => {
       const casesUpdateResults = await caseService.updateCasePublicationId(caseIds, publication.id);
       if (!casesUpdateResults) {
         throw new Error(`Could not set case to staging for case id ${JSON.stringify(caseIds)} and publication ${publication.id}.`);
+      }
+
+      // TODO: Need to pull points for caseIds and hash them.  After each case, save 
+      let caseId, pointsOnDeck, newPoints
+      for(caseId of caseIds) {
+        pointsOnDeck = await caseService.fetchCasePoints(caseId)
+        if (pointsOnDeck.length) {
+          newPoints = await publicationFiles.hashPoints(pointsOnDeck)
+          console.log(newPoints)
+        }
+
       }
 
       // Everything has been published and assigned...pull all published points.

@@ -481,7 +481,7 @@ describe('Case', () => {
 
     });
 
-    it('returns test json to validate contents of file', async () => {
+    it.skip('returns test json to validate contents of file', async () => {
       const newParams = {
         caseIds: [caseOne.caseId, caseTwo.caseId, caseThree.caseId],
       };
