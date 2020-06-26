@@ -1,3 +1,5 @@
+
+const { auth, Compute } = require('google-auth-library');
 const { Storage } = require('@google-cloud/storage');
 
 /**
@@ -14,9 +16,26 @@ const { Storage } = require('@google-cloud/storage');
  * @return {Boolean}
  */
 
-module.exports = async pages => {
-  if (!process.env.GCLOUD_STORAGE_BUCKET)
-    throw new Error('Google Bucket not set.');
+
+async function main() {
+  const client = new Compute({
+    serviceAccountEmail: process.env.GOOGLE_SERVICE_EMAIL,
+  });
+  const projectId = await auth.getProjectId();
+  const url = `https://dns.googleapis.com/dns/v1/projects/${projectId}`;
+  const res = await client.request({url});
+  console.log(res.data);
+}
+  
+if (process.env.GOOGLE_SERVICE_EMAIL) {
+  main().catch(console.error);
+}
+
+module.exports = async (pages) => {
+
+  if (!process.env.GCLOUD_STORAGE_BUCKET) throw new Error('Google Bucket not set.')
+
+  auth.getClient()
 
   const storage = new Storage();
   const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET);
@@ -30,12 +49,12 @@ module.exports = async pages => {
         resolve(`https://storage.googleapis.com/${bucket.name}/${blob.name}`);
       });
       stream.end(Buffer.from(contents));
-    });
-  };
+    })
+  }
 
   await saveFile(`safe_paths.json`, JSON.stringify(pages.cursor));
 
-  for (let page of pages.files) {
+  for(let page of pages.files) {
     const filename = page.page_name.split('/').pop();
     await saveFile(filename, JSON.stringify(page));
   }
