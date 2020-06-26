@@ -54,9 +54,9 @@ module.exports = async pages => {
   if (!process.env.GCLOUD_STORAGE_BUCKET)
     throw new Error('Google Bucket not set.');
 
-  let path = ''
+  let path = '';
   if (process.env.GCLOUD_STORAGE_PATH) {
-    path = process.env.GCLOUD_STORAGE_PATH + '/'
+    path = process.env.GCLOUD_STORAGE_PATH + '/';
   }
 
   const secret = await pullSecret();
