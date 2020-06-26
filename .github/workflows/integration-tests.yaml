@@ -8,7 +8,7 @@
 #
 # 3. Change the values for the GKE_ZONE, GKE_CLUSTER, IMAGE, REGISTRY_HOSTNAME and DEPLOYMENT_NAME environment variables (below).
 
-name: Run Integration tests
+name: Integration Tests
 
 on:
   pull_request:
@@ -45,6 +45,13 @@ env:
   LDAP_BIND: 'cn=admin, dc=covidsafepaths, dc=org'
   LDAP_SEARCH: 'dc=covidsafepaths, dc=org'
   LDAP_FILTER: '(&(objectClass=person)(cn={{username}}))'
+  AUTH_LOGOUT_REDIRECT_URL: 'http://127.0.0.1:5000'
+  AUTH0_BASE_URL: 'https://safeplaces.us.auth0.com'
+  AUTH0_CLIENT_ID: 'dXBl74NypszcDQQ2WPJsIUj99lSHcSMf'
+  AUTH0_CLIENT_SECRET: 'uagQlLvuLIJh_OFg5aR4lWRT3LhOyrp_qi1jHwgr4t0lLhOlktQAQo35SE3zOE1L'
+  AUTH0_API_AUDIENCE: 'https://safeplaces.cloud/'
+  AUTH0_CLAIM_NAMESPACE: 'https://safeplaces.cloud'
+  AUTH0_DB_CONNECTION: Test
 
 jobs:
   run-integration-tests:
