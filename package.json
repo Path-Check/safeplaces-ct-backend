@@ -16,9 +16,7 @@
     "test:int": "mocha test/integration/*.* --exit",
     "test:unit": "mocha test/unit/*.* --exit",
     "test:all": "mocha test/**/*.* --exit",
-    "format": "prettier --write \"**/*.{js,json}\"",
-    "ldap:build": "cd ldapjs && npm install",
-    "ldap:start": "cd ldapjs && npm start"
+    "format": "prettier --write \"**/*.{js,json}\""
   },
   "pre-commit": [
     "format",
@@ -49,8 +47,6 @@
     "jwks-rsa": "^1.8.1",
     "knex": "^0.20.15",
     "knex-postgis": "^0.12.0",
-    "ldap-escape": "^2.0.4",
-    "ldapjs": "^1.0.2",
     "moment": "~2.19.3",
     "morgan": "~1.9.1",
     "ngeohash": "^0.6.3",
