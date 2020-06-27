@@ -18,7 +18,6 @@ exports.login = (req, res) => {
     })
     .then(res => res.body)
     .then(data => {
-      console.log(data);
       const accessToken = data['access_token'];
       const expiresIn = parseInt(data['expires_in']);
 
@@ -37,10 +36,7 @@ exports.login = (req, res) => {
         maps_api_key: process.env.SEED_MAPS_API_KEY,
       });
     })
-    .catch(err => {
-      console.log(err);
-      res.status(401).send('Unauthorized');
-    });
+    .catch(() => res.status(401).send('Unauthorized'));
 };
 
 exports.logout = (req, res) => {

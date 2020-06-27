@@ -39,8 +39,8 @@ function sourceToken(req) {
   return accessToken;
 }
 
-async function getUser(username) {
-  return await userService.findOne({ username });
+async function getUser(idm_id) {
+  return await userService.findOne({ idm_id });
 }
 
 async function verifyRequest(req, validateToken) {
