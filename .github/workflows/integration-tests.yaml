@@ -8,7 +8,7 @@
 #
 # 3. Change the values for the GKE_ZONE, GKE_CLUSTER, IMAGE, REGISTRY_HOSTNAME and DEPLOYMENT_NAME environment variables (below).
 
-name: Run Integration tests
+name: Integration Tests
 
 on:
   pull_request:
@@ -38,13 +38,13 @@ env:
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   SEED_MAPS_API_KEY: ${{ secrets.SEED_MAPS_API_KEY }}
   TESTS_ENV: ${{ secrets.TESTS_ENV }}
-  LDAP_HOST: localhost
-  LDAP_PORT: 6379
-  LDAP_PASS: ${{ secrets.LDAP_PASS }}
-  LDAP_ORG: 'dc=covidsafepaths, dc=org'
-  LDAP_BIND: 'cn=admin, dc=covidsafepaths, dc=org'
-  LDAP_SEARCH: 'dc=covidsafepaths, dc=org'
-  LDAP_FILTER: '(&(objectClass=person)(cn={{username}}))'
+  AUTH_LOGOUT_REDIRECT_URL: 'http://127.0.0.1:5000'
+  AUTH0_BASE_URL: 'https://safeplaces.us.auth0.com'
+  AUTH0_CLIENT_ID: 'dXBl74NypszcDQQ2WPJsIUj99lSHcSMf'
+  AUTH0_CLIENT_SECRET: '6lpWMmjsG3DEwmzmvqBuPx4MiBZEdqk4ubtO-14WRyDRIgukglJhDAgN-NgQzxIv'
+  AUTH0_API_AUDIENCE: 'https://safeplaces.cloud/'
+  AUTH0_CLAIM_NAMESPACE: 'https://safeplaces.cloud'
+  AUTH0_DB_CONNECTION: Test
 
 jobs:
   run-integration-tests:
@@ -77,10 +77,8 @@ jobs:
       - run: |
           npm install -g knex &
           npm install &
-          npm run ldap:build &
           wait
       - run: |
-          npm run ldap:start &
           echo $TESTS_ENV | base64 --decode --ignore-garbage > .env &&
           source .env && npm test
         env:

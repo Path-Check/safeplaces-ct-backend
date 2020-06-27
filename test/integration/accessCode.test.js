@@ -29,16 +29,14 @@ describe('POST /access-code', () => {
 
     const userParams = {
       username: 'test',
-      password: 'test',
-      email: 'test@test.com',
       organization_id: org.id,
     };
 
-    await mockData.mockUser(userParams);
+    const user = await mockData.mockUser(userParams);
 
     token = jwt.sign(
       {
-        sub: userParams.username,
+        sub: user.idm_id,
         iat: ~~(Date.now() / 1000),
         exp:
           ~~(Date.now() / 1000) +

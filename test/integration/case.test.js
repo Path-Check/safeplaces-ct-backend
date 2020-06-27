@@ -34,15 +34,13 @@ describe('Case', () => {
 
     let newUserParams = {
       username: 'myAwesomeUser',
-      password: 'myAwesomePassword',
-      email: 'myAwesomeUser@yomanbob.com',
       organization_id: currentOrg.id,
     };
-    await mockData.mockUser(newUserParams);
+    const user = await mockData.mockUser(newUserParams);
 
     token = jwt.sign(
       {
-        sub: newUserParams.username,
+        sub: user.idm_id,
         iat: ~~(Date.now() / 1000),
         exp:
           ~~(Date.now() / 1000) +
