@@ -5,14 +5,14 @@ substitutions:
   _REGION:
 
 steps:
-- id: 'build'
+- id: 'Build Container Image'
   name: 'registry.hub.docker.com/library/docker:18'
   args: [
     'build',
     '--tag', 'gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA',
     '.' ]
 
-- id: 'publish'
+- id: 'Publish Container'
   name: 'registry.hub.docker.com/library/docker:18'
   args: [
     'push',
@@ -23,7 +23,7 @@ steps:
 # Deploys a Cloud Run service.
 #
 
-- id: 'deploy'
+- id: 'Deploy to Cloud Run'
   name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:293.0.0-alpine'
   args:
   - 'bash'
