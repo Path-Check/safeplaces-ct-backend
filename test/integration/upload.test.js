@@ -30,16 +30,14 @@ describe('POST /case/points/ingest', () => {
 
     const userParams = {
       username: 'test',
-      password: 'test',
-      email: 'test@test.com',
       organization_id: currentOrg.id,
     };
 
-    await mockData.mockUser(userParams);
+    const user = await mockData.mockUser(userParams);
 
     token = jwt.sign(
       {
-        sub: userParams.username,
+        sub: user.idm_id,
         iat: ~~(Date.now() / 1000),
         exp:
           ~~(Date.now() / 1000) +
