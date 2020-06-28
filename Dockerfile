@@ -15,3 +15,4 @@ RUN npm install -g @sublet/data-layer --unsafe-perm
 ENTRYPOINT ["/app/dbsetup.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 #CMD ["npm", "start"]
+
