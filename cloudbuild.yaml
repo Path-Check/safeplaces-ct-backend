@@ -1,0 +1,20 @@
+# GCP only cloudbuild script to build container image and deploy to Cloud Run Serverless
+
+substitutions:
+  _SERVICE:
+
+steps:
+- id: 'build'
+  name: 'registry.hub.docker.com/library/docker:18'
+  args: [
+    'build',
+    '--tag', 'gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA',
+    '.' ]
+
+- id: 'publish'
+  name: 'registry.hub.docker.com/library/docker:18'
+  args: [
+    'push',
+    'gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA',
+  ]
+
