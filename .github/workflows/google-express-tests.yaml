@@ -14,15 +14,6 @@ on:
   pull_request:
     branches:
       - dev
-    # paths:
-    #   - 'expressjs/**/**'
-  push:
-    branches:
-      - tests
-      - dev-fix-newman
-    # paths:
-    #   - 'expressjs/**/**'
-
 # Environment variables available to all jobs and steps in this workflow
 env:
   GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
@@ -75,7 +66,7 @@ jobs:
       # Build the Docker image
       - name: Build
         run: |
-          docker build -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$IMAGE":"$GITHUB_SHA" \
+          docker build -t "$REGISTRY_HOSTNAME"/$GKE_PROJECT/"$IMAGE":"$GITHUB_SHA" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" .
 
