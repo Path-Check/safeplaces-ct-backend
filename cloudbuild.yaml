@@ -23,12 +23,6 @@ steps:
 # Deploys a Cloud Run service.
 #
 
-substitutions:
-  _REGION:
-  _SERVICE:
-  _TAG:
-
-steps:
 - id: 'deploy'
   name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:293.0.0-alpine'
   args:
