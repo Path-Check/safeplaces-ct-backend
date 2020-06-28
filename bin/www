@@ -16,7 +16,7 @@ const debug = require('debug')('safe-places-server:server');
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.EXPRESSPORT || '3000');
 
 api.start(port)
   .then(() => console.log(`Node Server Started on port ${port}!`));
