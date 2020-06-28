@@ -42,4 +42,4 @@ steps:
       --project "${PROJECT_ID}" \
       --platform "managed" \
       --region "${_REGION}" \
-      --image "gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME=$SHORT_SHA"
+      --image "gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA"
