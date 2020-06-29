@@ -9,6 +9,7 @@ COPY --from=build-env /app /app
 WORKDIR /app
 ADD wait-for.sh /wait-for.sh
 ADD deployment-configs/nginx-app.conf /etc/nginx/conf.d/nginx-app.conf
+ADD deployment-configs/nginx-http.conf /etc/nginx/conf.d/nginx-http.conf
 ADD deployment-configs/supervisor.pm2.conf /etc/supervisor/conf.d/supervisor.pm2.conf
 RUN npm install -g knex
 RUN npm install -g @sublet/data-layer --unsafe-perm
