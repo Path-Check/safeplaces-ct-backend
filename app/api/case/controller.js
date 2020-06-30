@@ -363,7 +363,7 @@ exports.publishCases = async (req, res) => {
         pointsOnDeck = await caseService.fetchCasePoints(caseId, true);
         if (pointsOnDeck.length) {
           newPoints = await publicationFiles.hashPoints(pointsOnDeck);
-          await caseService.updatePointHashes(newPoints)
+          await caseService.updatePointHashes(newPoints);
         }
       }
 
@@ -407,7 +407,7 @@ exports.publishCases = async (req, res) => {
           } else if (process.env.NODE_ENV !== 'production') {
             await caseService.publishCases(caseIds, organization.id);
             if (type === 'json') {
-              return res.status(200).json(pages)
+              return res.status(200).json(pages);
             } else if (type === 'local') {
               const results = await writePublishedFiles(pages, '/tmp/trails');
               if (results) {
@@ -419,7 +419,10 @@ exports.publishCases = async (req, res) => {
             }
           }
 
-          const cases = await caseService.publishCases(caseIds, organization.id);
+          const cases = await caseService.publishCases(
+            caseIds,
+            organization.id,
+          );
           return res.status(200).json({ cases });
         }
       }
