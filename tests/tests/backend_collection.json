@@ -43,7 +43,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"spladmin\",\n    \"password\": \"password\"\n}"
+					"raw": "{\n    \"username\": \"safeplaces@extremesolution.com\",\n    \"password\": \"Wx$sRj3E\"\n}"
 				},
 				"url": {
 					"raw": "{{baseUrl}}/login",
@@ -203,7 +203,7 @@
 			]
 		},
 		{
-			"name": "access-code",
+			"name": "Get access-code",
 			"event": [
 				{
 					"listen": "test",
@@ -284,6 +284,141 @@
 					"body": ""
 				}
 			]
+		},
+		{
+			"name": "Validate Access-code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "04a9f0f9-e668-4811-838b-7e0ff490e88d",
+						"exec": [
+							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
+							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
+							"    var response = JSON.parse(responseBody);\r",
+							"    var codeValid = response.valid;\r",
+							"    tests[\"Code Valid = ture\"] = codeValid === true   \r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accessCode\": \"{{accessCode}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{IngestServiceAPI}}/access-code/valid",
+					"host": [
+						"{{IngestServiceAPI}}"
+					],
+					"path": [
+						"access-code",
+						"valid"
+					]
+				},
+				"description": "Determines whether an access code is valid and if it can be used to perform an /upload API call."
+			},
+			"response": []
+		},
+		{
+			"name": "Consent Using Access-code ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "066f4172-23d6-4399-a293-fceec57ea476",
+						"exec": [
+							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
+							"    tests[\"Response time is less than 3s\"] = responseTime < 3000; \r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"consent\": true,\r\n  \"accessCode\": \"{{accessCode}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{IngestServiceAPI}}/consent",
+					"host": [
+						"{{IngestServiceAPI}}"
+					],
+					"path": [
+						"consent"
+					]
+				},
+				"description": "Determines whether an access code is valid and if it can be used to perform an /upload API call."
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Using Access-code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "996d3cb2-9368-400f-92be-bd27ea31d6c5",
+						"exec": [
+							"if (tests[\"Successful POST request\"] = responseCode.code === 201) {\r",
+							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
+							"    var response = JSON.parse(responseBody);\r",
+							"    var idUpload = response.uploadId;\r",
+							"    if (tests[\"Contact Tracer Id is not empty\"] = idUpload.length > 0) {\r",
+							"        pm.environment.set(\"uploadId\", idUpload);\r",
+							"    }\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accessCode\": \"{{accessCode}}\",\r\n  \"concernPoints\": [\r\n    {\r\n      \"longitude\": 14.91328448,\r\n      \"latitude\": 41.24060321,\r\n      \"time\": 1589117739000,\r\n      \"hash\": \"87e916850d4def3c\"\r\n    }\r\n  ]\r\n}"
+				},
+				"url": {
+					"raw": "{{IngestServiceAPI}}/upload",
+					"host": [
+						"{{IngestServiceAPI}}"
+					],
+					"path": [
+						"upload"
+					]
+				},
+				"description": "Determines whether an access code is valid and if it can be used to perform an /upload API call."
+			},
+			"response": []
 		},
 		{
 			"name": "Organization",
@@ -549,18 +684,6 @@
 					"body": ""
 				}
 			]
-		},
-		{
-			"name": "Validate Access-code",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": ""
-				},
-				"description": "Determines whether an access code is valid and if it can be used to perform an /upload API call."
-			},
-			"response": []
 		}
 	],
 	"variable": [
