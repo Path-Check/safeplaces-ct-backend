@@ -1,51 +1,57 @@
-const jwt = require('jsonwebtoken');
-const jwtSecret = require('../../../config/jwtConfig');
+const request = require('superagent');
+const auth = require('../../auth');
 
-/**
- * @method login
- *
- * Login Check
- *
- */
 exports.login = (req, res) => {
-  const { user } = req;
+  const { username, password } = req.body;
 
-  if (user && Object.entries(user).length > 0) {
-    const expTime =
-      Date.now() + 1000 * (parseInt(process.env.JWT_EXP) || 60 * 60);
-    const expDate = new Date(expTime);
+  request('POST', `${process.env.AUTH0_BASE_URL}/oauth/token`)
+    .type('form')
+    .send({
+      grant_type: 'password',
+      username: username,
+      password: password,
+      audience: process.env.AUTH0_API_AUDIENCE,
+      client_id: process.env.AUTH0_CLIENT_ID,
+      client_secret: process.env.AUTH0_CLIENT_SECRET,
+      connection: process.env.AUTH0_DB_CONNECTION,
+      scope: 'openid',
+    })
+    .then(res => res.body)
+    .then(data => {
+      const accessToken = data['access_token'];
+      const expiresIn = parseInt(data['expires_in']);
 
-    const token = jwt.sign(
-      {
-        sub: user.cn,
-        role: user.role,
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(expDate.getTime() / 1000),
-      },
-      jwtSecret.secret,
-    );
+      const cookieString = auth.utils.generateCookieString({
+        name: 'auth_token',
+        value: accessToken,
+        path: '/',
+        expires: new Date(Date.now() + expiresIn * 1000),
+        httpOnly: true,
+        sameSite: process.env.BYPASS_SAME_SITE !== 'true',
+        secure: process.env.NODE_ENV !== 'development',
+      });
 
-    const sameSite =
-      process.env.BYPASS_SAME_SITE === 'true' ? 'None' : 'Strict';
+      res.status(200).header('Set-Cookie', cookieString).json({
+        token: accessToken,
+        maps_api_key: process.env.SEED_MAPS_API_KEY,
+      });
+    })
+    .catch(() => res.status(401).send('Unauthorized'));
+};
 
-    const cookieProps = [
-      `auth_token=${token}`,
-      `Expires=${expDate.toUTCString()}`,
-      'HttpOnly',
-      `SameSite=${sameSite}`,
-    ];
+exports.logout = (req, res) => {
+  const cookieString = auth.utils.generateCookieString({
+    name: 'auth_token',
+    value: 'deleted',
+    path: '/',
+    expires: new Date(1970, 1, 2),
+    httpOnly: true,
+    sameSite: process.env.BYPASS_SAME_SITE !== 'true',
+    secure: process.env.NODE_ENV !== 'development',
+  });
 
-    if (process.env.NODE_ENV !== 'development') {
-      cookieProps.push('Secure');
-    }
-
-    const cookie = cookieProps.join(';');
-
-    res.status(200).header('Set-Cookie', cookie).json({
-      token: token,
-      maps_api_key: process.env.SEED_MAPS_API_KEY,
-    });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials.' });
-  }
+  res
+    .status(302)
+    .header('Set-Cookie', cookieString)
+    .redirect(process.env.AUTH_LOGOUT_REDIRECT_URL);
 };

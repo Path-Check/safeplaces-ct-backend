@@ -8,21 +8,12 @@
 #
 # 3. Change the values for the GKE_ZONE, GKE_CLUSTER, IMAGE, REGISTRY_HOSTNAME and DEPLOYMENT_NAME environment variables (below).
 
-name: Test SafePlaces ExpressJS Backend
+name: Newman Tests
 
 on:
   pull_request:
     branches:
       - dev
-    # paths:
-    #   - 'expressjs/**/**'
-  push:
-    branches:
-      - tests
-      - dev-fix-newman
-    # paths:
-    #   - 'expressjs/**/**'
-
 # Environment variables available to all jobs and steps in this workflow
 env:
   GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
@@ -36,13 +27,13 @@ env:
   CONTAINER_NAME: ${{ secrets.XP_TEST_CONTAINER_NAME }}
   NAMESPACE: ${{ secrets.GKE_NAMESPACE }}
   TESTS_ENV: ${{ secrets.TESTS_ENV }}
-  LDAP_HOST: localhost
-  LDAP_PORT: 6379
-  LDAP_PASS: ${{ secrets.LDAP_PASS }}
-  LDAP_ORG: 'dc=covidsafepaths, dc=org'
-  LDAP_BIND: 'cn=admin, dc=covidsafepaths, dc=org'
-  LDAP_SEARCH: 'dc=covidsafepaths, dc=org'
-  LDAP_FILTER: '(&(objectClass=person)(cn={{username}}))'
+  AUTH_LOGOUT_REDIRECT_URL: 'http://127.0.0.1:5000'
+  AUTH0_BASE_URL: 'https://safeplaces.us.auth0.com'
+  AUTH0_CLIENT_ID: 'dXBl74NypszcDQQ2WPJsIUj99lSHcSMf'
+  AUTH0_CLIENT_SECRET: '6lpWMmjsG3DEwmzmvqBuPx4MiBZEdqk4ubtO-14WRyDRIgukglJhDAgN-NgQzxIv'
+  AUTH0_API_AUDIENCE: 'https://safeplaces.cloud/'
+  AUTH0_CLAIM_NAMESPACE: 'https://safeplaces.cloud'
+  AUTH0_DB_CONNECTION: Test
 
 jobs:
   build-push-artifact:
@@ -75,9 +66,9 @@ jobs:
       # Build the Docker image
       - name: Build
         run: |
-          docker build -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$IMAGE":"$GITHUB_SHA" \
-            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-            --build-arg GITHUB_REF="$GITHUB_REF" .
+          docker build -t $REGISTRY_HOSTNAME/${{ secrets.GKE_PROJECT }}/$IMAGE:$GITHUB_SHA \
+            --build-arg GITHUB_SHA=$GITHUB_SHA \
+            --build-arg GITHUB_REF=$GITHUB_REF .
 
       # Push the Docker image to Google Container Registry
       - name: Publish
