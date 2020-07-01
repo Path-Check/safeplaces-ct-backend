@@ -43,7 +43,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"username\": \"spladmin\",\n    \"password\": \"password\"\n}"
+          "raw": "{\n    \"username\": \"safeplaces@extremesolution.com\",\n    \"password\": \"Wx$sRj3E\"\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/login",
@@ -245,7 +245,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"username\": \"spladmin\",\n    \"password\": \"password\"\n}",
+          "raw": "{\n    \"username\": \"safeplaes@extremesolution.com\",\n    \"password\": \"Wx$sRj3E\"\n}",
           "options": {
             "raw": {
               "language": "json"

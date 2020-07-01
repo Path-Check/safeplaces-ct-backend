@@ -113,48 +113,6 @@ npm install
 
 Refer [.env.template](.env.template) for environment variables to be exported to your environment.
 
-#### Setup LDAP Server
-The basic, included LDAP server is to be used for testing purposes only.
-It is not meant for production use.
-
-Please see the OpenLDAP implementations for production-ready servers. Once set up, modify the environment
-variables to point to the new server, with the proper host, port, password, domain components, and bind command.
-
-Example:
-```
-LDAP_HOST=localhost
-LDAP_PORT=1389
-LDAP_PASS=safepaths
-LDAP_ORG="dc=covidsafepaths, dc=org"
-LDAP_BIND="cn=admin, dc=covidsafepaths, dc=org"
-LDAP_SEARCH="dc=covidsafepaths, dc=org"
-LDAP_FILTER="(&(objectClass=person)(cn={{username}}))"
-```
-
-The Express server queries the LDAP server with each login request at `/login`.
-
-The search query will look like
-`dc=covidsafepaths, dc=org`.
-
-The filter query will look like
-`(&(objectClass=person)(cn={{username}}))`.
-
-Note that `{{username}}` is **explicitly required.**
-`{{username}}` will be replaced by the username sent by the client's request.
-
-To run the server:
-```
-cd ldapjs/
-npm install
-npm start
-```
-
-or there is a helper command that can be run from the main directory
-
-```
-npm run ldap:start
-```
-
 #### Setup Database
 
 1. Create the database exported in your environment.
@@ -312,19 +270,6 @@ DB_HOST_PUB (IP/URL of where database is hosted)
 DB_NAME_PUB (Password for corresponding user)
 DB_USER_PUB (Name of appropriatly configured user)
 DB_PASS_PUB (Password for corresponding user)
-```
-### LDAP Server
-The current version of the Backend API requires an external server running [OpenLDAP](https://www.openldap.org/) that is configured with appropriate user credentials and roles.
-
-The Backend API requires the following environment variables to be set on the server:
-
-```
-LDAP_HOST (IP/URL of where LDAP server is hosted)
-LDAP_PASS (LDAP Administrative Password)
-LDAP_ORG="dc=covidsafepaths, dc=org"
-LDAP_BIND="cn=admin, dc=covidsafepaths, dc=org"
-LDAP_SEARCH="dc=covidsafepaths, dc=org"
-LDAP_FILTER="(&(objectClass=person)(cn={{username}}))"
 ```
 
 ### Environment Variables

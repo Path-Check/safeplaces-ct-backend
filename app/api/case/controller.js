@@ -206,7 +206,6 @@ exports.updateCasePoints = async (req, res) => {
   } = req;
 
   if (!pointIds) throw new Error('Point IDs are not valid.');
-  if (!body.nickname) throw new Error('Nickname is not valid.');
 
   const params = _.pick(body, ['nickname']);
 

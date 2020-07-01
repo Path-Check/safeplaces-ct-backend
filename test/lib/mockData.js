@@ -13,7 +13,6 @@ const {
 const _ = require('lodash');
 const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
-const bcrypt = require('bcrypt');
 const randomCoordinates = require('random-coordinates');
 const sinon = require('sinon');
 
@@ -40,23 +39,18 @@ class MockData {
    */
   async mockUser(options = {}) {
     if (!options.username) throw new Error('Username must be provided');
-    if (!options.password) throw new Error('Password must be provided');
     if (!options.organization_id)
       throw new Error('Organization ID must be provided');
-    if (!options.email) throw new Error('Email must be provided');
 
     if (!process.env.SEED_MAPS_API_KEY) {
       throw new Error('Populate environment variable SEED_MAPS_API_KEY');
     }
 
-    const password = await bcrypt.hash(options.password, 5);
-
     const params = {
       id: uuidv4(),
+      idm_id: uuidv4(),
       organization_id: options.organization_id,
       username: options.username,
-      password: password,
-      email: options.email,
       is_admin: true,
       maps_api_key: process.env.SEED_MAPS_API_KEY,
     };

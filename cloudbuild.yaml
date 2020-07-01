@@ -1,0 +1,39 @@
+# GCP only cloudbuild script to build container image and deploy to Cloud Run Serverless
+
+substitutions:
+  _SERVICE:
+  _REGION:
+
+steps:
+- id: 'Build Container Image'
+  name: 'registry.hub.docker.com/library/docker:18'
+  args: [
+    'build',
+    '--tag', 'gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA',
+    '.' ]
+
+- id: 'Publish Container'
+  name: 'registry.hub.docker.com/library/docker:18'
+  args: [
+    'push',
+    'gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA',
+  ]
+
+#
+# Deploys a Cloud Run service.
+#
+
+- id: 'Deploy to Cloud Run'
+  name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:293.0.0-alpine'
+  args:
+  - 'bash'
+  - '-eEuo'
+  - 'pipefail'
+  - '-c'
+  - |-
+    gcloud run deploy "${_SERVICE}-${BRANCH_NAME}" \
+      --quiet \
+      --project "${PROJECT_ID}" \
+      --platform "managed" \
+      --region "${_REGION}" \
+      --image "gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA"
