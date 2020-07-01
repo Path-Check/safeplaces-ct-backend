@@ -4,7 +4,7 @@ ENV NODE_ENV=development
 ADD . $WORKDIR
 RUN npm install
 
-FROM extremesolution/nodejs-nginx:node13.3.0-5949bda
+FROM extremesolution/nodejs-nginx:node13.3.0-1046047
 COPY --from=build-env /app /app
 WORKDIR /app
 ADD wait-for.sh /wait-for.sh
