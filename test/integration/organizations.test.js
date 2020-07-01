@@ -76,7 +76,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .get(`/organization`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -92,7 +92,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .get(`/organization/configuration`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -151,7 +151,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .put(`/organization/configuration`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -184,7 +184,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .get(`/organization/cases`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -208,7 +208,7 @@ describe('Organization ', () => {
       const results = await chai
         .request(server.app)
         .post(`/organization/case`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send();
 

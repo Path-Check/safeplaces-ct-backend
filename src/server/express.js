@@ -6,9 +6,9 @@ const expressLogger = require('../logger/express');
 const errorHandler = require('./errorHandler');
 const notFoundHandler = require('./notFoundHandler');
 const responseTimeHandler = require('./responseTimeHandler');
-const auth = require('../../app/auth');
-
 const cookieParser = require('cookie-parser');
+const { userService } = require('../../app/lib/db');
+const auth = require('@aiyan/safeplaces-auth');
 
 class Server {
   constructor() {
@@ -24,6 +24,35 @@ class Server {
     this._app.use(expressLogger()); // Log Request
     this._app.use(bodyParseJson);
     this._app.use(bodyParseEncoded);
+
+    /**
+     * Authentication
+     */
+
+    const pkClient = new auth.JWKSClient(
+      `${process.env.AUTH0_BASE_URL}/.well-known/jwks.json`,
+    );
+
+    const auth0Strategy = new auth.strategies.Auth0({
+      jwksClient: pkClient,
+      apiAudience: process.env.AUTH0_API_AUDIENCE,
+    });
+
+    const symJWTStrategy = new auth.strategies.SymJWT({
+      algorithm: 'HS256',
+      privateKey: process.env.JWT_SECRET,
+    });
+
+    this._enforcer = new auth.Enforcer({
+      strategy: () => {
+        return process.env.NODE_ENV === 'test'
+          ? symJWTStrategy
+          : auth0Strategy;
+      },
+      userGetter: id => userService.findOne({ idm_id: id }),
+    });
+
+    //this._enforcer.secure(this._app);
 
     this._app.use(responseTimeHandler());
 
@@ -85,23 +114,12 @@ class Server {
    */
   wrapAsync(asyncFn, validate = false) {
     return (req, res, next) => {
-      if (!validate) {
-        asyncFn(req, res, next).catch(next);
-        return;
+      if (validate) {
+        return this._enforcer.handleRequest(req, res)
+          .then(() => asyncFn(req, res, next))
+          .catch(next);
       }
-
-      const enforcedStrategy =
-        process.env.NODE_ENV === 'test'
-          ? auth.enforce.test.validateToken
-          : auth.enforce.prod.validateToken;
-
-      auth.enforce
-        .verifyRequest(req, enforcedStrategy)
-        .then(user => {
-          req.user = user;
-          asyncFn(req, res, next).catch(next);
-        })
-        .catch(() => res.status(401).send('Unauthorized'));
+      asyncFn(req, res, next).catch(next);
     };
   }
 }
