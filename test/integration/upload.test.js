@@ -54,14 +54,14 @@ describe('POST /case/points/ingest', () => {
       .request(server.app)
       .post('/case/points/ingest')
       .send();
-    result.should.have.status(401);
+    result.should.have.status(403);
   });
 
   it('should fail for malformed requests', async () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: '123456',
       });
@@ -70,7 +70,7 @@ describe('POST /case/points/ingest', () => {
     result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         caseId: 1,
       });
@@ -81,7 +81,7 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: '123456',
         caseId: 1,
@@ -93,7 +93,7 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: 1,
@@ -109,7 +109,7 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: 1,
@@ -132,7 +132,7 @@ describe('POST /case/points/ingest', () => {
     let result = await chai
       .request(server.app)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: currentCase.caseId,
