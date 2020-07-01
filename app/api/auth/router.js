@@ -1,9 +1,19 @@
 const server = require('../../../src/server');
-const passport = require('../../../src/server/passport')
 const controller = require('./controller');
 
-server.post(
-  '/login',
-  passport.authenticate('ldap'),
-  controller.login
-);
+/**
+ * Log in
+ *
+ * DEPRECATED - use "/auth/login" instead.
+ */
+server.post('/login', controller.login);
+
+/**
+ * Log in
+ */
+server.post('/auth/login', controller.login);
+
+/**
+ * Log out
+ */
+server.get('/auth/logout', controller.logout);
