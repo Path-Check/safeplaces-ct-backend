@@ -7,13 +7,13 @@ exports.login = (req, res) => {
   request('POST', `${process.env.AUTH0_BASE_URL}/oauth/token`)
     .type('form')
     .send({
-      grant_type: 'password',
+      grant_type: 'http://auth0.com/oauth/grant-type/password-realm',
       username: username,
       password: password,
       audience: process.env.AUTH0_API_AUDIENCE,
       client_id: process.env.AUTH0_CLIENT_ID,
       client_secret: process.env.AUTH0_CLIENT_SECRET,
-      connection: process.env.AUTH0_DB_CONNECTION,
+      realm: process.env.AUTH0_REALM,
       scope: 'openid',
     })
     .then(res => res.body)
