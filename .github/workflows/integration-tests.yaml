@@ -44,7 +44,7 @@ env:
   AUTH0_CLIENT_SECRET: '6lpWMmjsG3DEwmzmvqBuPx4MiBZEdqk4ubtO-14WRyDRIgukglJhDAgN-NgQzxIv'
   AUTH0_API_AUDIENCE: 'https://safeplaces.cloud/'
   AUTH0_CLAIM_NAMESPACE: 'https://safeplaces.cloud'
-  AUTH0_DB_CONNECTION: Test
+  AUTH0_REALM: Test
 
 jobs:
   run-integration-tests:
