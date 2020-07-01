@@ -71,7 +71,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/case/points`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send({ caseId: currentCase.caseId });
 
@@ -114,7 +114,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/points`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send({ caseIds: [caseOne.caseId, caseTwo.caseId, caseThree.caseId] });
 
@@ -137,7 +137,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/points`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send({ caseIds: [] });
 
@@ -153,7 +153,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/points`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send();
 
@@ -187,7 +187,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/case/point`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -241,7 +241,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .put(`/case/point`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -291,7 +291,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .put(`/case/points`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -333,7 +333,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/case/point/delete`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -362,7 +362,7 @@ describe('Case', () => {
       let results = await chai
         .request(server.app)
         .post(`/case/points/delete`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send();
       results.error.should.not.be.false;
@@ -371,7 +371,7 @@ describe('Case', () => {
       results = await chai
         .request(server.app)
         .post(`/case/points/delete`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send({ pointIds: 'invalid' });
       results.error.should.not.be.false;
@@ -388,7 +388,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/case/points/delete`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send({ pointIds: _.map(deletedPoints, point => point.id) });
 
@@ -419,7 +419,7 @@ describe('Case', () => {
       const result = await chai
         .request(server.app)
         .post(`/case/consent-to-publishing`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(requestParams);
 
@@ -457,7 +457,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/case/stage`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -504,7 +504,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/publish?type=${type}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -533,7 +533,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/publish?type=json`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`;
@@ -624,7 +624,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/publish?type=json`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -676,7 +676,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/publish?type=${type}`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -696,7 +696,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/publish?type=json`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -736,7 +736,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/cases/publish`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -764,7 +764,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .post(`/case/delete`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -790,7 +790,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .put(`/case`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(updateParams);
 
@@ -834,7 +834,7 @@ describe('Case', () => {
       const results = await chai
         .request(server.app)
         .get(`/organization/cases`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
