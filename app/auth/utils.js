@@ -54,7 +54,7 @@ function generateCookieString(attributes) {
 
   let cookieString = `${name}=${value};`;
   if (expires) {
-    cookieString += expires.toUTCString + ';';
+    cookieString += `Expires=${expires.toUTCString()};`;
   }
   if (path) {
     cookieString += `Path=${path};`;
