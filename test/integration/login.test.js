@@ -35,7 +35,9 @@ describe('POST /auth/login', function () {
       .end(function (err, res) {
         expect(res.status).to.equal(204);
         expect(Object.keys(res.body).length).to.eq(0);
-        const accessToken = /access_token=([a-zA-Z0-9.\-_]+);/g.exec(res.header['set-cookie'])[1];
+        const accessToken = /access_token=([a-zA-Z0-9.\-_]+);/g.exec(
+          res.header['set-cookie'],
+        )[1];
         const parsedJwt = parseJwt(accessToken);
         expect(parsedJwt).to.haveOwnProperty('sub');
         expect(parsedJwt.sub).to.equal('auth0|5ef53cdcf3ce32001a40ede7');

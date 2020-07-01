@@ -45,9 +45,7 @@ class Server {
 
     this._enforcer = new auth.Enforcer({
       strategy: () => {
-        return process.env.NODE_ENV === 'test'
-          ? symJWTStrategy
-          : auth0Strategy;
+        return process.env.NODE_ENV === 'test' ? symJWTStrategy : auth0Strategy;
       },
       userGetter: id => userService.findOne({ idm_id: id }),
     });
@@ -115,7 +113,8 @@ class Server {
   wrapAsync(asyncFn, validate = false) {
     return (req, res, next) => {
       if (validate) {
-        return this._enforcer.handleRequest(req, res)
+        return this._enforcer
+          .handleRequest(req, res)
           .then(() => asyncFn(req, res, next))
           .catch(next);
       }
