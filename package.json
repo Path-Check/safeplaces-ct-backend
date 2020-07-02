@@ -27,7 +27,7 @@
     "@aiyan/safeplaces-auth": "^0.0.5",
     "@google-cloud/secret-manager": "^3.1.0",
     "@google-cloud/storage": "^5.0.1",
-    "@pathcheck/safeplaces-server": "file:../safeplaces-server",
+    "@pathcheck/safeplaces-server": "0.0.10",
     "@sublet/data-layer": "0.0.16",
     "adm-zip": "^0.4.14",
     "ajv": "^6.12.2",
