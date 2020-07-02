@@ -1,23 +1,23 @@
-const server = require('../../../src/server');
+const { router } = require('../../../app');
 const controller = require('./controller');
 
-server.get(
+router.get(
   '/organization',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.fetchOrganizationById(req, res),
     true,
   ),
 );
-server.get(
+router.get(
   '/organization/configuration',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.fetchOrganizationConfig(req, res),
     true,
   ),
 );
-server.put(
+router.put(
   '/organization/configuration',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.updateOrganization(req, res),
     true,
   ),
@@ -25,17 +25,17 @@ server.put(
 
 // Cases
 
-server.post(
+router.post(
   '/organization/case',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.createOrganizationCase(req, res),
     true,
   ),
 );
 
-server.get(
+router.get(
   '/organization/cases',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.fetchOrganizationCases(req, res),
     true,
   ),

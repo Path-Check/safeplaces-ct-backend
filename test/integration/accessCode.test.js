@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
+process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
@@ -9,7 +9,9 @@ const chaiHttp = require('chai-http');
 const jwt = require('jsonwebtoken');
 const jwtSecret = require('../../config/jwtConfig');
 
-const server = require('../../app');
+const app = require('../../app');
+const server = app.getTestingServer();
+
 const mockData = require('../lib/mockData');
 
 chai.use(chaiHttp);
@@ -49,13 +51,13 @@ describe('POST /access-code', () => {
   });
 
   it('should fail for unauthorized clients', async () => {
-    let result = await chai.request(server.app).post('/access-code').send();
+    let result = await chai.request(server).post('/access-code').send();
     result.should.have.status(403);
   });
 
   it('should create a new access code', async () => {
     let result = await chai
-      .request(server.app)
+      .request(server)
       .post('/access-code')
       .set('Cookie', `access_token=${token}`)
       .send();
