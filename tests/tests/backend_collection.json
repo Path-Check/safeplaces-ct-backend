@@ -46,14 +46,14 @@
         "url": {
           "raw": "{{baseUrl}}/auth/login",
           "host": [
-            "{{baseUrl}}"
-          ],
+            "{{baseUrl}}"],
+
           "path": [
             "auth",
-            "login"
-          ]
-        }
-      },
+            "login"]
+          }
+        },
+
       "response": [
         {
           "name": "Untitled Response",
@@ -67,8 +67,8 @@
             "url": {
               "raw": "{{baseUrl}}/login2",
               "host": [
-                "{{baseUrl}}"
-              ],
+                "{{baseUrl}}"],
+
               "path": [
                 "login2"
               ]
@@ -153,8 +153,8 @@
         "url": {
           "raw": "{{baseUrl}}/organization/case",
           "host": [
-            "{{baseUrl}}"
-          ],
+            "{{baseUrl}}"],
+
           "path": [
             "organization",
             "case"
@@ -172,11 +172,10 @@
               "host": [
                 "{{baseUrl}}"
               ],
-              "path": [
-                ""
-              ]
-            }
-          },
+              "path": [""]
+                }
+              },
+
           "status": "OK",
           "code": 200,
           "_postman_previewlanguage": "text",
