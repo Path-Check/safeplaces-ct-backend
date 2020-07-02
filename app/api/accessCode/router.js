@@ -1,9 +1,9 @@
-const server = require('../../../src/server');
+const { router } = require('../../../app');
 const controller = require('./controller');
 
-server.post(
+router.post(
   '/access-code',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.generate(req, res),
     true,
   ),

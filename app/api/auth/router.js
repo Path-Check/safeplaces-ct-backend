@@ -1,4 +1,4 @@
-const server = require('../../../src/server');
+const { router } = require('../../../app');
 const controller = require('./controller');
 
 /**
@@ -6,14 +6,14 @@ const controller = require('./controller');
  *
  * DEPRECATED - use "/auth/login" instead.
  */
-server.post('/login', controller.login);
+router.post('/login', controller.login);
 
 /**
  * Log in
  */
-server.post('/auth/login', controller.login);
+router.post('/auth/login', controller.login);
 
 /**
  * Log out
  */
-server.get('/auth/logout', controller.logout);
+router.get('/auth/logout', controller.logout);

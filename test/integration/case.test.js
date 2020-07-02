@@ -12,9 +12,8 @@ const jwt = require('jsonwebtoken');
 
 const mockData = require('../lib/mockData');
 
-const server = require('../../app');
-
-const jwtSecret = require('../../config/jwtConfig');
+const app = require('../../app');
+const server = app.getTestingServer();
 
 const type = process.env.PUBLISH_STORAGE_TYPE || 'local';
 
@@ -46,7 +45,7 @@ describe('Case', () => {
           ~~(Date.now() / 1000) +
           (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
-      jwtSecret.secret,
+      process.env.JWT_SECRET,
     );
   });
 
@@ -69,7 +68,7 @@ describe('Case', () => {
 
     it('and return multiple case points', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/points`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -112,7 +111,7 @@ describe('Case', () => {
 
     it('and return points for all cases', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/points`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -135,7 +134,7 @@ describe('Case', () => {
 
     it('and returns no points if no caseIds are passed', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/points`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -151,7 +150,7 @@ describe('Case', () => {
 
     it('and fails if caseIds are not passed', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/points`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -185,7 +184,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/point`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -239,7 +238,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .put(`/case/point`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -289,7 +288,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .put(`/case/points`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -331,7 +330,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/point/delete`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -360,7 +359,7 @@ describe('Case', () => {
 
     it('fails when request is malformed', async () => {
       let results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/points/delete`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -369,7 +368,7 @@ describe('Case', () => {
       results.should.have.status(400);
 
       results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/points/delete`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -386,7 +385,7 @@ describe('Case', () => {
       const deletedPoints = _.sampleSize(points, 3);
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/points/delete`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -417,7 +416,7 @@ describe('Case', () => {
       };
 
       const result = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/consent-to-publishing`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -455,7 +454,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/stage`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -502,7 +501,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/publish?type=${type}`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -531,7 +530,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/publish?type=json`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -622,7 +621,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/publish?type=json`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -674,7 +673,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/publish?type=${type}`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -694,7 +693,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/publish?type=json`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -734,7 +733,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/cases/publish`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -762,7 +761,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/case/delete`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -788,7 +787,7 @@ describe('Case', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .put(`/case`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
@@ -832,7 +831,7 @@ describe('Case', () => {
     });
     it('return a 200', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .get(`/organization/cases`)
         .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json');
