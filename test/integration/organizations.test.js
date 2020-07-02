@@ -13,8 +13,6 @@ const mockData = require('../lib/mockData');
 const app = require('../../app');
 const server = app.getTestingServer();
 
-const jwtSecret = require('../../config/jwtConfig');
-
 chai.use(chaiHttp);
 
 let currentOrg, token;
@@ -63,7 +61,7 @@ describe('Organization ', () => {
           ~~(Date.now() / 1000) +
           (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
-      jwtSecret.secret,
+      process.env.JWT_SECRET,
     );
   });
 

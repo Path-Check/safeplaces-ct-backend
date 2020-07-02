@@ -1,13 +1,12 @@
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
-process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
+  process.env.DATABASE_URL || 'postgres://localhost/safeplaces_test';
 
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
 
 const jwt = require('jsonwebtoken');
-const jwtSecret = require('../../config/jwtConfig');
 
 const app = require('../../app');
 const server = app.getTestingServer();
@@ -44,7 +43,7 @@ describe('POST /access-code', () => {
           ~~(Date.now() / 1000) +
           (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
-      jwtSecret.secret,
+      process.env.JWT_SECRET,
     );
 
     await mockData.mockAccessCode();
