@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "57fd7e4f-ae52-4fcd-9fda-03a811e79b71",
+    "_postman_id": "6e735f3d-f0b8-4517-86fc-205720ac7505",
     "name": "Safe Places - Newman Test",
     "description": "The Safe Places API Specification",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -12,7 +12,7 @@
         {
           "listen": "test",
           "script": {
-            "id": "bbea62d7-2a17-4ade-9b9c-063d9345f9bb",
+            "id": "ba517d21-1573-4410-81a6-88af2c3900c1",
             "exec": [
               "if (tests[\"Successful POST request\"] = responseCode.code === 204) {\r",
               "    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
@@ -44,11 +44,16 @@
           "raw": "{\n    \"username\": \"safeplaces@extremesolution.com\",\n    \"password\": \"Wx$sRj3E\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/login",
-          "host": ["{{baseUrl}}"],
-          "path": ["login"]
-        }
-      },
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"],
+
+          "path": [
+            "auth",
+            "login"]
+          }
+        },
+
       "response": [
         {
           "name": "Untitled Response",
@@ -61,8 +66,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/login2",
-              "host": ["{{baseUrl}}"],
-              "path": ["login2"]
+              "host": [
+                "{{baseUrl}}"],
+
+              "path": [
+                "login2"
+              ]
             }
           },
           "status": "Created",
@@ -85,7 +94,7 @@
         {
           "listen": "test",
           "script": {
-            "id": "d4981378-e6bd-4302-9b9f-147be00fe3aa",
+            "id": "7502d2f2-0c53-436d-a3d6-7613c3794ff8",
             "exec": [
               "var jsonData = pm.response.json();\r",
               "\r",
@@ -143,11 +152,42 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/organization/case",
-          "host": ["{{baseUrl}}"],
-          "path": ["organization", "case"]
+          "host": [
+            "{{baseUrl}}"],
+
+          "path": [
+            "organization",
+            "case"
+          ]
         }
       },
       "response": [
+        {
+          "name": "An intial \"tester\" (password: \"tester54321\") user is created.",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [""]
+                }
+              },
+
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain"
+            }
+          ],
+          "cookie": [],
+          "body": ""
+        },
         {
           "name": "Untitled Response",
           "originalRequest": {
@@ -155,8 +195,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/",
-              "host": ["{{baseUrl}}"],
-              "path": [""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
             }
           },
           "status": "Created",
@@ -170,29 +214,6 @@
           ],
           "cookie": [],
           "body": "\"<boolean>\""
-        },
-        {
-          "name": "An intial \"tester\" (password: \"tester54321\") user is created.",
-          "originalRequest": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/",
-              "host": ["{{baseUrl}}"],
-              "path": [""]
-            }
-          },
-          "status": "OK",
-          "code": 200,
-          "_postman_previewlanguage": "text",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "text/plain"
-            }
-          ],
-          "cookie": [],
-          "body": ""
         }
       ]
     },
@@ -202,7 +223,7 @@
         {
           "listen": "test",
           "script": {
-            "id": "6c830759-f58b-4613-ad68-d5c9569f9c24",
+            "id": "4d57a1cb-f480-439e-8a8d-0888c9e69e8d",
             "exec": [
               "var jsonData = pm.response.json(); \r",
               "\r",
@@ -240,8 +261,12 @@
         },
         "url": {
           "raw": "{{baseUrl}}/access-code",
-          "host": ["{{baseUrl}}"],
-          "path": ["access-code"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "access-code"
+          ]
         }
       },
       "response": [
@@ -256,8 +281,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/validate",
-              "host": ["{{baseUrl}}"],
-              "path": ["validate"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "validate"
+              ]
             }
           },
           "status": "Created",
@@ -279,17 +308,21 @@
     {
       "listen": "prerequest",
       "script": {
-        "id": "9c6cf831-2b69-4691-8c36-4fbda123c14e",
+        "id": "5fb0d0f4-9b61-40d5-bc2c-1c2127bd82fd",
         "type": "text/javascript",
-        "exec": [""]
+        "exec": [
+          ""
+        ]
       }
     },
     {
       "listen": "test",
       "script": {
-        "id": "aa2950de-3a5d-4759-baef-15ebe71e6068",
+        "id": "766241cf-19b2-420e-af0a-3c34e74f7bbb",
         "type": "text/javascript",
-        "exec": [""]
+        "exec": [
+          ""
+        ]
       }
     }
   ],
