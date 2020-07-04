@@ -24,9 +24,11 @@
     "test"
   ],
   "dependencies": {
-    "dotenv": "^8.2.0",
+    "dotenv": "8.2.0",
+    "@aiyan/safeplaces-auth": "^0.0.5",
     "@google-cloud/secret-manager": "^3.1.0",
     "@google-cloud/storage": "^5.0.1",
+    "@pathcheck/safeplaces-server": "0.0.13",
     "@sublet/data-layer": "0.0.16",
     "adm-zip": "^0.4.14",
     "ajv": "^6.12.2",
@@ -34,31 +36,13 @@
     "aws-sdk": "^2.706.0",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.7.2",
-    "body-parser": "^1.19.0",
-    "boom": "^7.3.0",
     "chalk": "^4.1.0",
-    "cookie-parser": "~1.4.4",
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
-    "express": "~4.16.1",
     "google-auth-library": "^6.0.2",
-    "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
-    "jszip": "^3.4.0",
-    "jwks-rsa": "^1.8.1",
-    "knex": "^0.20.15",
-    "knex-postgis": "^0.12.0",
     "moment": "~2.19.3",
-    "morgan": "~1.9.1",
-    "ngeohash": "^0.6.3",
-    "passport-custom": "^1.1.1",
-    "pg": "^8.0.2",
-    "response-time": "^2.3.2",
-    "sinon": "^9.0.2",
-    "superagent": "^5.3.1",
-    "winston": "2.4.4",
-    "winston-papertrail": "^1.0.5",
-    "wkx": "^0.5.0"
+    "ngeohash": "^0.6.3"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -71,6 +55,7 @@
     "pre-commit": "^1.2.2",
     "prettier": "^2.0.5",
     "random-coordinates": "^1.0.1",
+    "sinon": "^9.0.2",
     "uuidv4": "^6.0.9"
   }
 }

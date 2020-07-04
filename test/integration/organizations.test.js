@@ -10,9 +10,8 @@ const jwt = require('jsonwebtoken');
 
 const mockData = require('../lib/mockData');
 
-const server = require('../../app');
-
-const jwtSecret = require('../../config/jwtConfig');
+const app = require('../../app');
+const server = app.getTestingServer();
 
 chai.use(chaiHttp);
 
@@ -62,7 +61,7 @@ describe('Organization ', () => {
           ~~(Date.now() / 1000) +
           (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
-      jwtSecret.secret,
+      process.env.JWT_SECRET,
     );
   });
 
@@ -74,9 +73,9 @@ describe('Organization ', () => {
 
     it('fetch the record using http', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .get(`/organization`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -90,9 +89,9 @@ describe('Organization ', () => {
 
     it('fetch the configuration using http', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .get(`/organization/configuration`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -149,9 +148,9 @@ describe('Organization ', () => {
       };
 
       const results = await chai
-        .request(server.app)
+        .request(server)
         .put(`/organization/configuration`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -182,9 +181,9 @@ describe('Organization ', () => {
 
     it('fetch the organizationService cases', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .get(`/organization/cases`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -206,9 +205,9 @@ describe('Organization ', () => {
   describe('create a case', () => {
     it('returns a 200', async () => {
       const results = await chai
-        .request(server.app)
+        .request(server)
         .post(`/organization/case`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Cookie', `access_token=${token}`)
         .set('content-type', 'application/json')
         .send();
 

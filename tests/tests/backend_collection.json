@@ -1,7 +1,7 @@
 {
   "info": {
-    "_postman_id": "44425862-6042-428a-8737-a73491b6eb81",
-    "name": "Safe Places - Nest Js Backend copy",
+    "_postman_id": "6e735f3d-f0b8-4517-86fc-205720ac7505",
+    "name": "Safe Places - Newman Test",
     "description": "The Safe Places API Specification",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -12,18 +12,16 @@
         {
           "listen": "test",
           "script": {
-            "id": "452e3fd6-760e-4717-ad91-b41fd5d938b2",
+            "id": "ba517d21-1573-4410-81a6-88af2c3900c1",
             "exec": [
-              "var response = JSON.parse(responseBody);\r",
-              "\r",
-              "if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
+              "if (tests[\"Successful POST request\"] = responseCode.code === 204) {\r",
               "    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-              "    var token = response.token;\r",
-              "    if (tests[\"Token is not empty\"] = token.length > 0) {\r",
-              "        pm.environment.set(\"token\", token);\r",
-              "    }\r",
+              "    console.log(pm.response.headers);\r",
+              "    var cookie = pm.response.headers.filter(header => header.key === 'Set-Cookie')[0].value;\r",
+              "    tests[\"Cookie is not empty\"] = !!cookie;\r",
+              "    var token = /access_token=([a-zA-Z0-9\\-_.]+);/g.exec(cookie)[1];\r",
+              "    tests[\"Token is not empty\"] = token.length > 0;\r",
               "}\r",
-              "\r",
               ""
             ],
             "type": "text/javascript"
@@ -46,23 +44,13 @@
           "raw": "{\n    \"username\": \"safeplaces@extremesolution.com\",\n    \"password\": \"Wx$sRj3E\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/login",
+          "raw": "{{baseUrl}}/auth/login",
           "host": ["{{baseUrl}}"],
-          "path": ["login"],
-          "query": [
-            {
-              "key": "",
-              "value": "",
-              "disabled": true
-            },
-            {
-              "key": "",
-              "value": "",
-              "disabled": true
-            }
-          ]
+
+          "path": ["auth", "login"]
         }
       },
+
       "response": [
         {
           "name": "Untitled Response",
@@ -76,6 +64,7 @@
             "url": {
               "raw": "{{baseUrl}}/login2",
               "host": ["{{baseUrl}}"],
+
               "path": ["login2"]
             }
           },
@@ -99,7 +88,7 @@
         {
           "listen": "test",
           "script": {
-            "id": "8422cfa1-17f0-4295-a430-ab7a6dd2f238",
+            "id": "7502d2f2-0c53-436d-a3d6-7613c3794ff8",
             "exec": [
               "var jsonData = pm.response.json();\r",
               "\r",
@@ -158,10 +147,35 @@
         "url": {
           "raw": "{{baseUrl}}/organization/case",
           "host": ["{{baseUrl}}"],
+
           "path": ["organization", "case"]
         }
       },
       "response": [
+        {
+          "name": "An intial \"tester\" (password: \"tester54321\") user is created.",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          },
+
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain"
+            }
+          ],
+          "cookie": [],
+          "body": ""
+        },
         {
           "name": "Untitled Response",
           "originalRequest": {
@@ -184,29 +198,6 @@
           ],
           "cookie": [],
           "body": "\"<boolean>\""
-        },
-        {
-          "name": "An intial \"tester\" (password: \"tester54321\") user is created.",
-          "originalRequest": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/",
-              "host": ["{{baseUrl}}"],
-              "path": [""]
-            }
-          },
-          "status": "OK",
-          "code": 200,
-          "_postman_previewlanguage": "text",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "text/plain"
-            }
-          ],
-          "cookie": [],
-          "body": ""
         }
       ]
     },
@@ -216,7 +207,7 @@
         {
           "listen": "test",
           "script": {
-            "id": "f870b8cd-46e3-4319-b87f-a179028e04bb",
+            "id": "4d57a1cb-f480-439e-8a8d-0888c9e69e8d",
             "exec": [
               "var jsonData = pm.response.json(); \r",
               "\r",
@@ -289,12 +280,29 @@
       ]
     }
   ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "5fb0d0f4-9b61-40d5-bc2c-1c2127bd82fd",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "766241cf-19b2-420e-af0a-3c34e74f7bbb",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
   "variable": [
     {
-      "id": "baseUrl",
+      "id": "f91d81f7-64e0-47ba-ac47-28ee26437d38",
       "key": "baseUrl",
-      "value": "/",
-      "type": "string"
+      "value": "/"
     }
   ],
   "protocolProfileBehavior": {}
