@@ -48,5 +48,5 @@ steps:
       --namespace "${_NAMESPACE}" \
       --port "${_PORT}" \
       --cluster "${_CLUSTER_NAME}" \
-      --cluster-location "${_CLUSTER_LOCATION}"
+      --cluster-location "${_CLUSTER_LOCATION}" \
       --image "gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA"
