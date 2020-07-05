@@ -3,6 +3,7 @@
 /**
  * Environment variable validation
  */
+require('dotenv').config()
 require('../tools/validateEnv')(process.env);
 
 const server = require('../app');

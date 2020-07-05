@@ -19,14 +19,14 @@ spec:
           image: gcr.io/PROJECT_ID/IMAGE:TAG
           imagePullPolicy: IfNotPresent
           env:
-          - name: PORT
+          - name: EXPRESSPORT
             value: "3000"
           envFrom:
             - secretRef:
                 name: hrmes-spl-be
           ports:
             - name: express
-              containerPort: 3000
+              containerPort: 8080
               protocol: TCP
           livenessProbe:
             httpGet:

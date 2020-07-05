@@ -3,8 +3,14 @@
 substitutions:
   _SERVICE:
   _REGION:
+  _SECRET_NAME:
 
 steps:
+- id: 'Pull env file from Secrets Manager'  
+  name: gcr.io/cloud-builders/gcloud
+  entrypoint: 'bash'
+  args: [ '-c', "gcloud secrets versions access latest --secret=${_SECRET_NAME} --format='get(payload.data)' | tr '_-' '/+' | base64 -d > .env" ]
+
 - id: 'Build Container Image'
   name: 'registry.hub.docker.com/library/docker:18'
   args: [
