@@ -4,6 +4,8 @@ substitutions:
   _SERVICE:
   _REGION:
   _SECRET_NAME:
+  _PORT:
+  _PLATFORM:
 
 steps:
 - id: 'Pull env file from Secrets Manager'  
@@ -40,6 +42,8 @@ steps:
     gcloud run deploy "${_SERVICE}-${BRANCH_NAME}" \
       --quiet \
       --project "${PROJECT_ID}" \
-      --platform "managed" \
+      --platform "${_PLATFORM}" \
       --region "${_REGION}" \
+      --namespace "${_NAMESPACE}" \
+      --PORT "${_PORT}" \
       --image "gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA"
