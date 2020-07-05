@@ -45,5 +45,5 @@ steps:
       --platform "${_PLATFORM}" \
       --region "${_REGION}" \
       --namespace "${_NAMESPACE}" \
-      --PORT "${_PORT}" \
+      --port "${_PORT}" \
       --image "gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA"
