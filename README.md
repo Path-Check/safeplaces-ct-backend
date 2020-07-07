@@ -67,7 +67,7 @@ Due to the nature of database management we have built in a small CLI that will 
 
 This needs to be installed globaly so run the following command.
 
-`npm i -g @sublet/data-layer`
+`npm i -g @pathcheck/data-layer`
 
 For more information see the CLI portion of the [Safeplaces Data Layer](https://github.com/Path-Check/safeplaces-data-layer#cli) library.
 
@@ -94,7 +94,7 @@ __NOTE:__ Where you clone it might be very different than the path below.
 Once installed it should show up in the package.json file like below.
 
 ```
-"@sublet/data-layer": "file:../safeplaces-data-layer"
+"@pathcheck/data-layer": "file:../safeplaces-data-layer"
 ```
 
 #### Install Package Manager
@@ -138,7 +138,7 @@ ALTER USER safepaths_user WITH NOSUPERUSER
 Install Safe Places Data Layer globally
 
 ```
-npm i -g @sublet/data-layer
+npm i -g @pathcheck/data-layer
 ```
 
 Run migrations
