@@ -7,9 +7,10 @@ const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
 
 const jwt = require('jsonwebtoken');
-const jwtSecret = require('../../config/jwtConfig');
 
-const server = require('../../app');
+const app = require('../../app');
+const server = app.getTestingServer();
+
 const mockData = require('../lib/mockData');
 
 chai.use(chaiHttp);
@@ -42,22 +43,22 @@ describe('POST /access-code', () => {
           ~~(Date.now() / 1000) +
           (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
-      jwtSecret.secret,
+      process.env.JWT_SECRET,
     );
 
     await mockData.mockAccessCode();
   });
 
   it('should fail for unauthorized clients', async () => {
-    let result = await chai.request(server.app).post('/access-code').send();
-    result.should.have.status(401);
+    let result = await chai.request(server).post('/access-code').send();
+    result.should.have.status(403);
   });
 
   it('should create a new access code', async () => {
     let result = await chai
-      .request(server.app)
+      .request(server)
       .post('/access-code')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send();
     result.should.have.status(201);
 

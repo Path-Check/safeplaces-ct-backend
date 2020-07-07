@@ -1,17 +1,17 @@
-const server = require('../../../src/server');
+const { router } = require('../../../app');
 const controller = require('./controller');
 
-server.get(
+router.get(
   '/health',
-  server.wrapAsync(async (req, res) => await controller.health(req, res)),
+  router.wrapAsync(async (req, res) => await controller.health(req, res)),
 );
 
-server.get(
+router.get(
   '/health/slow',
-  server.wrapAsync(async (req, res) => await controller.healthSlow(req, res)),
+  router.wrapAsync(async (req, res) => await controller.healthSlow(req, res)),
 );
 
-server.get(
+router.get(
   '/health/error',
-  server.wrapAsync(async (req, res) => await controller.healthError(req, res)),
+  router.wrapAsync(async (req, res) => await controller.healthError(req, res)),
 );
