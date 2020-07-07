@@ -1,107 +1,107 @@
 // app/api/case/router.js
 
-const server = require('../../../src/server');
+const { router } = require('../../../app');
 const controller = require('./controller');
 
-server.post(
+router.post(
   '/case/points',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.fetchCasePoints(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/cases/points',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.fetchCasesPoints(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/case/points/ingest',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.ingestUploadedPoints(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/case/points/delete',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.deleteCasePoints(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/case/point',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.createCasePoint(req, res),
     true,
   ),
 );
 
-server.put(
+router.put(
   '/case/point',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.updateCasePoint(req, res),
     true,
   ),
 );
 
-server.put(
+router.put(
   '/case/points',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.updateCasePoints(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/case/point/delete',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.deleteCasePoint(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/case/consent-to-publishing',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.consentToPublish(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/case/stage',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.setCaseToStaging(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/cases/publish',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.publishCases(req, res),
     true,
   ),
 );
 
-server.post(
+router.post(
   '/case/delete',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.deleteCase(req, res),
     true,
   ),
 );
 
-server.put(
+router.put(
   '/case',
-  server.wrapAsync(
+  router.wrapAsync(
     async (req, res) => await controller.updateOrganizationCase(req, res),
     true,
   ),

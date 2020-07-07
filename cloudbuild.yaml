@@ -3,8 +3,18 @@
 substitutions:
   _SERVICE:
   _REGION:
+  _SECRET_NAME:
+  _PORT:
+  _PLATFORM:
+  _CLUSTER_NAME:
+  _CLUSTER_LOCATION:
 
 steps:
+- id: 'Pull env file from Secrets Manager'
+  name: gcr.io/cloud-builders/gcloud
+  entrypoint: 'bash'
+  args: [ '-c', "gcloud secrets versions access latest --secret=${_SECRET_NAME} --format='get(payload.data)' | tr '_-' '/+' | base64 -d > .env" ]
+
 - id: 'Build Container Image'
   name: 'registry.hub.docker.com/library/docker:18'
   args: [
@@ -34,6 +44,9 @@ steps:
     gcloud run deploy "${_SERVICE}-${BRANCH_NAME}" \
       --quiet \
       --project "${PROJECT_ID}" \
-      --platform "managed" \
-      --region "${_REGION}" \
+      --platform "${_PLATFORM}" \
+      --namespace "${_NAMESPACE}" \
+      --port "${_PORT}" \
+      --cluster "${_CLUSTER_NAME}" \
+      --cluster-location "${_CLUSTER_LOCATION}" \
       --image "gcr.io/${PROJECT_ID}/github.com/path-check/${_SERVICE}:$BRANCH_NAME-$SHORT_SHA"

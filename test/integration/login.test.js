@@ -2,7 +2,9 @@ const atob = require('atob');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
-const server = require('../../app');
+
+const app = require('../../app');
+const server = app.getTestingServer();
 
 chai.use(chaiHttp);
 
@@ -26,32 +28,32 @@ describe('POST /auth/login', function () {
 
   it('should login on user creds and return map api key', function (done) {
     chai
-      .request(server.app)
+      .request(server)
       .post('/auth/login')
       .send({
         username: 'safeplaces@extremesolution.com',
         password: 'Wx$sRj3E',
       })
       .end(function (err, res) {
-        expect(res.status).to.equal(200);
-        expect(res.body).to.be.an('object');
-        expect(res.body).to.haveOwnProperty('token');
-        let parsedJwt = parseJwt(res.body.token);
+        expect(res.status).to.equal(204);
+        expect(Object.keys(res.body).length).to.eq(0);
+        const accessToken = /access_token=([a-zA-Z0-9.\-_]+);/g.exec(
+          res.header['set-cookie'],
+        )[1];
+        const parsedJwt = parseJwt(accessToken);
         expect(parsedJwt).to.haveOwnProperty('sub');
         expect(parsedJwt.sub).to.equal('auth0|5ef53cdcf3ce32001a40ede7');
         expect(parsedJwt).to.haveOwnProperty('iat');
         chai.assert.equal(new Date(parsedJwt.iat * 1000) instanceof Date, true);
         expect(parsedJwt).to.haveOwnProperty('exp');
         chai.assert.equal(new Date(parsedJwt.exp * 1000) instanceof Date, true);
-        expect(res.body).to.haveOwnProperty('maps_api_key');
-        expect(res.body.maps_api_key).to.equal(process.env.SEED_MAPS_API_KEY);
         return done();
       });
   });
 
   it('should fail when wrong password is given saying creds are invalid', function (done) {
     chai
-      .request(server.app)
+      .request(server)
       .post('/auth/login')
       .send({
         username: 'safeplaces@extremesolution.com',
@@ -67,7 +69,7 @@ describe('POST /auth/login', function () {
 
   it('should fail with invalid username saying creds are invalid', function (done) {
     chai
-      .request(server.app)
+      .request(server)
       .post('/auth/login')
       .send({
         username: 'wronguser',

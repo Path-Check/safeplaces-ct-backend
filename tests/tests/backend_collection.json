@@ -1,698 +1,309 @@
 {
-	"info": {
-		"_postman_id": "61361346-9da4-49cc-a3bc-567354a97f31",
-		"name": "Safe Places - Nest Js Backend",
-		"description": "The Safe Places API Specification",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "login",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "718331c9-ea17-44c7-88e9-8bf936bbec75",
-						"exec": [
-							"var response = JSON.parse(responseBody);\r",
-							"\r",
-							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-							"    var token = response.token;\r",
-							"    if (tests[\"Token is not empty\"] = token.length > 0) {\r",
-							"        pm.environment.set(\"token\", token);\r",
-							"    }\r",
-							"}\r",
-							"\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"username\": \"safeplaces@extremesolution.com\",\n    \"password\": \"Wx$sRj3E\"\n}"
-				},
-				"url": {
-					"raw": "{{baseUrl}}/login",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"login"
-					],
-					"query": [
-						{
-							"key": "",
-							"value": "",
-							"disabled": true
-						},
-						{
-							"key": "",
-							"value": "",
-							"disabled": true
-						}
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Untitled Response",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\",\n    \"code\": \"<string>\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login2",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login2"
-							]
-						}
-					},
-					"status": "Created",
-					"code": 201,
-					"_postman_previewlanguage": "text",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "text/plain"
-						}
-					],
-					"cookie": [],
-					"body": ""
-				}
-			]
-		},
-		{
-			"name": "organization/case",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "1861bc4d-0ce8-4c7f-a702-62f6a5eab8f2",
-						"exec": [
-							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-							"    var response = JSON.parse(responseBody);\r",
-							"    var contTracerId = response.contactTracerId;\r",
-							"    if (tests[\"Contact Tracer Id is not empty\"] = contTracerId.length > 0) {\r",
-							"        pm.environment.set(\"contactId\", contTracerId);\r",
-							"    }\r",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/organization/case",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"organization",
-						"case"
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "An intial \"tester\" (password: \"tester54321\") user is created.",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								""
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "text",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "text/plain"
-						}
-					],
-					"cookie": [],
-					"body": ""
-				},
-				{
-					"name": "Untitled Response",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								""
-							]
-						}
-					},
-					"status": "Created",
-					"code": 201,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "application/json"
-						}
-					],
-					"cookie": [],
-					"body": "\"<boolean>\""
-				}
-			]
-		},
-		{
-			"name": "Get access-code",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "f46904a5-06b1-4f3d-9398-e21b6c302fdb",
-						"exec": [
-							"if (tests[\"Successful POST request\"] = responseCode.code === 201) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-							"    var response = JSON.parse(responseBody);\r",
-							"    var codeResponse = response.accessCode;\r",
-							"    if (tests[\"Contact Tracer Id is not empty\"] = codeResponse.length > 0) {\r",
-							"        pm.environment.set(\"accessCode\", codeResponse);\r",
-							"    }\r",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"username\": \"spladmin\",\n    \"password\": \"password\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/access-code",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"access-code"
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Untitled Response",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/validate",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"validate"
-							]
-						}
-					},
-					"status": "Created",
-					"code": 201,
-					"_postman_previewlanguage": "text",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "text/plain"
-						}
-					],
-					"cookie": [],
-					"body": ""
-				}
-			]
-		},
-		{
-			"name": "Validate Access-code",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "04a9f0f9-e668-4811-838b-7e0ff490e88d",
-						"exec": [
-							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-							"    var response = JSON.parse(responseBody);\r",
-							"    var codeValid = response.valid;\r",
-							"    tests[\"Code Valid = ture\"] = codeValid === true   \r",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"accessCode\": \"{{accessCode}}\"\r\n}"
-				},
-				"url": {
-					"raw": "{{IngestServiceAPI}}/access-code/valid",
-					"host": [
-						"{{IngestServiceAPI}}"
-					],
-					"path": [
-						"access-code",
-						"valid"
-					]
-				},
-				"description": "Determines whether an access code is valid and if it can be used to perform an /upload API call."
-			},
-			"response": []
-		},
-		{
-			"name": "Consent Using Access-code ",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "066f4172-23d6-4399-a293-fceec57ea476",
-						"exec": [
-							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000; \r",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"consent\": true,\r\n  \"accessCode\": \"{{accessCode}}\"\r\n}"
-				},
-				"url": {
-					"raw": "{{IngestServiceAPI}}/consent",
-					"host": [
-						"{{IngestServiceAPI}}"
-					],
-					"path": [
-						"consent"
-					]
-				},
-				"description": "Determines whether an access code is valid and if it can be used to perform an /upload API call."
-			},
-			"response": []
-		},
-		{
-			"name": "Upload Using Access-code",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "996d3cb2-9368-400f-92be-bd27ea31d6c5",
-						"exec": [
-							"if (tests[\"Successful POST request\"] = responseCode.code === 201) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-							"    var response = JSON.parse(responseBody);\r",
-							"    var idUpload = response.uploadId;\r",
-							"    if (tests[\"Contact Tracer Id is not empty\"] = idUpload.length > 0) {\r",
-							"        pm.environment.set(\"uploadId\", idUpload);\r",
-							"    }\r",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "Bearer {{token}}"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"accessCode\": \"{{accessCode}}\",\r\n  \"concernPoints\": [\r\n    {\r\n      \"longitude\": 14.91328448,\r\n      \"latitude\": 41.24060321,\r\n      \"time\": 1589117739000,\r\n      \"hash\": \"87e916850d4def3c\"\r\n    }\r\n  ]\r\n}"
-				},
-				"url": {
-					"raw": "{{IngestServiceAPI}}/upload",
-					"host": [
-						"{{IngestServiceAPI}}"
-					],
-					"path": [
-						"upload"
-					]
-				},
-				"description": "Determines whether an access code is valid and if it can be used to perform an /upload API call."
-			},
-			"response": []
-		},
-		{
-			"name": "Organization",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "8359b423-86b1-4208-9b6b-688102248f30",
-						"exec": [
-							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-							"    var response = JSON.parse(responseBody);\r",
-							"    var organizationId = response.id;\r",
-							"    var externalID = response.externalId\r",
-							"    tests[\"Organization ID is not empty \"] = organizationId != \"\" ;\r",
-							"    pm.environment.set(\"orgID\", organizationId)\r",
-							"    tests[\"External ID is not empty \"] = externalID.length > 1 ;\r",
-							"    pm.environment.set(\"extID\", externalID)\r",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "{{baseUrl}}/organization",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"organization"
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Untitled Response",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\",\n    \"email\": \"<string>\",\n    \"admin\": \"<boolean>\",\n    \"role\": \"<string>\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"register"
-							]
-						}
-					},
-					"status": "Created",
-					"code": 201,
-					"_postman_previewlanguage": "text",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "text/plain"
-						}
-					],
-					"cookie": [],
-					"body": ""
-				}
-			]
-		},
-		{
-			"name": "organization/configuration",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "2fcabb3e-61c8-4c23-b082-75c64edde52d",
-						"exec": [
-							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-							"    var response = JSON.parse(responseBody);\r",
-							"    var organizationId = response.id;\r",
-							"    var externalID = response.externalId\r",
-							"    tests[\"Organization ID is not empty \"] = organizationId != \"\" ;\r",
-							"    pm.environment.set(\"orgID\", organizationId)\r",
-							"    tests[\"External ID is not empty \"] = externalID.length > 1 ;\r",
-							"    pm.environment.set(\"extID\", externalID)\r",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "{{baseUrl}}/organization/configuration",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"organization",
-						"configuration"
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Untitled Response",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"password\": \"<string>\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/updatePassword",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"updatePassword"
-							]
-						}
-					},
-					"status": "Created",
-					"code": 201,
-					"_postman_previewlanguage": "text",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "text/plain"
-						}
-					],
-					"cookie": [],
-					"body": ""
-				}
-			]
-		},
-		{
-			"name": "organization/cases",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "6b2fea82-e2f6-4da2-b5ce-a897c876a8a3",
-						"exec": [
-							"if (tests[\"Successful POST request\"] = responseCode.code === 200) {\r",
-							"    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-							"    var response = JSON.parse(responseBody);\r",
-							"    var casesList = response.cases\r",
-							"    tests[\"List of cases is not empty \"] = casesList.length > 1\r",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/organization/cases",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"organization",
-						"cases"
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Untitled Response",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/users",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "text",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "text/plain"
-						}
-					],
-					"cookie": [],
-					"body": ""
-				}
-			]
-		}
-	],
-	"variable": [
-		{
-			"id": "baseUrl",
-			"key": "baseUrl",
-			"value": "/",
-			"type": "string"
-		}
-	],
-	"protocolProfileBehavior": {}
+  "info": {
+    "_postman_id": "6e735f3d-f0b8-4517-86fc-205720ac7505",
+    "name": "Safe Places - Newman Test",
+    "description": "The Safe Places API Specification",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "ba517d21-1573-4410-81a6-88af2c3900c1",
+            "exec": [
+              "if (tests[\"Successful POST request\"] = responseCode.code === 204) {\r",
+              "    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
+              "    console.log(pm.response.headers);\r",
+              "    var cookie = pm.response.headers.filter(header => header.key === 'Set-Cookie')[0].value;\r",
+              "    tests[\"Cookie is not empty\"] = !!cookie;\r",
+              "    var token = /access_token=([a-zA-Z0-9\\-_.]+);/g.exec(cookie)[1];\r",
+              "    tests[\"Token is not empty\"] = token.length > 0;\r",
+              "}\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"safeplaces@extremesolution.com\",\n    \"password\": \"Wx$sRj3E\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+
+          "path": ["auth", "login"]
+        }
+      },
+
+      "response": [
+        {
+          "name": "Untitled Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\",\n    \"code\": \"<string>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login2",
+              "host": ["{{baseUrl}}"],
+
+              "path": ["login2"]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain"
+            }
+          ],
+          "cookie": [],
+          "body": ""
+        }
+      ]
+    },
+    {
+      "name": "organization/case",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "7502d2f2-0c53-436d-a3d6-7613c3794ff8",
+            "exec": [
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "//var count = Object.keys(jsonData.data[0].trail).length;\r",
+              "\r",
+              "\r",
+              "pm.test(\"Check organization - identifier \", function () {\r",
+              "    pm.expect(jsonData.state).to.eql(\"unpublished\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check organization - external_id \", function () {\r",
+              "    pm.expect(jsonData.external_id).not.to.eql(\"\");\r",
+              "});\r",
+              "\r",
+              "\r",
+              "pm.test(\"Check organization - caseId \", function () {\r",
+              "    pm.expect(jsonData.caseId).not.to.eql(\"\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check organization - updatedAt \", function () {\r",
+              "    pm.expect(jsonData.updatedAt).not.to.eql(\"\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check organization - expiresAt \", function () {\r",
+              "    pm.expect(jsonData.expiresAt).not.to.eql(\"\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check organization - externalId \", function () {\r",
+              "    pm.expect(jsonData.externalId).not.to.eql(\"\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check organization - contactTracerId \", function () {\r",
+              "    pm.expect(jsonData.contactTracerId).not.to.eql(\"\");\r",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/organization/case",
+          "host": ["{{baseUrl}}"],
+
+          "path": ["organization", "case"]
+        }
+      },
+      "response": [
+        {
+          "name": "An intial \"tester\" (password: \"tester54321\") user is created.",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          },
+
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain"
+            }
+          ],
+          "cookie": [],
+          "body": ""
+        },
+        {
+          "name": "Untitled Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "\"<boolean>\""
+        }
+      ]
+    },
+    {
+      "name": "access-code",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "4d57a1cb-f480-439e-8a8d-0888c9e69e8d",
+            "exec": [
+              "var jsonData = pm.response.json(); \r",
+              "\r",
+              "pm.test(\"Status code is 201\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Check accessCode \", function () {\r",
+              "    pm.expect(jsonData.accessCode).not.to.eql(\"\");\r",
+              "});\r",
+              "\r",
+              "pm.environment.set(\"code\", jsonData.accessCode);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"safeplaes@extremesolution.com\",\n    \"password\": \"Wx$sRj3E\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/access-code",
+          "host": ["{{baseUrl}}"],
+          "path": ["access-code"]
+        }
+      },
+      "response": [
+        {
+          "name": "Untitled Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["validate"]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain"
+            }
+          ],
+          "cookie": [],
+          "body": ""
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "5fb0d0f4-9b61-40d5-bc2c-1c2127bd82fd",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "766241cf-19b2-420e-af0a-3c34e74f7bbb",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "f91d81f7-64e0-47ba-ac47-28ee26437d38",
+      "key": "baseUrl",
+      "value": "/"
+    }
+  ],
+  "protocolProfileBehavior": {}
 }

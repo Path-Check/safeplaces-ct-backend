@@ -8,9 +8,10 @@ const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
 
 const jwt = require('jsonwebtoken');
-const jwtSecret = require('../../config/jwtConfig');
 
-const server = require('../../app');
+const app = require('../../app');
+const server = app.getTestingServer();
+
 const mockData = require('../lib/mockData');
 
 chai.use(chaiHttp);
@@ -43,34 +44,31 @@ describe('POST /case/points/ingest', () => {
           ~~(Date.now() / 1000) +
           (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
       },
-      jwtSecret.secret,
+      process.env.JWT_SECRET,
     );
 
     currentAccessCode = await mockData.mockAccessCode();
   });
 
   it('should fail for unauthorized clients', async () => {
-    let result = await chai
-      .request(server.app)
-      .post('/case/points/ingest')
-      .send();
-    result.should.have.status(401);
+    let result = await chai.request(server).post('/case/points/ingest').send();
+    result.should.have.status(403);
   });
 
   it('should fail for malformed requests', async () => {
     let result = await chai
-      .request(server.app)
+      .request(server)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: '123456',
       });
     result.should.have.status(400);
 
     result = await chai
-      .request(server.app)
+      .request(server)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         caseId: 1,
       });
@@ -79,9 +77,9 @@ describe('POST /case/points/ingest', () => {
 
   it('should fail for invalid access codes', async () => {
     let result = await chai
-      .request(server.app)
+      .request(server)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: '123456',
         caseId: 1,
@@ -91,9 +89,9 @@ describe('POST /case/points/ingest', () => {
 
   it('should fail when consent is not granted', async () => {
     let result = await chai
-      .request(server.app)
+      .request(server)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: 1,
@@ -107,9 +105,9 @@ describe('POST /case/points/ingest', () => {
     await mockData.mockUploadPoints(currentAccessCode, 0);
 
     let result = await chai
-      .request(server.app)
+      .request(server)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: 1,
@@ -130,9 +128,9 @@ describe('POST /case/points/ingest', () => {
     let points = await mockData.mockUploadPoints(currentAccessCode, 5);
 
     let result = await chai
-      .request(server.app)
+      .request(server)
       .post('/case/points/ingest')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `access_token=${token}`)
       .send({
         accessCode: currentAccessCode.value,
         caseId: currentCase.caseId,

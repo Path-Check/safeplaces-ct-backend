@@ -3,31 +3,9 @@
 /**
  * Environment variable validation
  */
+require('dotenv').config()
 require('../tools/validateEnv')(process.env);
 
-const { api } = require('../src');
+const server = require('../app');
 
-/**
- * Module dependencies.
- */
-const debug = require('debug')('safe-places-server:server');
-
-/**
- * Get port from environment and store in Express.
- */
-
-const port = normalizePort(process.env.EXPRESSPORT || '3000');
-
-api.start(port , "127.0.0.1")
-  .then(() => console.log(`Node Server Started on port ${port}!`));
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  const port = parseInt(val, 10);
-  if (isNaN(port)) return val;
-  if (port >= 0) return port;
-  return false;
-}
+server.start()
