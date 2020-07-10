@@ -1,3 +1,3 @@
-const db = require('@pathcheck/data-layer');
+const db = require('@marshall_mccoy/data-layer');
 
 module.exports = db.private;
