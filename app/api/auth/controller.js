@@ -1,4 +1,4 @@
-const auth = require('@aiyan/safeplaces-auth');
+const auth = require('@pathcheck/safeplaces-auth');
 
 const loginHandler = new auth.handlers.Login({
   auth0: {

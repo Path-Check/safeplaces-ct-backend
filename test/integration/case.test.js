@@ -8,9 +8,9 @@ const moment = require('moment');
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
-const jwt = require('jsonwebtoken');
 
 const mockData = require('../lib/mockData');
+const mockAuth = require('../lib/mockAuth');
 
 const app = require('../../app');
 const server = app.getTestingServer();
@@ -19,7 +19,7 @@ const type = process.env.PUBLISH_STORAGE_TYPE || 'local';
 
 chai.use(chaiHttp);
 
-let currentOrg, currentCase, token;
+let currentOrg, currentCase, token, ctToken;
 
 describe('Case', () => {
   before(async () => {
@@ -36,17 +36,8 @@ describe('Case', () => {
       organization_id: currentOrg.id,
     };
     const user = await mockData.mockUser(newUserParams);
-
-    token = jwt.sign(
-      {
-        sub: user.idm_id,
-        iat: ~~(Date.now() / 1000),
-        exp:
-          ~~(Date.now() / 1000) +
-          (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-      },
-      process.env.JWT_SECRET,
-    );
+    token = mockAuth.getAccessToken(user.idm_id, 'admin');
+    ctToken = mockAuth.getAccessToken(user.idm_id, 'contact_tracer');
   });
 
   describe('fetch case points', () => {
@@ -742,6 +733,18 @@ describe('Case', () => {
       results.error.should.not.be.false;
       results.should.have.status(500);
     });
+  });
+
+  it('fails because the user is a contact tracer', async () => {
+    const results = await chai
+      .request(server)
+      .post(`/cases/publish`)
+      .set('Cookie', `access_token=${ctToken}`)
+      .set('content-type', 'application/json')
+      .send({});
+
+    results.should.have.status(403);
+    results.text.should.eq('Forbidden');
   });
 
   describe('delete a case', () => {
