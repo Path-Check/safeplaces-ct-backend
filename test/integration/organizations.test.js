@@ -6,16 +6,16 @@ const { organizationService } = require('../../app/lib/db');
 const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
-const jwt = require('jsonwebtoken');
 
 const mockData = require('../lib/mockData');
+const mockAuth = require('../lib/mockAuth');
 
 const app = require('../../app');
 const server = app.getTestingServer();
 
 chai.use(chaiHttp);
 
-let currentOrg, token;
+let currentOrg, token, ctToken;
 
 describe('Organization ', () => {
   before(async () => {
@@ -43,6 +43,8 @@ describe('Organization ', () => {
       organization_id: currentOrg.id,
     };
     const user = await mockData.mockUser(newUserParams);
+    token = mockAuth.getAccessToken(user.idm_id, 'admin');
+    ctToken = mockAuth.getAccessToken(user.idm_id, 'contact_tracer');
 
     const caseParams = {
       organization_id: currentOrg.id,
@@ -53,16 +55,6 @@ describe('Organization ', () => {
     await mockData.mockCase(caseParams);
     await mockData.mockCase(caseParams);
 
-    token = jwt.sign(
-      {
-        sub: user.idm_id,
-        iat: ~~(Date.now() / 1000),
-        exp:
-          ~~(Date.now() / 1000) +
-          (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-      },
-      process.env.JWT_SECRET,
-    );
   });
 
   describe('GET /organization by user', () => {
@@ -177,6 +169,34 @@ describe('Organization ', () => {
       results.body.completedOnboarding.should.equal(
         newParams.completedOnboarding,
       );
+    });
+
+    it('cannot update record as a contact tracer', async () => {
+      const newParams = {
+        name: 'Some Health Authority',
+        notificationThresholdPercent: 66,
+        notificationThresholdTimeline: 30,
+        daysToRetainRecords: 14,
+        regionCoordinates: {
+          ne: { latitude: 20.312764055951195, longitude: -70.45445121262883 },
+          sw: { latitude: 17.766025040122642, longitude: -75.49442923997258 },
+        },
+        apiEndpointUrl: 'https://s3.aws.com/bucket_name/safepaths.json',
+        referenceWebsiteUrl: 'http://cdc.gov',
+        infoWebsiteUrl: 'http://cdc.gov',
+        privacyPolicyUrl: 'https://superprivate.com',
+        completedOnboarding: true,
+      };
+
+      const results = await chai
+        .request(server)
+        .put(`/organization/configuration`)
+        .set('Cookie', `access_token=${ctToken}`)
+        .set('content-type', 'application/json')
+        .send(newParams);
+
+      results.should.have.status(403);
+      results.text.should.eq('Forbidden');
     });
 
     it('fetch the organizationService cases', async () => {
