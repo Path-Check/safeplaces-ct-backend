@@ -772,6 +772,35 @@ describe('Case', () => {
   });
 
   describe('update a case', () => {
+    it('returns a 422 if the external id is already taken', async () => {
+      await mockData.mockCase({
+        organization_id: currentOrg.id,
+        external_id: 'taken_external_id',
+        state: 'unpublished',
+      });
+
+      let currentCase = await mockData.mockCase({
+        organization_id: currentOrg.id,
+        state: 'unpublished',
+      });
+
+      let updateParams = {
+        caseId: currentCase.caseId,
+        externalId: 'taken_external_id',
+      };
+
+      const results = await chai
+        .request(server)
+        .put(`/case`)
+        .set('Cookie', `access_token=${token}`)
+        .set('content-type', 'application/json')
+        .send(updateParams);
+
+      results.should.have.status(422);
+      results.body.should.be.a('object');
+      results.body.error.should.eq('External ID must be unique.');
+    });
+
     it('return a 200', async () => {
       const caseParams = {
         organization_id: currentOrg.id,
