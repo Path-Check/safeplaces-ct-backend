@@ -449,6 +449,18 @@ exports.updateOrganizationCase = async (req, res) => {
   const { caseId, externalId } = req.body;
 
   if (!caseId) throw new Error('Case ID is missing.');
+  if (!externalId) throw new Error('External ID is missing.');
+
+  if (externalId) {
+    const caseWithExternalId = await caseService.findOne({
+      external_id: externalId,
+    });
+
+    if (caseWithExternalId && caseWithExternalId.id != caseId) {
+      res.status(422).json({ error: 'External ID must be unique.' });
+      return;
+    }
+  }
 
   const results = await caseService.updateCaseExternalId(caseId, externalId);
   if (results) {
