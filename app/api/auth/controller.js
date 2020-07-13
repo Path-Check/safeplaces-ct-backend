@@ -6,7 +6,7 @@ const loginHandler = new auth.handlers.Login({
     apiAudience: process.env.AUTH0_API_AUDIENCE,
     clientId: process.env.AUTH0_CLIENT_ID,
     clientSecret: process.env.AUTH0_CLIENT_SECRET,
-    realm: process.env.AUTH0_REALM, // TODO: Update library to use realm
+    realm: process.env.AUTH0_REALM,
   },
   cookie: {
     secure: process.env.NODE_ENV !== 'development',
