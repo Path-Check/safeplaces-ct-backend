@@ -1,4 +1,4 @@
-const auth = require('@aiyan/safeplaces-auth');
+const auth = require('@pathcheck/safeplaces-auth');
 
 const loginHandler = new auth.handlers.Login({
   auth0: {
@@ -11,6 +11,7 @@ const loginHandler = new auth.handlers.Login({
   cookie: {
     secure: process.env.NODE_ENV !== 'development',
     sameSite: process.env.BYPASS_SAME_SITE !== 'true',
+    domain: process.env.DOMAIN,
   },
 });
 
@@ -19,6 +20,7 @@ const logoutHandler = new auth.handlers.Logout({
   cookie: {
     secure: process.env.NODE_ENV !== 'development',
     sameSite: process.env.BYPASS_SAME_SITE !== 'true',
+    domain: process.env.DOMAIN,
   },
 });
 
