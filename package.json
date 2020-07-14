@@ -24,12 +24,11 @@
     "test"
   ],
   "dependencies": {
-    "dotenv": "8.2.0",
-    "@pathcheck/safeplaces-auth": "^0.2.2",
     "@google-cloud/secret-manager": "^3.1.0",
     "@google-cloud/storage": "^5.0.1",
-    "@pathcheck/safeplaces-server": "0.0.13",
-    "@pathcheck/data-layer": "0.1.5",
+    "@pathcheck/safeplaces-auth": "^0.2.2",
+    "@pathcheck/safeplaces-server": "~0.0.13",
+    "@pathcheck/data-layer": "~0.1.5",
     "adm-zip": "^0.4.14",
     "ajv": "^6.12.2",
     "atob": "^2.1.2",
@@ -39,10 +38,12 @@
     "chalk": "^4.1.0",
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
+    "dotenv": "8.2.0",
     "google-auth-library": "^6.0.2",
     "jsonwebtoken": "^8.5.1",
     "moment": "~2.19.3",
-    "ngeohash": "^0.6.3"
+    "ngeohash": "^0.6.3",
+    "xpolicy": "^0.2.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
