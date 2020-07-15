@@ -54,13 +54,13 @@ describe('POST /auth/login', function () {
       });
   });
 
-  it('should login on contact tracer user creds', function(done) {
+  it('should login on contact tracer user creds', function (done) {
     chai
       .request(server)
       .post('/auth/login')
       .send({
         username: 'tracer@extremesolution.com',
-        password: 'cX#Ee7sR'
+        password: 'cX#Ee7sR',
       })
       .end(function (err, res) {
         const ns = process.env.AUTH0_CLAIM_NAMESPACE;
