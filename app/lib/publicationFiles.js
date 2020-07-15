@@ -1,7 +1,5 @@
 const _ = require('lodash');
 const AdmZip = require('adm-zip');
-const geoHash = require('./geoHash');
-const transform = require('./pocTransform.js');
 
 /**
  * @class PublicationFiles
@@ -29,8 +27,6 @@ class PublicationFiles {
       endpoint = '/';
     }
     this._apiEndpointPage = `${endpoint}[PAGE].json`;
-
-    trails = await this._transformAndHash(trails);
 
     const header = this._getHeader(organization, record);
     const trailsChunked = this._chunkTrails(
@@ -117,33 +113,6 @@ class PublicationFiles {
       notification_threshold_timeframe:
         organization.notificationThresholdTimeline,
     };
-  }
-
-  /**
-   *
-   * Transform from duration to discreet and build hashes.
-   *
-   * @method _transformAndHash
-   * @param {Array[Trails]} trails
-   * @return {Array[HashedTrails]}
-   */
-
-  async _transformAndHash(trails) {
-    trails = transform.durationToDiscreet(trails);
-
-    let trail, hash;
-    let trailRecords = [];
-
-    for (trail of trails) {
-      hash = await geoHash.encrypt(trail);
-      if (hash) {
-        trail.hash = hash.encodedString;
-        trail.secret = hash.secret;
-        trailRecords.push(trail);
-      }
-    }
-
-    return trailRecords;
   }
 
   /**
