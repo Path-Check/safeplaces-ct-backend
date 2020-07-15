@@ -6,12 +6,11 @@ const chai = require('chai');
 const should = chai.should(); // eslint-disable-line
 const chaiHttp = require('chai-http');
 
-const jwt = require('jsonwebtoken');
-
 const app = require('../../app');
 const server = app.getTestingServer();
 
 const mockData = require('../lib/mockData');
+const mockAuth = require('../lib/mockAuth');
 
 chai.use(chaiHttp);
 
@@ -34,17 +33,7 @@ describe('POST /access-code', () => {
     };
 
     const user = await mockData.mockUser(userParams);
-
-    token = jwt.sign(
-      {
-        sub: user.idm_id,
-        iat: ~~(Date.now() / 1000),
-        exp:
-          ~~(Date.now() / 1000) +
-          (parseInt(process.env.JWT_EXP) || 1 * 60 * 60), // Default expires in an hour
-      },
-      process.env.JWT_SECRET,
-    );
+    token = mockAuth.getAccessToken(user.idm_id, 'admin');
 
     await mockData.mockAccessCode();
   });
