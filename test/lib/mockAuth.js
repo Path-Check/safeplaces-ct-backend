@@ -10,8 +10,8 @@ function getAccessToken(idmId, role) {
     process.env.JWT_SECRET,
     {
       algorithm: 'HS256',
-      expiresIn: '1h'
-    }
+      expiresIn: '1h',
+    },
   );
 }
 

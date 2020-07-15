@@ -54,7 +54,6 @@ describe('Organization ', () => {
     await mockData.mockCase(caseParams);
     await mockData.mockCase(caseParams);
     await mockData.mockCase(caseParams);
-
   });
 
   describe('GET /organization by user', () => {

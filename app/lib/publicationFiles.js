@@ -225,7 +225,7 @@ class PublicationFiles {
       ...new Set(trails.map(trail => new Date(trail.publishDate).getTime())),
     ];
     publicationDates = publicationDates
-      .sort((a, b) => (a.time > b.time ? 1 : b.time > a.time ? -1 : 0))
+      .sort((a, b) => (a > b ? 1 : b > a ? -1 : 0))
       .reverse(); // Assure they are sorted properly.
 
     // Goto 1 second before Midnight of the most recent publication
