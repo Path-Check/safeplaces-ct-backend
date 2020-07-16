@@ -48,6 +48,7 @@ describe('POST /access-code', () => {
       .request(server)
       .post('/access-code')
       .set('Cookie', `access_token=${token}`)
+      .set('X-Requested-With', 'XMLHttpRequest')
       .send();
     result.should.have.status(201);
 
