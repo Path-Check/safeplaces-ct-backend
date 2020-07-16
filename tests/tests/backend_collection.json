@@ -392,7 +392,10 @@
       "script": {
         "id": "8ee73587-5787-4a3b-a679-66de506b817c",
         "type": "text/javascript",
-        "exec": [""]
+        "exec": [
+          "pm.request.headers.add({ key: 'X-Requested-With', value: 'XMLHttpRequest' });",
+          ""
+        ]
       }
     },
     {
@@ -406,7 +409,7 @@
   ],
   "variable": [
     {
-      "id": "f91d81f7-64e0-47ba-ac47-28ee26437d38",
+      "id": "3e30b4b1-b0f2-45b9-bd38-8a08482c6f7f",
       "key": "baseUrl",
       "value": "/"
     }
