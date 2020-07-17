@@ -20,7 +20,15 @@ const client = new SecretManagerServiceClient();
  */
 
 async function pullSecret() {
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return true;
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    console.log('[GCS] Using Application Credentials');
+    return true;
+  }
+
+  if (!process.env.GOOGLE_SECRET) {
+    console.log('[GCS] Google Secret is invalid, falling back.');
+    return true;
+  }
 
   const saveCredentialsFile = (file, contents) => {
     return new Promise((resolve, reject) => {
@@ -36,17 +44,21 @@ async function pullSecret() {
   const [accessResponse] = await client.accessSecretVersion({
     name: process.env.GOOGLE_SECRET,
   });
-  const responsePayload = accessResponse.payload.data.toString('utf8');
-  if (responsePayload) {
-    const credsSaved = await saveCredentialsFile(fileName, responsePayload);
-    if (credsSaved) {
-      process.env.GOOGLE_APPLICATION_CREDENTIALS = fileName;
-      return true;
+  if (accessResponse) {
+    const responsePayload = accessResponse.payload.data.toString('utf8');
+    if (responsePayload) {
+      const credsSaved = await saveCredentialsFile(fileName, responsePayload);
+      if (credsSaved) {
+        process.env.GOOGLE_APPLICATION_CREDENTIALS = fileName;
+        return true;
+      } else {
+        throw new Error('Problem saving credentials file.');
+      }
     } else {
-      throw new Error('Problem saving credentials file.');
+      throw new Error('Problem getting access secret response.');
     }
   } else {
-    throw new Error('Problem getting access secret response.');
+    throw new Error('Access Response is invalid.');
   }
 }
 
