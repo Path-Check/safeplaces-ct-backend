@@ -71,8 +71,8 @@ module.exports = async pages => {
     path = process.env.GCLOUD_STORAGE_PATH + '/';
   }
 
-  console.log(`[GCS] Bucket: `, process.env.GCLOUD_STORAGE_BUCKET)
-  console.log(`[GCS] Path: `, path)
+  console.log(`[GCS] Bucket: `, process.env.GCLOUD_STORAGE_BUCKET);
+  console.log(`[GCS] Path: `, path);
 
   const secret = await pullSecret();
   if (secret) {
@@ -85,8 +85,12 @@ module.exports = async pages => {
         const stream = blob.createWriteStream({ resumable: false });
         stream.on('error', err => reject(err));
         stream.on('finish', () => {
-          console.log(`[GCS] Full Path: https://storage.googleapis.com/${bucket.name}/${path}${blob.name}`)
-          resolve(`https://storage.googleapis.com/${bucket.name}/${path}${blob.name}`);
+          console.log(
+            `[GCS] Full Path: https://storage.googleapis.com/${bucket.name}/${path}${blob.name}`,
+          );
+          resolve(
+            `https://storage.googleapis.com/${bucket.name}/${path}${blob.name}`,
+          );
         });
         stream.end(Buffer.from(contents));
       });
