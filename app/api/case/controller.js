@@ -327,12 +327,15 @@ exports.publishCases = async (req, res) => {
 
   const organization = await organizationService.fetchById(organization_id);
   if (organization) {
-
-    console.log(`[PUBLISH] Starting to publish case ids ${caseIds.join(', ')}...`)
+    console.log(
+      `[PUBLISH] Starting to publish case ids ${caseIds.join(', ')}...`,
+    );
 
     const cases = await caseService.publishCases(caseIds, organization.id);
 
-    console.log(`[PUBLISH] Completed publishing case ids ${caseIds.join(', ')}.`)
+    console.log(
+      `[PUBLISH] Completed publishing case ids ${caseIds.join(', ')}.`,
+    );
 
     const publicationParams = {
       organization_id: organization.id,
@@ -352,12 +355,12 @@ exports.publishCases = async (req, res) => {
         );
       }
 
-      console.log(`[PUBLISH] About to pull points for all published points.`)
+      console.log(`[PUBLISH] About to pull points for all published points.`);
 
       // Everything has been published and assigned...pull all published points.
       const points = await caseService.fetchAllPublishedPoints();
 
-      console.log(`[PUBLISH] Publishing ${points.length} total points.`)
+      console.log(`[PUBLISH] Publishing ${points.length} total points.`);
 
       if (points && points.length > 0) {
         if (type === 'zip' && process.env.NODE_ENV !== 'production') {
