@@ -362,9 +362,11 @@ exports.publishCases = async (req, res) => {
 
       console.log(`[PUBLISH] Found ${points.length} total points to publish.`);
 
-      points = points.splice(0,500)
+      points = points.splice(0, 500);
 
-      console.log(`[PUBLISH] Actually only publishing ${points.length} total points.`);
+      console.log(
+        `[PUBLISH] Actually only publishing ${points.length} total points.`,
+      );
 
       if (points && points.length > 0) {
         if (type === 'zip' && process.env.NODE_ENV !== 'production') {
