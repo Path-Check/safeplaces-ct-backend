@@ -358,7 +358,15 @@ exports.publishCases = async (req, res) => {
       console.log(`[PUBLISH] About to pull points for all published points.`);
 
       // Everything has been published and assigned...pull all published points.
-      const points = await caseService.fetchAllPublishedPoints();
+      let points = await caseService.fetchAllPublishedPoints();
+
+      console.log(`[PUBLISH] Found ${points.length} total points to publish.`);
+
+      points = points.splice(0, 500);
+
+      console.log(
+        `[PUBLISH] Actually only publishing ${points.length} total points.`,
+      );
 
       console.log(`[PUBLISH] Publishing ${points.length} total points.`);
 
