@@ -26,7 +26,7 @@
   "dependencies": {
     "@google-cloud/secret-manager": "^3.1.0",
     "@google-cloud/storage": "^5.0.1",
-    "@pathcheck/safeplaces-auth": "^0.3.0",
+    "@pathcheck/safeplaces-auth": "^0.2.2",
     "@pathcheck/safeplaces-server": "^0.0.14",
     "@pathcheck/data-layer": "1.0.0",
     "adm-zip": "^0.4.14",

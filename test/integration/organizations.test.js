@@ -67,7 +67,6 @@ describe('Organization ', () => {
         .request(server)
         .get(`/organization`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -84,7 +83,6 @@ describe('Organization ', () => {
         .request(server)
         .get(`/organization/configuration`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -144,7 +142,6 @@ describe('Organization ', () => {
         .request(server)
         .put(`/organization/configuration`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -206,7 +203,6 @@ describe('Organization ', () => {
         .request(server)
         .get(`/organization/cases`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
@@ -231,7 +227,6 @@ describe('Organization ', () => {
         .request(server)
         .post(`/organization/case`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send();
 

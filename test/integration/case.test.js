@@ -60,7 +60,6 @@ describe('Case', () => {
         .request(server)
         .post(`/case/consent-to-publishing`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(requestParams);
 
@@ -99,7 +98,6 @@ describe('Case', () => {
         .request(server)
         .post(`/case/stage`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -147,7 +145,6 @@ describe('Case', () => {
         .request(server)
         .post(`/cases/publish?type=${type}`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -177,7 +174,6 @@ describe('Case', () => {
         .request(server)
         .post(`/cases/publish?type=json`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
       let pageEndpoint = `${currentOrg.apiEndpointUrl}[PAGE].json`;
@@ -269,7 +265,6 @@ describe('Case', () => {
         .request(server)
         .post(`/cases/publish?type=json`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -322,7 +317,6 @@ describe('Case', () => {
         .request(server)
         .post(`/cases/publish?type=${type}`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -343,7 +337,6 @@ describe('Case', () => {
         .request(server)
         .post(`/cases/publish?type=json`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -384,7 +377,6 @@ describe('Case', () => {
         .request(server)
         .post(`/cases/publish`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -425,7 +417,6 @@ describe('Case', () => {
         .request(server)
         .post(`/case/delete`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
@@ -455,7 +446,6 @@ describe('Case', () => {
         .request(server)
         .put(`/case`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(updateParams);
 
@@ -482,7 +472,6 @@ describe('Case', () => {
         .request(server)
         .put(`/case`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(updateParams);
 
@@ -527,7 +516,6 @@ describe('Case', () => {
         .request(server)
         .get(`/organization/cases`)
         .set('Cookie', `access_token=${token}`)
-        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json');
 
       results.should.have.status(200);
