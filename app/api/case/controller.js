@@ -368,7 +368,7 @@ exports.publishCases = async (req, res) => {
       //   `[PUBLISH] Actually only publishing ${points.length} total points.`,
       // );
 
-      console.log(`[PUBLISH] Publishing ${points.length} total points.`);
+      // console.log(`[PUBLISH] Publishing ${points.length} total points.`);
 
       if (points && points.length > 0) {
         if (type === 'zip' && process.env.NODE_ENV !== 'production') {
