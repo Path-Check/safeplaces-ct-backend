@@ -16,4 +16,3 @@ RUN npm install -g @pathcheck/data-layer --unsafe-perm
 ENTRYPOINT ["/app/dbsetup.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 #CMD ["npm", "start"]
-
