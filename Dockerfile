@@ -4,7 +4,7 @@ ENV NODE_ENV=development
 ADD . $WORKDIR
 RUN npm install
 
-FROM extremesolution/nodejs-nginx:node13.3.0-1046047
+FROM extremesolution/nodejs-nginx:node13.3.0-276a56e
 COPY --from=build-env /app /app
 WORKDIR /app
 ADD wait-for.sh /wait-for.sh
@@ -16,4 +16,3 @@ RUN npm install -g @pathcheck/data-layer --unsafe-perm
 ENTRYPOINT ["/app/dbsetup.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 #CMD ["npm", "start"]
-
