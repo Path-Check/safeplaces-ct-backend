@@ -10,7 +10,7 @@ substitutions:
   _CLUSTER_LOCATION:
 
 steps:
-- id: 'Pull env file from Secrets Manager'  
+- id: 'Pull env file from Secrets Manager'
   name: gcr.io/cloud-builders/gcloud
   entrypoint: 'bash'
   args: [ '-c', "gcloud secrets versions access latest --secret=${_SECRET_NAME} --format='get(payload.data)' | tr '_-' '/+' | base64 -d > .env" ]
