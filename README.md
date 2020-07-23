@@ -182,20 +182,18 @@ npm start
 
 Clone this repository
 
-```
-cd safeplaces-backend/expressjs
-```
+
 
 #### Build Dockerfile
 
 ```
-docker build -t safeplaces-backend-expressjs .
+docker build -t safeplaces-backend-api:latest .
 ```
 
 #### Run Dockerfile
 
 ```
-docker run --rm --name safeplaces-expressjs --env-file=.env -p 3000:3000 safeplaces-backend-expressjs
+docker run --rm --name safeplaces-backend-api --env-file=.env -p 8080:8080 safeplaces-backend-api
 ```
 
 *Note*: sample env file can be found at .env.template`.
@@ -220,7 +218,7 @@ docker-compose up
 Run:
 
 ```
-curl http://localhost:3000/health
+curl http://localhost:8080/health
 ```
 
 Should respond with:
@@ -238,7 +236,7 @@ This section of the readme will detail configuration of deployed environments. I
 The staging deployment is based off of the `staging` branch. This environment is used by QA, product, and development teams to validate functionality before releasing to the general public.
 
 ##### Hosted Services
-Frontend : [https://safeplaces.extremesolution.com/](https://safeplaces.extremesolution.com/)
+Frontend : [https://staging.spl.extremesolution.com/](https://staging.spl.extremesolution.com/)
 
 Backend API (this repo) : [https://zeus.safeplaces.extremesolution.com](https://zeus.safeplaces.extremesolution.com/)
 
@@ -248,11 +246,11 @@ Ingest Service API : [https://hermes.safeplaces.extremesolution.com/](https://he
 The production deployment is based off of the `master` branch. This environment is a production version of the SafePlaces application(s).
 
 ##### Hosted Services
-Frontend: [https://spl.extremesolution.com/](https://spl.extremesolution.com/)
+Frontend: [https://demo.spl.extremesolution.com/](https://demo.spl.extremesolution.com/)
 
-Backend API (this repo): [https://yoda.spl.extremesolution.com/](https://spl.extremesolution.com/)
+Backend API (this repo): [https://api.demo.safeplaces.extremesolution.com/](https://api.demo.safeplaces.extremesolution.com/)
 
-Ingest Service: [https://obiwan.spl.extremesolution.com/](https://spl.extremesolution.com/)
+Ingest Service: [https://ingest.demo.safeplaces.extremesolution.com/](https://ingest.demo.safeplaces.extremesolution.com/
 
 ### Database Configuration
 Databases for the staging and production version of the application will be configured similarly. Each environment will use its own database.
@@ -260,13 +258,13 @@ Databases for the staging and production version of the application will be conf
 Both the Backend API (this repo) and the Ingest service make use of their own PostgreSQL databases. The Backend API will need the ability to read and write to both its database and the Ingest database. The following environment variables will need to be set on the server hosting the Backend API:
 ```
 # Private Database Configuration Environment Variables (Backend API Database)
-DB_HOST (IP/URL of where database is hosted)
+DB_HOST (IP of your PostgreSQL Server)
 DB_NAME (Name of database)
 DB_USER (Name of appropriatly configured user)
 DB_PASS (Password for corresponding user)
 
 # Public Database Config Environment Variables (Ingest API Database)
-DB_HOST_PUB (IP/URL of where database is hosted)
+DB_HOST_PUB (IP of your PostgreSQL Server)
 DB_NAME_PUB (Password for corresponding user)
 DB_USER_PUB (Name of appropriatly configured user)
 DB_PASS_PUB (Password for corresponding user)
@@ -320,6 +318,22 @@ Example: `JWT_EXP=3600`
 #### `BYPASS_SAMESITE`
 This value controls the `SamesSite` cookie attribute for the authorization cookie returned by `/login`. If the value is `true`, then the cookie uses `SameSite=None`. Otherwise, it uses `SameSite=Strict`. The value of the environment variable should always be set to `false` in deployed scenarios but will need to be set to `true` for local development.
 
+### CORS Configuration
+
+The Docker container deployment within the project includes instances of Nginx reverse proxy to handle requests to the expressJS application and manages CORS configurations.
+
+CORS can be found in deployment-configs/nginx-app.conf
+
+CORS configs can be overriden by changing the domain values in the following snippet :
+
+```             
+		set $cors 'true';
+if ($http_origin ~ '^https?://(localhost|.*\.extremesolution\.com|.*\.safeplaces\.cloud)') {
+        set $cors 'true';
+}
+```
+
+
 ### Post Deployment Tasks
 
 #### First Deployment
@@ -334,7 +348,7 @@ The database should be seeded with the stock organization and users by running t
 Below are tasks that should run on every deployment.
 
 ##### Migrate Database
-The following command should be run on every deployment to migrate the database (if using Docker this should be handled by the [dbsetup.sh](https://github.com/Path-Check/safeplaces-backend/blob/dev/dbsetup.sh) script):
+The following command should be run on every deployment to migrate the database (if you are using Docker this should be handled by the ENTRYPOINT step in the Dockefile by running [dbsetup.sh](https://github.com/Path-Check/safeplaces-backend/blob/dev/dbsetup.sh) script):
 
 `spdl migrate:latest --scope private --env (staging|production)`
 
