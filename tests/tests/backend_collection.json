@@ -1,22 +1,133 @@
 {
   "info": {
-    "_postman_id": "6e735f3d-f0b8-4517-86fc-205720ac7505",
+    "_postman_id": "3a663bed-d1ea-4b3d-8bfa-df5623f9eddc",
     "name": "Safe Places - Newman Test",
     "description": "The Safe Places API Specification",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
+      "name": "login ct",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "532af888-b0ca-45ce-aa39-033da9e0b683",
+            "exec": [
+              "if (tests[\"Successful POST request\"] = responseCode.code === 204) {",
+              "    tests[\"Response time is less than 3s\"] = responseTime < 3000;",
+              "    var cookie = pm.response.headers.filter(header => header.key === 'Set-Cookie')[0].value;",
+              "    tests[\"Cookie is not empty\"] = !!cookie;",
+              "    var token = /access_token=([a-zA-Z0-9\\-_.]+);/g.exec(cookie)[1];",
+              "    tests[\"Token is not empty\"] = token.length > 0;",
+              "}",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"tracer@extremesolution.com\",\n    \"password\": \"cX#Ee7sR\"\n}\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "organization/configuration",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "ba5a0bf2-8674-4673-aef7-77b09e187a85",
+            "exec": [
+              "tests[\"Denies access to contact tracer\"] = responseCode.code === 403;"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/organization/configuration",
+          "host": ["{{baseUrl}}"],
+          "path": ["organization", "configuration"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "organization/configuration",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "dcd6c0e3-9f64-4cb6-9b03-578d11db5dd1",
+            "exec": [
+              "tests[\"Gets the organization configuration\"] = responseCode.code === 200;"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/organization/configuration",
+          "host": ["{{baseUrl}}"],
+          "path": ["organization", "configuration"]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "login",
       "event": [
         {
           "listen": "test",
           "script": {
-            "id": "ba517d21-1573-4410-81a6-88af2c3900c1",
+            "id": "3fd67745-1a28-464c-adb4-6b050b1e36aa",
             "exec": [
               "if (tests[\"Successful POST request\"] = responseCode.code === 204) {\r",
               "    tests[\"Response time is less than 3s\"] = responseTime < 3000;\r",
-              "    console.log(pm.response.headers);\r",
               "    var cookie = pm.response.headers.filter(header => header.key === 'Set-Cookie')[0].value;\r",
               "    tests[\"Cookie is not empty\"] = !!cookie;\r",
               "    var token = /access_token=([a-zA-Z0-9\\-_.]+);/g.exec(cookie)[1];\r",
@@ -46,11 +157,9 @@
         "url": {
           "raw": "{{baseUrl}}/auth/login",
           "host": ["{{baseUrl}}"],
-
           "path": ["auth", "login"]
         }
       },
-
       "response": [
         {
           "name": "Untitled Response",
@@ -64,7 +173,6 @@
             "url": {
               "raw": "{{baseUrl}}/login2",
               "host": ["{{baseUrl}}"],
-
               "path": ["login2"]
             }
           },
@@ -88,7 +196,7 @@
         {
           "listen": "test",
           "script": {
-            "id": "7502d2f2-0c53-436d-a3d6-7613c3794ff8",
+            "id": "f59c1cde-3d0d-4bb3-bde3-59ee82fd95ca",
             "exec": [
               "var jsonData = pm.response.json();\r",
               "\r",
@@ -147,7 +255,6 @@
         "url": {
           "raw": "{{baseUrl}}/organization/case",
           "host": ["{{baseUrl}}"],
-
           "path": ["organization", "case"]
         }
       },
@@ -163,7 +270,6 @@
               "path": [""]
             }
           },
-
           "status": "OK",
           "code": 200,
           "_postman_previewlanguage": "text",
@@ -207,7 +313,7 @@
         {
           "listen": "test",
           "script": {
-            "id": "4d57a1cb-f480-439e-8a8d-0888c9e69e8d",
+            "id": "46b3adae-87dc-43e9-964a-775575838803",
             "exec": [
               "var jsonData = pm.response.json(); \r",
               "\r",
@@ -284,15 +390,18 @@
     {
       "listen": "prerequest",
       "script": {
-        "id": "5fb0d0f4-9b61-40d5-bc2c-1c2127bd82fd",
+        "id": "8ee73587-5787-4a3b-a679-66de506b817c",
         "type": "text/javascript",
-        "exec": [""]
+        "exec": [
+          "pm.request.headers.add({ key: 'X-Requested-With', value: 'XMLHttpRequest' });",
+          ""
+        ]
       }
     },
     {
       "listen": "test",
       "script": {
-        "id": "766241cf-19b2-420e-af0a-3c34e74f7bbb",
+        "id": "5e81c062-331b-4772-ab85-4600a17d9eb8",
         "type": "text/javascript",
         "exec": [""]
       }
@@ -300,7 +409,7 @@
   ],
   "variable": [
     {
-      "id": "f91d81f7-64e0-47ba-ac47-28ee26437d38",
+      "id": "3e30b4b1-b0f2-45b9-bd38-8a08482c6f7f",
       "key": "baseUrl",
       "value": "/"
     }
