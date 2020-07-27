@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const AdmZip = require('adm-zip');
-const md5 = require('md5');
+const crypto = require('crypto');
 
 /**
  * @class PublicationFiles
@@ -136,7 +136,7 @@ class PublicationFiles {
           '[PAGE]',
           `${chunk.startTimestamp}_${chunk.endTimestamp}`,
         ),
-        checksum: md5(JSON.stringify(chunk.trails)),
+        checksum: crypto.createHash('md5').update(JSON.stringify(chunk.trails)).digest('hex'),
       };
     });
     header.pages = pages;
