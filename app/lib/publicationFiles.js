@@ -136,7 +136,10 @@ class PublicationFiles {
           '[PAGE]',
           `${chunk.startTimestamp}_${chunk.endTimestamp}`,
         ),
-        checksum: crypto.createHash('md5').update(JSON.stringify(chunk.trails)).digest('hex'),
+        checksum: crypto
+          .createHash('md5')
+          .update(JSON.stringify(chunk.trails))
+          .digest('hex'),
       };
     });
     header.pages = pages;
