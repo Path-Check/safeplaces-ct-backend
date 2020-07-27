@@ -370,3 +370,4 @@ We recommend the following for deployed versions of any and all SafePlace APIs:
 - Old versions of SSL and TLS protocols, algorithms, ciphers, and configuration are disabled, such as SSLv2, SSLv3, or TLS 1.0 and TLS 1.1. The latest version of TLS should be the preferred cipher suite.
 - The web server should be configured under a low-privilege system user account.
 -  Any debug model provided by the web or application server is disabled.
+
