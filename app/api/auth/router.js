@@ -87,3 +87,14 @@ router.post(
     false,
   ),
 );
+
+/**
+ * Do nothing
+ */
+router.get(
+  '/auth/users/reflect',
+  router.wrapAsync(
+    async (req, res) => await controller.users.reflect(req, res),
+    true,
+  ),
+);

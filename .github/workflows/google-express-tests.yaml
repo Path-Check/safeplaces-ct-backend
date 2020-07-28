@@ -27,6 +27,7 @@ env:
   CONTAINER_NAME: ${{ secrets.XP_TEST_CONTAINER_NAME }}
   NAMESPACE: ${{ secrets.GKE_NAMESPACE }}
   TESTS_ENV: ${{ secrets.TESTS_ENV }}
+  NODE_ENV: test
   AUTH_LOGOUT_REDIRECT_URL: 'http://127.0.0.1:5000'
   AUTH0_BASE_URL: 'https://pathcheck.us.auth0.com'
   AUTH0_CLIENT_ID: 'Dgy5n22Gcuo3zRHzWLk19CCZ9bUNbVhU'

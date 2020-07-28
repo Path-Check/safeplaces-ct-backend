@@ -49,7 +49,7 @@ describe('User management', () => {
   it('rejects contact tracers', async () => {
     const results = await chai
       .request(server)
-      .post('/auth/users/list')
+      .get('/auth/users/reflect')
       .set('Cookie', `access_token=${ctToken}`)
       .set('X-Requested-With', 'XMLHttpRequest')
       .set('content-type', 'application/json');
@@ -61,7 +61,7 @@ describe('User management', () => {
   it('rejects admins', async () => {
     const results = await chai
       .request(server)
-      .post('/auth/users/list')
+      .get('/auth/users/reflect')
       .set('Cookie', `access_token=${adminToken}`)
       .set('X-Requested-With', 'XMLHttpRequest')
       .set('content-type', 'application/json');
@@ -73,12 +73,11 @@ describe('User management', () => {
   it('allows super admins', async () => {
     const results = await chai
       .request(server)
-      .post('/auth/users/list')
+      .get('/auth/users/reflect')
       .set('Cookie', `access_token=${saToken}`)
       .set('X-Requested-With', 'XMLHttpRequest')
       .set('content-type', 'application/json');
 
-    // Should be a 500 error since the user handler does not initialize.
-    expect(results.statusCode).not.eq(403);
+    expect(results.statusCode).eq(204);
   });
 });
