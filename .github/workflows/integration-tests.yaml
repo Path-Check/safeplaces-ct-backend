@@ -44,6 +44,9 @@ env:
   AUTH0_CLIENT_SECRET: 'fffp66sf-Qppw9xsC1pzUREzkdNGTz-8H8DdesL0sgGO74vivJs_NyhcDLQZjtJb'
   AUTH0_API_AUDIENCE: 'https://safeplaces.cloud/'
   AUTH0_CLAIM_NAMESPACE: 'https://safeplaces.cloud'
+  AUTH0_MANAGEMENT_API_AUDIENCE: ''
+  AUTH0_MANAGEMENT_CLIENT_ID: ''
+  AUTH0_MANAGEMENT_CLIENT_SECRET: ''
   AUTH0_REALM: test
 
 jobs:
