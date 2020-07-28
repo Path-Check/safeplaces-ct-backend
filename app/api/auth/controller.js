@@ -35,7 +35,8 @@ const endpoints = {
 };
 
 if (process.env.AUTH0_MANAGEMENT_ENABLED === 'true') {
-  Object.assign(endpoints.users, require('../../lib/userManagement'));
+  const userManagementEndpoints = require('../../lib/userManagement');
+  Object.assign(endpoints.users, userManagementEndpoints);
 }
 
 module.exports = endpoints;
