@@ -113,6 +113,11 @@ exports.users.delete = usersHandler.handleDelete.bind(usersHandler);
 exports.users.update = usersHandler.handleUpdate.bind(usersHandler);
 
 /**
+ * Assign role to user
+ */
+exports.users.assignRole = usersHandler.handleAssignRole.bind(usersHandler);
+
+/**
  * Create user
  */
 exports.users.create = usersHandler.handleCreate.bind(usersHandler);

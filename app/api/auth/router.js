@@ -56,6 +56,17 @@ router.post(
 );
 
 /**
+ * Update user
+ */
+router.post(
+  '/auth/users/assign-role',
+  router.wrapAsync(
+    async (req, res) => await controller.users.assignRole(req, res),
+    true,
+  ),
+);
+
+/**
  * Create user
  */
 router.post(

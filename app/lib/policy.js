@@ -7,9 +7,13 @@ enforcer.addPolicy(
   new xp.Policy({
     id: 1,
     description: `Allow a contact tracer to do anything to any resource except
-      case publishing and organization configuration.`,
+      case publishing, organization configuration, and user management.`,
     subject: Eq('contact_tracer'),
-    resource: NotIn(['/cases/publish', '/organization/configuration']),
+    resource: NotIn([
+      '/cases/publish',
+      '/organization/configuration',
+      Not(StartsWith('/auth/users')),
+    ]),
     action: {
       method: Any(),
     },
