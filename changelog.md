@@ -1,12 +1,13 @@
 # Changelog
 
-## v2.1.0-alpha - Tuesday, July 28, 2020
+## v2.1.0-alpha - Monday, August 3, 2020
 
 ### Updates
 
-- Migrate to new Auth0
+- Implement user management MVP
 - Updates to READMEs
 - Update cursor.json to include checksum values
+- Remove HASHING_TEST environment variables from env.template and disable in production environments
 
 ## v2.0.0 - Thursday, July 23, 2020
 
