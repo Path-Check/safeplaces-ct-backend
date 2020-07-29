@@ -12,7 +12,7 @@ enforcer.addPolicy(
     resource: NotIn([
       '/cases/publish',
       '/organization/configuration',
-      Not(StartsWith('/auth/users')),
+      StartsWith('/auth/users'),
     ]),
     action: {
       method: Any(),
