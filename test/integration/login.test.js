@@ -1,3 +1,4 @@
+process.env.NODE_ENV = 'test';
 const atob = require('atob');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -46,7 +47,7 @@ describe('POST /auth/login', function () {
 
         const parsedJwt = parseJwt(accessToken);
         expect(parsedJwt).to.haveOwnProperty('sub');
-        expect(parsedJwt.sub).to.equal('auth0|5ef53cdcf3ce32001a40ede7');
+        expect(parsedJwt.sub).to.equal('auth0|5f1f0f0fe6a2910037277d2d');
         expect(parsedJwt).to.haveOwnProperty(`${ns}/roles`);
         expect(parsedJwt[`${ns}/roles`]).to.have.members(['admin']);
         expect(parsedJwt).to.haveOwnProperty('iat');
@@ -79,7 +80,7 @@ describe('POST /auth/login', function () {
 
         const parsedJwt = parseJwt(accessToken);
         expect(parsedJwt).to.haveOwnProperty('sub');
-        expect(parsedJwt.sub).to.equal('auth0|5f089f59db607c001385b8f3');
+        expect(parsedJwt.sub).to.equal('auth0|5f1f0f32314999003d05021e');
         expect(parsedJwt).to.haveOwnProperty(`${ns}/roles`);
         expect(parsedJwt[`${ns}/roles`]).to.have.members(['contact_tracer']);
         expect(parsedJwt).to.haveOwnProperty('iat');
