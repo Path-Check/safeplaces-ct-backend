@@ -98,7 +98,7 @@ exports.publishCases = async (req, res) => {
 
     const publicationParams = {
       organization_id: organization.id,
-      publish_date: Math.floor(new Date().getTime() / 1000),
+      publish_date: new Date(),
     };
     const publication = await publicationService.insert(publicationParams);
     if (publication) {
