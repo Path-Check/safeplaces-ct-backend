@@ -280,6 +280,7 @@ describe('Case', () => {
       results.body.cursor.should.be.a('object');
       results.body.cursor.pages.should.be.a('array');
       results.body.cursor.pages.length.should.equal(3);
+      results.body.cursor.pages[0].checksum.should.be.a('string');
       results.body.files.should.be.a('array');
       results.body.files.length.should.equal(3);
     });

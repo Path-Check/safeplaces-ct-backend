@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const AdmZip = require('adm-zip');
+const crypto = require('crypto');
 
 /**
  * @class PublicationFiles
@@ -102,7 +103,7 @@ class PublicationFiles {
 
   _getHeader(organization, record) {
     return {
-      version: '1.0',
+      version: '1.1',
       name: organization.name,
       publish_date_utc: record.publish_date.getTime(),
       info_website_url: organization.infoWebsiteUrl,
@@ -135,6 +136,10 @@ class PublicationFiles {
           '[PAGE]',
           `${chunk.startTimestamp}_${chunk.endTimestamp}`,
         ),
+        checksum: crypto
+          .createHash('md5')
+          .update(JSON.stringify(chunk.trails))
+          .digest('hex'),
       };
     });
     header.pages = pages;
