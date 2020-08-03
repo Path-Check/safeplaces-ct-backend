@@ -6,7 +6,7 @@ const loginHandler = new auth.handlers.Login({
     apiAudience: process.env.AUTH0_API_AUDIENCE,
     clientId: process.env.AUTH0_CLIENT_ID,
     clientSecret: process.env.AUTH0_CLIENT_SECRET,
-    realm: process.env.AUTH0_REALM, // TODO: Update library to use realm
+    realm: process.env.AUTH0_REALM,
   },
   cookie: {
     secure: process.env.NODE_ENV !== 'development',
@@ -24,12 +24,19 @@ const logoutHandler = new auth.handlers.Logout({
   },
 });
 
-/**
- * Log in
- */
-exports.login = loginHandler.handle.bind(loginHandler);
+const endpoints = {
+  login: loginHandler.handle.bind(loginHandler),
+  logout: loginHandler.handle.bind(logoutHandler),
+  users: {
+    // Dummy endpoint namespaced under `/auth/users` for easy testing of whether
+    // a user is allowed to access `/auth/users/**/*` resources.
+    reflect: (req, res) => res.status(204).end(),
+  },
+};
 
-/**
- * Log out
- */
-exports.logout = logoutHandler.handle.bind(logoutHandler);
+if (process.env.AUTH0_MANAGEMENT_ENABLED === 'true') {
+  const userManagementEndpoints = require('../../lib/userManagement');
+  Object.assign(endpoints.users, userManagementEndpoints);
+}
+
+module.exports = endpoints;

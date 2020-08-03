@@ -245,12 +245,12 @@ describe('Case', () => {
       // Create two cases that have been published.
       await mockData.mockCaseAndTrails(
         _.extend(params, {
-          publishedOn: new Date().getTime() - 86400 * 5 * 1000,
+          publishedOn: new Date(new Date().getTime() - 86400 * (5 * 1000)),
         }),
       ); // Published 5 days ago
       await mockData.mockCaseAndTrails(
         _.extend(params, {
-          publishedOn: new Date().getTime() - 86400 * 2 * 1000,
+          publishedOn: new Date(new Date().getTime() - 86400 * (2 * 1000)),
         }),
       ); // Published 2 days ago
 

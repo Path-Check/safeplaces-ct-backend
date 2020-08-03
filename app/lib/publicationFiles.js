@@ -105,7 +105,7 @@ class PublicationFiles {
     return {
       version: '1.1',
       name: organization.name,
-      publish_date_utc: record.publish_date.getTime() / 1000,
+      publish_date_utc: record.publish_date.getTime(),
       info_website_url: organization.infoWebsiteUrl,
       api_endpoint_url: organization.apiEndpointUrl,
       privacy_policy_url: organization.privacyPolicyUrl,
