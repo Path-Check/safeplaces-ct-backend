@@ -47,7 +47,7 @@ describe('POST /auth/login', function () {
 
         const parsedJwt = parseJwt(accessToken);
         expect(parsedJwt).to.haveOwnProperty('sub');
-        expect(parsedJwt.sub).to.equal('auth0|5f1f0f0fe6a2910037277d2d');
+        expect(parsedJwt.sub).to.equal('auth0|5f246391675616003785f947');
         expect(parsedJwt).to.haveOwnProperty(`${ns}/roles`);
         expect(parsedJwt[`${ns}/roles`]).to.have.members(['admin']);
         expect(parsedJwt).to.haveOwnProperty('iat');
