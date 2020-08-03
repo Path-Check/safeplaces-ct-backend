@@ -245,12 +245,12 @@ describe('Case', () => {
       // Create two cases that have been published.
       await mockData.mockCaseAndTrails(
         _.extend(params, {
-          publishedOn: new Date().getTime() - 86400 * 5 * 1000,
+          publishedOn: new Date(new Date().getTime() - 86400 * (5 * 1000)),
         }),
       ); // Published 5 days ago
       await mockData.mockCaseAndTrails(
         _.extend(params, {
-          publishedOn: new Date().getTime() - 86400 * 2 * 1000,
+          publishedOn: new Date(new Date().getTime() - 86400 * (2 * 1000)),
         }),
       ); // Published 2 days ago
 
@@ -280,6 +280,7 @@ describe('Case', () => {
       results.body.cursor.should.be.a('object');
       results.body.cursor.pages.should.be.a('array');
       results.body.cursor.pages.length.should.equal(3);
+      results.body.cursor.pages[0].checksum.should.be.a('string');
       results.body.files.should.be.a('array');
       results.body.files.length.should.equal(3);
     });
