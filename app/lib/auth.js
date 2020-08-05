@@ -21,13 +21,13 @@ const guard = new auth.Guard({
   strategy: () => {
     return process.env.NODE_ENV === 'test'
       ? auth.strategies.symJWT({
-        privateKey: process.env.JWT_SECRET,
-        algorithm: 'HS256',
-      })
+          privateKey: process.env.JWT_SECRET,
+          algorithm: 'HS256',
+        })
       : auth.strategies.auth0({
-        apiAudience: process.env.AUTH0_API_AUDIENCE,
-        jwksUri: `${process.env.AUTH0_BASE_URL}/.well-known/jwks.json`
-      });
+          apiAudience: process.env.AUTH0_API_AUDIENCE,
+          jwksUri: `${process.env.AUTH0_BASE_URL}/.well-known/jwks.json`,
+        });
   },
   verbose: process.env.AUTH_LOGGING === 'verbose',
 });

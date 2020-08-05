@@ -399,6 +399,7 @@ describe('Case', () => {
       .request(server)
       .post(`/cases/publish`)
       .set('Cookie', `access_token=${ctToken}`)
+      .set('X-Requested-With', 'XMLHttpRequest')
       .set('content-type', 'application/json')
       .send({});
 
