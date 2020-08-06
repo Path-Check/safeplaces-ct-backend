@@ -27,7 +27,7 @@
     "@google-cloud/secret-manager": "^3.1.0",
     "@google-cloud/storage": "^5.0.1",
     "@pathcheck/data-layer": "^1.0.3",
-    "@pathcheck/safeplaces-auth": "^2.0.0-alpha.1",
+    "@pathcheck/safeplaces-auth": "^2.0.0-alpha.2",
     "@pathcheck/safeplaces-server": "^0.0.14",
     "adm-zip": "^0.4.14",
     "ajv": "^6.12.2",

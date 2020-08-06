@@ -13,6 +13,7 @@ router.get('/auth/logout', controller.logout);
 router.post('/auth/mfa/enroll', controller.mfa.enroll);
 router.post('/auth/mfa/challenge', controller.mfa.challenge);
 router.post('/auth/mfa/verify', controller.mfa.verify);
+router.post('/auth/mfa/recover', controller.mfa.recover);
 
 router.get(
   '/auth/users/reflect',
