@@ -194,6 +194,7 @@ describe('Organization ', () => {
         .request(server)
         .put(`/organization/configuration`)
         .set('Cookie', `access_token=${ctToken}`)
+        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 
