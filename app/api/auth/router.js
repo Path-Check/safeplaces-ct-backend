@@ -69,8 +69,7 @@ if (process.env.AUTH0_MANAGEMENT_ENABLED === 'true') {
   router.post(
     '/auth/users/reset-mfa',
     router.wrapAsync(
-      async (req, res, next) =>
-        await controller.users.resetMfa(req, res, next),
+      async (req, res, next) => await controller.users.resetMfa(req, res, next),
       true,
     ),
   );

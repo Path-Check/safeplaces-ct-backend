@@ -1,6 +1,14 @@
 const auth = require('@pathcheck/safeplaces-auth');
+const { userService } = require('../../lib/db');
 
 const gApi = auth.api.guard({
+  db: {
+    idmToDb: async idm_id => {
+      const user = await userService.findOne({ idm_id });
+      if (!user) return null;
+      return user.id;
+    },
+  },
   auth0: {
     baseUrl: process.env.AUTH0_BASE_URL,
     clientId: process.env.AUTH0_CLIENT_ID,

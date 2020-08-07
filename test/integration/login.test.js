@@ -38,8 +38,8 @@ describe('POST /auth/login', function () {
       .end(function (err, res) {
         const ns = process.env.AUTH0_CLAIM_NAMESPACE;
 
-        expect(res.status).to.equal(204);
-        expect(Object.keys(res.body).length).to.eq(0);
+        expect(res.status).to.equal(200);
+        expect(res.body).to.haveOwnProperty('id');
 
         const accessToken = /access_token=([a-zA-Z0-9.\-_]+);/g.exec(
           res.header['set-cookie'],
@@ -71,8 +71,8 @@ describe('POST /auth/login', function () {
       .end(function (err, res) {
         const ns = process.env.AUTH0_CLAIM_NAMESPACE;
 
-        expect(res.status).to.equal(204);
-        expect(Object.keys(res.body).length).to.eq(0);
+        expect(res.status).to.equal(200);
+        expect(res.body).to.haveOwnProperty('id');
 
         const accessToken = /access_token=([a-zA-Z0-9.\-_]+);/g.exec(
           res.header['set-cookie'],
