@@ -2,6 +2,7 @@ const auth = require('@pathcheck/safeplaces-auth');
 const { userService } = require('../../lib/db');
 
 const gApi = auth.api.guard({
+  jwtClaimNamespace: process.env.AUTH0_CLAIM_NAMESPACE,
   db: {
     idmToDb: async idm_id => {
       const user = await userService.findOne({ idm_id });
