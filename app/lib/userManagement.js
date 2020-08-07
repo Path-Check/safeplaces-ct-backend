@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { userService } = require('./db');
 
 const mApi = auth.api.management({
+  jwtClaimNamespace: process.env.AUTH0_CLAIM_NAMESPACE,
   privateKey: process.env.JWT_SECRET,
   auth0: {
     baseUrl: process.env.AUTH0_BASE_URL,

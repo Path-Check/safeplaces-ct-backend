@@ -25,6 +25,7 @@ router.get(
 
 if (process.env.AUTH0_MANAGEMENT_ENABLED === 'true') {
   router.post('/auth/register', controller.users.register);
+  router.post('/auth/reset-password', controller.users.resetPassword);
 
   /**
    * User Management API
@@ -44,6 +45,13 @@ if (process.env.AUTH0_MANAGEMENT_ENABLED === 'true') {
     ),
   );
   router.post(
+    '/auth/users/create',
+    router.wrapAsync(
+      async (req, res, next) => await controller.users.create(req, res, next),
+      true,
+    ),
+  );
+  router.post(
     '/auth/users/delete',
     router.wrapAsync(
       async (req, res, next) => await controller.users.delete(req, res, next),
@@ -59,9 +67,18 @@ if (process.env.AUTH0_MANAGEMENT_ENABLED === 'true') {
     ),
   );
   router.post(
-    '/auth/users/create',
+    '/auth/users/reset-mfa',
     router.wrapAsync(
-      async (req, res, next) => await controller.users.create(req, res, next),
+      async (req, res, next) =>
+        await controller.users.resetMfa(req, res, next),
+      true,
+    ),
+  );
+  router.post(
+    '/auth/users/reset-password',
+    router.wrapAsync(
+      async (req, res, next) =>
+        await controller.users.createPasswordResetTicket(req, res, next),
       true,
     ),
   );
