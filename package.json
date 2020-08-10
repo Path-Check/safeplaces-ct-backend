@@ -1,6 +1,6 @@
 {
   "name": "safe-places-server",
-  "version": "0.0.0",
+  "version": "2.1.0-alpha",
   "private": true,
   "scripts": {
     "migrate:up": "spdl migrate:latest --scope private --env development",
