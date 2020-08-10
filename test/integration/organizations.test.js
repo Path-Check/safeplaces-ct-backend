@@ -121,6 +121,7 @@ describe('Organization ', () => {
       results.body.completedOnboarding.should.equal(
         currentOrg.completedOnboarding,
       );
+      results.body.appVersion.should.equal(process.env.npm_package_version);
     });
 
     it('update the record', async () => {
