@@ -121,6 +121,7 @@ describe('Organization ', () => {
       results.body.completedOnboarding.should.equal(
         currentOrg.completedOnboarding,
       );
+      results.body.appVersion.should.equal(process.env.npm_package_version);
     });
 
     it('update the record', async () => {
@@ -194,6 +195,7 @@ describe('Organization ', () => {
         .request(server)
         .put(`/organization/configuration`)
         .set('Cookie', `access_token=${ctToken}`)
+        .set('X-Requested-With', 'XMLHttpRequest')
         .set('content-type', 'application/json')
         .send(newParams);
 

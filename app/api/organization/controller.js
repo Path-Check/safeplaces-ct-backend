@@ -46,25 +46,26 @@ exports.fetchOrganizationConfig = async (req, res) => {
   if (!organization_id) throw new Error('Organization ID is missing.');
 
   const organization = await organizationService.fetchById(organization_id);
+
+  let responsePayload = _.pick(organization, [
+    'id',
+    'externalId',
+    'name',
+    'completedOnboarding',
+    'notificationThresholdPercent',
+    'notificationThresholdTimeline',
+    'daysToRetainRecords',
+    'regionCoordinates',
+    'apiEndpointUrl',
+    'referenceWebsiteUrl',
+    'infoWebsiteUrl',
+    'privacyPolicyUrl',
+  ]);
+
+  responsePayload.appVersion = process.env.npm_package_version;
+
   if (organization) {
-    res
-      .status(200)
-      .json(
-        _.pick(organization, [
-          'id',
-          'externalId',
-          'name',
-          'completedOnboarding',
-          'notificationThresholdPercent',
-          'notificationThresholdTimeline',
-          'daysToRetainRecords',
-          'regionCoordinates',
-          'apiEndpointUrl',
-          'referenceWebsiteUrl',
-          'infoWebsiteUrl',
-          'privacyPolicyUrl',
-        ]),
-      );
+    res.status(200).json(responsePayload);
   } else {
     throw new Error(
       `Could not fetch organization config by users org id ${organization_id}.`,

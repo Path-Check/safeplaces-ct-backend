@@ -39,7 +39,11 @@ describe('POST /access-code', () => {
   });
 
   it('should fail for unauthorized clients', async () => {
-    let result = await chai.request(server).post('/access-code').send();
+    let result = await chai
+      .request(server)
+      .post('/access-code')
+      .set('X-Requested-With', 'XMLHttpRequest')
+      .send();
     result.should.have.status(403);
   });
 
