@@ -1,13 +1,24 @@
 # Changelog
 
-## v2.1.0-alpha - Monday, August 3, 2020
+## v2.1.0-alpha - Thursday, August 13, 2020
 
 ### Updates
 
-- Implement user management MVP
+- Complete E2E user management and onboarding functionality
 - Updates to READMEs
 - Update cursor.json to include checksum values
 - Remove HASHING_TEST environment variables from env.template and disable in production environments
+- Return application version number in from `/organization/configuration` endpoints
+
+### Breaking Changes
+
+In order to make use of user management functionality the `AUTH0_MANAGEMENT_ENABLED` environment variable must be set to `true` and the following environment variables must be set with your Auth0 management API credentials:
+
+```
+AUTH0_MANAGEMENT_API_AUDIENCE
+AUTH0_MANAGEMENT_CLIENT_ID
+AUTH0_MANAGEMENT_CLIENT_SECRET
+```
 
 ## v2.0.0 - Thursday, July 23, 2020
 
