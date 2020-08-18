@@ -39,12 +39,15 @@ env:
   SEED_MAPS_API_KEY: ${{ secrets.SEED_MAPS_API_KEY }}
   TESTS_ENV: ${{ secrets.TESTS_ENV }}
   AUTH_LOGOUT_REDIRECT_URL: 'http://127.0.0.1:5000'
-  AUTH0_BASE_URL: 'https://safeplaces.us.auth0.com'
-  AUTH0_CLIENT_ID: 'dXBl74NypszcDQQ2WPJsIUj99lSHcSMf'
-  AUTH0_CLIENT_SECRET: '6lpWMmjsG3DEwmzmvqBuPx4MiBZEdqk4ubtO-14WRyDRIgukglJhDAgN-NgQzxIv'
+  AUTH0_BASE_URL: 'https://pathcheck.us.auth0.com'
+  AUTH0_CLIENT_ID: 'Dgy5n22Gcuo3zRHzWLk19CCZ9bUNbVhU'
+  AUTH0_CLIENT_SECRET: 'fffp66sf-Qppw9xsC1pzUREzkdNGTz-8H8DdesL0sgGO74vivJs_NyhcDLQZjtJb'
   AUTH0_API_AUDIENCE: 'https://safeplaces.cloud/'
   AUTH0_CLAIM_NAMESPACE: 'https://safeplaces.cloud'
-  AUTH0_REALM: Test
+  AUTH0_MANAGEMENT_API_AUDIENCE: ''
+  AUTH0_MANAGEMENT_CLIENT_ID: ''
+  AUTH0_MANAGEMENT_CLIENT_SECRET: ''
+  AUTH0_REALM: test
 
 jobs:
   run-integration-tests:

@@ -245,12 +245,12 @@ describe('Case', () => {
       // Create two cases that have been published.
       await mockData.mockCaseAndTrails(
         _.extend(params, {
-          publishedOn: new Date().getTime() - 86400 * 5 * 1000,
+          publishedOn: new Date(new Date().getTime() - 86400 * (5 * 1000)),
         }),
       ); // Published 5 days ago
       await mockData.mockCaseAndTrails(
         _.extend(params, {
-          publishedOn: new Date().getTime() - 86400 * 2 * 1000,
+          publishedOn: new Date(new Date().getTime() - 86400 * (2 * 1000)),
         }),
       ); // Published 2 days ago
 
@@ -280,6 +280,7 @@ describe('Case', () => {
       results.body.cursor.should.be.a('object');
       results.body.cursor.pages.should.be.a('array');
       results.body.cursor.pages.length.should.equal(3);
+      results.body.cursor.pages[0].checksum.should.be.a('string');
       results.body.files.should.be.a('array');
       results.body.files.length.should.equal(3);
     });
@@ -398,6 +399,7 @@ describe('Case', () => {
       .request(server)
       .post(`/cases/publish`)
       .set('Cookie', `access_token=${ctToken}`)
+      .set('X-Requested-With', 'XMLHttpRequest')
       .set('content-type', 'application/json')
       .send({});
 
@@ -492,35 +494,36 @@ describe('Case', () => {
     });
   });
 
-  describe('purge cases outside 30 day retention period for organization', () => {
+  describe('purges cases and points outside 30 day retention period for organization', () => {
+    let caseOne, caseTwo;
+
     before(async () => {
       await caseService.deleteAllRows();
       await pointService.deleteAllRows();
 
       // Add Case & Trails
       let expires_at = new Date().getTime() - 86400 * 10 * 1000;
-      const caseOne = await mockData.mockCase({
+      caseOne = await mockData.mockCase({
         organization_id: currentOrg.id,
         state: 'published',
         expires_at: new Date(expires_at),
       });
       let trailsParams = {
         caseId: caseOne.caseId,
-        startAt: new Date().getTime() - 86400 * 40 * 1000, // 40 days ago,
+        startAt: new Date().getTime() - 86400 * 40 * 1000,
       };
-      await mockData.mockTrails(10, 1800, trailsParams); // Create
+      await mockData.mockTrails(10, 1800, trailsParams);
 
-      // Add Case & Trails
       expires_at = new Date().getTime() + 86400 * 20 * 1000;
-      const caseTwo = await mockData.mockCase({
+      caseTwo = await mockData.mockCase({
         organization_id: currentOrg.id,
         state: 'published',
       });
       trailsParams = {
         caseId: caseTwo.caseId,
-        startAt: new Date().getTime() - 86400 * 20 * 1000, // 40 days ago
+        startAt: new Date().getTime() - 86400 * 20 * 1000,
       };
-      await mockData.mockTrails(10, 1800, trailsParams); // Create
+      await mockData.mockTrails(10, 1800, trailsParams);
     });
     it('return a 200', async () => {
       const results = await chai
@@ -534,6 +537,13 @@ describe('Case', () => {
       results.body.should.be.a('object');
       results.body.cases.should.be.a('array');
       results.body.cases.length.should.equal(1);
+      results.body.cases[0].caseId.should.equal(caseTwo.caseId);
+
+      const pointResults = await pointService.fetchRedactedPoints([
+        caseOne.caseId,
+      ]);
+
+      pointResults.length.should.equal(0);
     });
   });
 });

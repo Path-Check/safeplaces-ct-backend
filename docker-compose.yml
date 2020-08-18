@@ -7,12 +7,12 @@ services:
     #restart: unless-stopped
     env_file: .env
     ports:
-      - "3000:3000"
+      - "8080:8080"
     volumes:
       - .:/app
       - node_modules:/app/node_modules
     networks:
-      - safeplace
+      - safeplaces
     depends_on:
       - db
   db:
@@ -25,7 +25,7 @@ services:
     ports:
       - "5432"
     networks:
-      - safeplace
+      - safeplaces
 networks:
   safeplace:
      driver: bridge

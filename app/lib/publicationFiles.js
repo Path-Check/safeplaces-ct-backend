@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const AdmZip = require('adm-zip');
+const crypto = require('crypto');
 
 /**
  * @class PublicationFiles
@@ -41,7 +42,8 @@ class PublicationFiles {
     const files = trailsChunked.map(chunk => {
       const newHeader = _.clone(header);
       newHeader.concern_point_hashes = this._getPointHashes(chunk);
-      if (process.env.HASHING_TEST) newHeader.points_for_test = chunk.trails;
+      if (process.env.NODE_ENV !== 'production' && process.env.HASHING_TEST)
+        newHeader.points_for_test = chunk.trails;
       newHeader.page_name = this._apiEndpointPage.replace(
         '[PAGE]',
         `${chunk.startTimestamp}_${chunk.endTimestamp}`,
@@ -102,9 +104,9 @@ class PublicationFiles {
 
   _getHeader(organization, record) {
     return {
-      version: '1.0',
+      version: '1.1',
       name: organization.name,
-      publish_date_utc: record.publish_date.getTime() / 1000,
+      publish_date_utc: record.publish_date.getTime(),
       info_website_url: organization.infoWebsiteUrl,
       api_endpoint_url: organization.apiEndpointUrl,
       privacy_policy_url: organization.privacyPolicyUrl,
@@ -135,6 +137,10 @@ class PublicationFiles {
           '[PAGE]',
           `${chunk.startTimestamp}_${chunk.endTimestamp}`,
         ),
+        checksum: crypto
+          .createHash('md5')
+          .update(JSON.stringify(chunk.trails))
+          .digest('hex'),
       };
     });
     header.pages = pages;

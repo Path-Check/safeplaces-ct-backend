@@ -232,7 +232,7 @@ class MockData {
     if (!options.end_date) throw new Error('End Date must be provided');
 
     let params = {
-      publish_date: Math.floor(new Date().getTime() / 1000),
+      publish_date: new Date(),
     };
 
     const results = await publicationService.insert(_.extend(params, options));
@@ -307,7 +307,7 @@ class MockData {
     if (options.publishedOn) {
       const publicationParams = {
         organization_id: options.organization_id,
-        publish_date: Math.floor(options.publishedOn / 1000),
+        publish_date: options.publishedOn,
       };
       const publication = await publicationService.insert(publicationParams);
       await caseService.updateCasePublicationId(
