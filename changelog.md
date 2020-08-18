@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.1.0-alpha - Thursday, August 13, 2020
+## v2.1.0 - Tuesday, August 18, 2020
 
 ### Updates
 
