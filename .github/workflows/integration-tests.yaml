@@ -14,14 +14,10 @@ on:
   pull_request:
     branches:
       - dev
-    # paths:
-    #   - 'expressjs/**/**'
   push:
     branches:
       - dev-add-tests
       - PLACES-338
-    # paths:
-    #   - 'expressjs/**/**'
 
 # Environment variables available to all jobs and steps in this workflow
 env:
