@@ -40,7 +40,7 @@
     "debug": "~2.6.9",
     "dotenv": "8.2.0",
     "google-auth-library": "^6.0.6",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "moment": "~2.19.3",
     "ngeohash": "^0.6.3",
     "uuid": "^8.3.0",
